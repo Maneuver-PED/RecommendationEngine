@@ -1,0 +1,53 @@
+{
+"application" : "SecureBillingEmail",
+"components" :[
+  {"id": 1, "name" : "Coding Service",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 4096},
+    "Storage": {"StorageType": "HDD", "StorageSize": 1024},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "",
+    "preferences": {"Compute": 1, "Storage":1, "Network":0}
+  },
+  {"id": 2, "name" : "Security Manager",
+    "Compute": {"CPU":2, "GPU":"false", "Memory": 2048},
+    "Storage": {"StorageType": "HDD", "StorageSize": 512},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "",
+    "preferences": {}
+
+  },
+  {"id": 3, "name" : "Gateway",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 4096},
+    "Storage": {"StorageType": "HDD", "StorageSize": 512},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "",
+    "preferences": {}
+  },
+  {"id": 4, "name" : "SQLServer",
+    "Compute": {"CPU":2, "GPU":"false", "Memory": 512},
+    "Storage": {"StorageType": "HDD", "StorageSize": 2000},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "",
+    "preferences": {}
+  },
+  {"id": 5, "name" : "LoadBalancer",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 2048},
+    "Storage": {"StorageType": "HDD", "StorageSize": 500},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "",
+    "preferences": {}
+  }
+],
+"IP" : {},
+"budget": {"value":500, "type":"USDolars"},
+"restrictions" : [{"type":"Conflicts", "alphaCompId":1, "compsIdList":[2, 3, 4, 5]},
+                  {"type":"Conflicts", "alphaCompId":5, "compsIdList":[3, 4]},
+                  {"type":"EqualBound",  "compsIdList":[1], "bound": 1},
+                  {"type":"EqualBound",  "compsIdList":[5], "bound": 1}
+                  ]
+}

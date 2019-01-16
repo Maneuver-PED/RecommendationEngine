@@ -1,0 +1,10 @@
+{"c64.0m976.0s1.0osLinuxp8.4030000000": {"cpu": 64, "memory": 976000, "storage": 1000, "operatingSystem": "Linux", "price": 8403},
+  "c64.0m488.0s8.0osLinuxp9.1520000000": {"cpu": 64, "memory": 488000, "storage": 8000, "operatingSystem": "Linux", "price": 9152},
+   "c32.0m60.0s2.0osLinuxp2.8080000000": {"cpu": 32, "memory": 60000, "storage": 2000, "operatingSystem": "Linux", "price": 2808},
+     "c16.0m122.0s1.0osLinuxp1.6000000000": {"cpu": 16, "memory": 122000, "storage": 1000, "operatingSystem": "Linux", "price": 1600},
+   "c17.0m117.0s24.0osLinuxp5.5200000000": {"cpu": 17, "memory": 117000, "storage": 24000, "operatingSystem": "Linux", "price": 5520},
+  "c8.0m61.0s1.0osLinuxp0.6880000000": {"cpu": 8, "memory": 61000, "storage": 1000, "operatingSystem": "Linux", "price": 688},
+   "c4.0m122.0s1.0osLinuxp1.2090000000": {"cpu": 4, "memory": 122000, "storage": 1000, "operatingSystem": "Linux", "price": 1209},
+   "c4.0m30.5s1.0osLinuxp0.3790000000": {"cpu": 4, "memory": 30500, "storage": 1000, "operatingSystem": "Linux", "price": 379},
+  "c2.0m7.5s1.0osLinuxp0.1460000000": {"cpu": 2, "memory": 7500, "storage": 1000, "operatingSystem": "Linux", "price": 146},
+  "c1.0m3.75s1.0osLinuxp0.1340000000": {"cpu": 1, "memory": 3750, "storage": 1000, "operatingSystem": "Linux", "price": 134}}

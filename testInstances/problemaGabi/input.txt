@@ -1,0 +1,51 @@
+
+,
+                  {"type":"Conflicts", "alphaCompId":2, "compsIdList":[3]},
+                  {"type":"EqualBound",  "compsIdList":[1], "bound": 1},
+                  {"type":"LowerBound",  "compsIdList":[2,3], "bound": 3},
+                  {"type":"Conflicts", "alphaCompId":4, "compsIdList":[1, 2, 3, 5]},
+                  {"type":"FullDeployment", "alphaCompId":5, "compsIdList": [4]},
+                  {"type":"OneToManyDependency", "alphaCompId":4, "betaCompId":5, "number":10
+                  }
+
+
+
+
+{
+"application" : "Oryx 2",
+"components" :[
+  {"id": 1, "name" : "Kafka",
+    "phisical":{"HC":2, "HM": 2000}
+  },
+  {"id": 2, "name" : "Zookeeper",
+    "phisical":{"HC":2, "HM": 4000}
+  },
+  {"id": 3, "name" : "HDFS.NameNode",
+    "phisical":{"HC":2, "HM": 4000}
+  },
+  {"id": 4, "name" : "HDFS.SecondaryNameNode",
+    "phisical":{"HC":2, "HM": 4000}
+  },
+  {"id": 5, "name" : "HDFS.DataNode",
+    "phisical":{"HC":2, "HM": 1000}
+  },
+  {"id": 6, "name" : "YARM.ResourceManagement",
+    "phisical":{"HC":2, "HM": 8000}
+  },
+  {"id": 7, "name" : "YARM.HistoryService",
+    "phisical":{"HC":2, "HM": 256}
+  },
+  {"id": 8, "name" : "YARM.NodeManager",
+    "phisical":{"HC":2, "HM": 2000}
+  }
+],
+
+"restrictions" : [
+    {"type":"dependencesCorelation", "alphaCompId":1, "betaCompId":2},
+    {"type":"conflicts", "componentId":3, "components":[4]},
+    {"type":"conflicts", "componentId":6, "components":[7, 8]},
+    {"type":"numberOfInstances",  "components":[6], "sign":"=", "n": 1},
+    {"type":"conflicts", "componentId":7, "components":[8]},
+    {"type":"numberOfInstances", "components":[7], "sign":"=", "n": 1}
+]
+}

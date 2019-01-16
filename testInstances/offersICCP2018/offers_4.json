@@ -1,0 +1,30 @@
+{
+  "c64.0m976.0s1.0osLinuxp8.4030000000": {
+    "cpu": 64,
+    "memory": 976000,
+    "storage": 1000,
+    "operatingSystem": "Linux",
+    "price": 8403
+  },
+  "c64.0m488.0s8.0osLinuxp9.1520000000": {
+    "cpu": 64,
+    "memory": 488000,
+    "storage": 8000,
+    "operatingSystem": "Linux",
+    "price": 9152
+  },
+  "c32.0m60.0s2.0osLinuxp2.8080000000": {
+    "cpu": 32,
+    "memory": 60000,
+    "storage": 2000,
+    "operatingSystem": "Linux",
+    "price": 2808
+  },
+  "c16.0m122.0s1.0osLinuxp1.6000000000": {
+    "cpu": 16,
+    "memory": 122000,
+    "storage": 1000,
+    "operatingSystem": "Linux",
+    "price": 1600
+  }
+}

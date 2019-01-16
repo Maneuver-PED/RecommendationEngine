@@ -1,0 +1,32 @@
+===SMT solvers===
+SMT_Solver_Z3_IntIntOr
+SMT_Solver_Z3_IntIntLessThan
+SMT_Solver_Z3_RealReal SMT_Solver_Z3_RealBool
+SMT_Solver_Z3_RealSymBreak -- put COMMENTS in the code. Do I have the latest version?
+
+***
+In the paper:
+
+1. Explain why MaxSMT encoding is not a solution also using A small case study from https://rise4fun.com/Z3/tutorial/optimization:
+it should use RealBool with ite which is expensive
+2. Why bit-vectors are expensive: we need to use the 32 bit since 16 might not be enough --> we can have values, e.g. hardware > 65536.
+Then BV are expensive since of bit-blasting (flattening) -> encoding into SAT ==> many bool vars are introduced; actually
+to avoid this blow-up integer encoding is used (see more details here https://www.cs.tau.ac.il/~msagiv/courses/asv/z3py/guide-examples.htm)
+(TODO tests BV)
+
+=== CP solvers ===
+what is old_bun ???
+
+=== Metaheu ===
+Do I have the latest version???
+
+=== Commit also the SMT solvers tests ===
+=== Commit also the Metaheu tests ???===
+=== Commit also the CP tests ??? ===
+
+=================================================
+
+TODO: priority in constraints: In particular, cardinality constraints state that at most (at least, or exactly) k out of n propositional variables can be true.
+
+TODO: read sorting circuits in OptiMathSAT for MaxSMT
+

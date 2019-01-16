@@ -1,0 +1,105 @@
+,
+    {"type":"Conflicts", "alphaCompId":6, "compsIdList":[7, 8]},
+    {"type":"EqualBound",  "compsIdList":[6], "bound": 1},
+    {"type":"Conflicts", "alphaCompId":7, "compsIdList":[8]},
+    {"type":"EqualBound", "compsIdList":[7], "bound": 1}
+
+
+
+
+
+{
+"application" : "Wordpress Farm",
+"components" :[
+  {"id": 1, "name" : "HTTP-load-balancer",
+    "phisical":{"HC":0, "HM": 2048}
+  },
+  {"id": 2, "name" : "DNS-load-balancer",
+    "phisical":{"HC":0, "HM": 128}
+  },
+  {"id": 3, "name" : "WordPress",
+    "phisical":{"HC":0, "HM": 512}
+  },
+  {"id": 4, "name" : "MySQL",
+    "phisical":{"HC":0, "HM": 512}
+  },
+  {
+  "id": 5, name : "@wordpress-frontend",
+  "phisical": {}
+  },
+  {
+  "id": 6, name : "@dns",
+  "phisical": {}
+  },
+  {
+  "id": 7, name : "@wordpress-backend",
+  "phisical": {}
+  },
+  {
+  "id": 8, name : "@sql",
+  "phisical": {}
+  },
+],
+
+"restrictions" : [
+    //mysql provides 3@sql
+    {"type" : "compAlphaProvideCompBeta", "alphaCompId":"4", "betaCompId": "8", "number": 3}
+
+    //wordpress provide @wordpress-backend
+    {"type" : "compAlphaProvideCompBeta", "alphaCompId":"3", "betaCompId": "7", "number": 1}
+
+    //wordpress requires 2 @sql
+    {"type" : "compAlphaRequiresCompBeta", "alphaCompId":"3", "betaCompId": "8", "number": 2}
+
+    //HTTP-load-balancer provide @wordpress-frontend
+    {"type" : "compAlphaProvideCompBeta", "alphaCompId":"2", "betaCompId": "5", "number": 1}
+
+    //HTTP-load-balancer reuires 3 @wordpress-backend
+     {"type" : "compAlphaRequiresCompBeta", "alphaCompId":"2", "betaCompId": "7", "number": 3}
+
+     //DNS-load-balancer provides  ["@wordpress-frontend"], ["@dns"]
+     {"type" : "compAlphaProvideCompBeta", "alphaCompId":"1", "betaCompId": "5", "number": 1}
+     {"type" : "compAlphaProvideCompBeta", "alphaCompId":"1", "betaCompId": "6", "number": 1}
+
+     //DNS-load-balancer requires 7 @wordpress-backend
+     {"type" : "compAlphaRequiresCompBeta", "alphaCompId":"1", "betaCompId": "7", "number": 8}
+
+     //at least 1 mysql, 1 wordpress
+     {"type" : "numberOfInstances", "compId":"4", "sign": ">=", "number": 1}
+     {"type" : "numberOfInstances", "compId":"3", "sign": ">=", "number": 1}
+
+    //un dns sau un http
+     {"type" : "compAlphaOrCompBeta", "alphaCompId":"1", "betaCompId": "2"}
+]
+}
+
+
+
+
+{ "component_types": [
+{ "name" : "DNS-load-balancer",
+"provide" : [["@wordpress-frontend"], ["@dns"]],
+"require" : [["@wordpress-backend", 7]],
+"conflict": ["@dns"],
+"consume" : [["ram", 128]] },
+
+
+{ "name" : "HTTP-load-balancer",
+"provide" : [["@wordpress-frontend"]],
+"require" : [["@wordpress-backend", 3]],
+"consume" : [["ram", 2048]] },
+
+{ "name" : "Wordpress",
+"provide" : [["@wordpress-backend"]],
+"require" : [["@sql", 2]],
+"consume" : [["ram", 512]] },
+
+{ "name" : "MySQL",
+"provide" : [["@sql", 3]],
+"consume" : [["ram", 512]] } ],
+
+"implementation": [
+[ "DNS-load-balancer", ["bind9"] ],
+[ "HTTP-load-balancer", ["varnish"] ],
+[ "Wordpress", ["wordpress"] ],
+[ "MySQL", ["mysql-server"] ] ] }

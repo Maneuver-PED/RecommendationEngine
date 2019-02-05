@@ -6,9 +6,10 @@ from maneuverRecomadEngine.restrictions.RestrictionDependences import Restrictio
 from maneuverRecomadEngine.restrictions.RestrictionNumberOfInstances import RestrictionUpperLowerEqualBound, \
     RestrictionRangeBound, RestrictionFullDeployment, RestrictionRequireProvideDependency
 from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
+from maneuverRecomadEngine.restrictions.RestrictionFixComponents import RestrictionFixComponentOnVM, RestrictionPriceOrder
 from maneuverRecomadEngine.problem.Component import Component
-import logging.config
-import time
+import logging
+import networkx as nx
 
 class ManeuverProblem:
     def __init__(self):
@@ -18,7 +19,8 @@ class ManeuverProblem:
         self.IpInfo = {}  # list with other information
         self.applicationName = None
 
-        logging.config.fileConfig('loggerConfig.conf')
+        logging.basicConfig()
+        # logging.fileConfig('loggerConfig.conf',disable_existing_loggers=0)
         self.logger = logging.getLogger("maneuverApp")
         self.priceOffersFile = None
         self.nrComp = 0
@@ -28,10 +30,11 @@ class ManeuverProblem:
         self.nrVM = nr_vm
         self.nrComp = nr_comp
         self.R = numpy.zeros((self.nrComp, self.nrComp),  dtype=numpy.int) #conflicts graph
-        self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation graph
+        self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation hraph
 
 
-    def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type, solver):
+    def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type, use_vm, filter_offers,
+                 use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables):
         """
         Solves the optimization problem using the imported SMT solver and available VMs configurations
         :param self: the optimization problem
@@ -39,25 +42,19 @@ class ManeuverProblem:
         :param solver_type: the Z3 solver type (optimize/debug)
         :return:
         """
+        #from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3
+        from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
+        from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealBool
 
-        if solver == "SMT_Solver_Z3_IntIntOr":
-            from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_IntIntOr
-            SMTSolver = SMT_Solver_Z3_IntIntOr.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        elif solver == "SMT_Solver_Z3_IntIntLessThan":
-            from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_IntIntLessThan
-            SMTSolver = SMT_Solver_Z3_IntIntLessThan.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        elif solver == "SMT_Solver_Z3_RealReal":
-            from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealReal
-            SMTSolver = SMT_Solver_Z3_RealReal.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        elif solver == "SMT_Solver_Z3_RealBool":
-             from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealBool
-             SMTSolver = SMT_Solver_Z3_RealBool.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        elif solver == "SMT_Solver_Z3_BV":
-             from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_BV
-             SMTSolver = SMT_Solver_Z3_BV.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        elif solver == "SMT_Solver_Z3_RealSymBreak":
-             from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
-             SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
+        #SMTSolver = SMT_Solver_Z3.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
+        #SMTSolver = SMT_Solver_Z3_RealBool.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
+        #SMTSolver = SMT_Solver_Z3_RealRealOr.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
+        SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM, self.nrComp, availableConfigs, self, solver_type, use_vm,
+                    filter_offers, use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables)
+        #SMTSolver = SMT_Solver_Z3_real.Z3_SolverReal(self.nrVM, self.nrComp, availableConfigs, self, solver_type,
+        #                                             False, True)
+
+
 
         if SMTSolver.availableConfigurations is not None:
             self.restrictionsList.append(
@@ -90,6 +87,23 @@ class ManeuverProblem:
 
         return cpSolver.run()
 
+
+
+    # def solveLIP(self, choosing_stategy, solutions_limit):
+    #     """
+    #     Start solving the problem using the chosen solver and available configurations for VM
+    #     :param cpSolver: Solver choosed to solve the problem
+    #     :return:
+    #     """
+    #     self.logger.info("Resolve problem using CP solver")
+    #     from maneuverRecomadEngine.exactsolvers import CP_Solver_GOT
+    #     cpSolver = CP_Solver_GOT_LP.CP_Solver_GOT_LP(choosing_stategy, self)
+    #
+    #     for restriction in self.restrictionsList:
+    #         restriction.generateRestrictions(cpSolver)
+    #
+    #     return cpSolver.run()
+
     def findPartitionsBasedOnConflictsMatrix(self):# inspired from tarjan algorithm
 
         visitedComponents = {}
@@ -104,7 +118,7 @@ class ManeuverProblem:
                 continue
             visitedComponents[i] = True
 
-            print(i, "visitedComponents", visitedComponents)
+            #print(i, "visitedComponents", visitedComponents)
             for partition in partitions:
                 inConflic = False # in conflict cu cele din partitia curenta
                 for j in partition:
@@ -139,10 +153,7 @@ class ManeuverProblem:
         """
         self.logger.info("Find number of needed virtual machines based on components number restrictions")
         from maneuverRecomadEngine.exactsolvers.CP_Solver_Number_of_Instances import CP_Solver_Got_Nr_Instances
-        startt = time.time()
         cpSolver = CP_Solver_Got_Nr_Instances(self, choosing_stategy, solutions_limit)
-        stopt = time.time()
-        self.logger.info("Time for finding #of VMs:  {}".format(stopt-startt))
 
         for restriction in self.restrictionsList:
             restriction.generateRestrictions(cpSolver)
@@ -161,15 +172,24 @@ class ManeuverProblem:
         ea.run()
         return ea.getSolution()
 
+
     def readConfiguration(self, jsonFilePath):
         """
         Open json file that contains problem configurations and fills problem data
-        :param jsonFilePath:
+        :param jsonFilePath: the path to JSON file
         :return:
         """
         with open(jsonFilePath) as json_data:
             dictionary = json.load(json_data)
             self.logger.info(dictionary)
+        self.readConfigurationJSON(dictionary)
+
+    def readConfigurationJSON(self, dictionary):
+        """
+        Fills problem data from a dictionary
+        :param dictionary: a dictionary that contains the problem description
+        :return:
+        """
         self.applicationName = dictionary["application"]
         for component in dictionary["components"]:
             self._addComponent(component)
@@ -191,13 +211,16 @@ class ManeuverProblem:
         # add information about minimum number of instances of each component
         self.__addRestrictionsComponentsNumber(orComponents)
 
-        # find minimum components number based on problem description regarding components number
-        self.nrVM = self.__findMinimumNumberOfInstancesForEachComponent(orComponents)
-        print("..........self.nrVM", self.nrVM)
+        self.nrVM = self.__finidInitialNumberOfVMs(False)
 
         # add other useful information for EA alg
         #  -- like number of conflicts that a component is in
         self.__addInformationForEA()
+
+        # add restistriction that fix some components on VMS
+        self.__addRestrictionFixedElements(orComponents)
+
+
 
     def __addInformationForEA(self):
         for i in range(self.nrComp):
@@ -210,20 +233,26 @@ class ManeuverProblem:
                 if self.D[i][j] == 1:
                     self.componentsList[i].dependenceComponentsList.add(j)
 
-    def __findMinimumNumberOfInstancesForEachComponent(self, orComponents):
+    def __finidInitialNumberOfVMs(self, useMinBinNr = False):
         """
-        Resolve CP problem regarding minimum number of instances needed for each component and add this information to
-        each component
-        :param orComponents:
-        :return: number of VM, if each component in in conflict with the others components
+        Calculates the initial number of VMs used for solution  building. By default it finds the minimum number of
+        instances for each component based on the restrictions that are related to components number
+        :param useMinBinNr: beside the default value, the minimum number of bins is added. It is calculated based on
+        restrictions related to components conflicts
+        :return: number of VM
         """
+
+        print("useMinBinNr", useMinBinNr)
         runningTime, components = self.solveCPNrOfInstances("LOWEST_MIN_MIN", 10000)
-        print("components", components)
         for (compId, comp) in self.componentsList.items():
             comp.minimumNumberOfInstances = components[compId]
 
-        minimumBeanNr = self.findPartitionsBasedOnConflictsMatrix()
-        return numpy.sum(components) #+ len(minimumBeanNr)
+        minimumBins = self.findPartitionsBasedOnConflictsMatrix()
+        print("Bin:", minimumBins)
+
+        __vmNr = numpy.sum(components)
+        if useMinBinNr: __vmNr += len(minimumBins)
+        return __vmNr
 
     def __addRestrictionsComponentsNumber(self, orComponents):
         """
@@ -262,6 +291,67 @@ class ManeuverProblem:
                 for j in dict2:
                     for k in dict[i]:
                         self.restrictionsList.append(RestrictionConflict(k + 1, [u + 1 for u in dict2[j]], self))
+
+
+    def __addRestrictionFixedElements(self, or_components):
+
+        components = []
+        G = nx.Graph()
+        for comp_id in range(len(self.R)):
+            if (comp_id + 1) not in or_components:
+                components.append(comp_id)
+                G.add_node(comp_id)
+                print("*********",comp_id)
+
+        print(self.R)
+        for index_node_id1 in range(len(components) - 1):
+            for index_node_id2 in range(index_node_id1 + 1, len(components)):
+                #print(components[index_node_id1], components[index_node_id2])
+                if self.R[components[index_node_id1]][components[index_node_id2]] == 1:
+                    print("__________edge: ", index_node_id1,index_node_id2)
+                    G.add_edge(components[index_node_id1], components[index_node_id2])
+
+        cliques = nx.find_cliques(G)
+
+        max_comp_number = 0
+        max_clique =[]
+        for clique in cliques:
+            s = 0
+            for comp_id in clique:
+                s += self.componentsList[comp_id].getMinimumPossibleNumberOfInstances(self.componentsList)
+            if max_comp_number < s:
+                max_comp_number = s
+                max_clique = clique
+            print("cliques ------", clique, s)
+
+        print("clique", max_clique, max_comp_number)
+
+        vm_id = 0
+        for comp_id in max_clique:
+            instances = self.componentsList[comp_id].getMinimumPossibleNumberOfInstances(self.componentsList)
+            startVm = vm_id
+            for instance in range(instances):
+                print(
+                    "Fix component {} on VM {} number of instances {} comp name {} conflict comp {}".format(comp_id, vm_id, instances,
+                                                                                           self.componentsList[
+                                                                                               comp_id].name,
+
+                                                                                           self.componentsList[
+                                                                                               comp_id].conflictComponentsList
+                                                                                           )
+                )
+                self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm_id, self))
+                vm_id += 1
+            endVm = vm_id
+
+            self.restrictionsList.append(RestrictionPriceOrder(startVm, endVm, self))
+
+            # for vm in range(startVm-1):
+            #     self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm, self, 0))
+            # for vm in range(endVm, self.nrVM):
+            #     self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm, self, 0))
+
+
 
     def _addComponent(self, comp_dictionary):
         """
@@ -321,15 +411,19 @@ class ManeuverProblem:
             self.restrictionsList.append(RestrictionRangeBound(dictionary["components"],
                                                                dictionary["lowerBound"],
                                                                dictionary["upperBound"], self))
+            self.__componentAddNumberOfInstancesDependences(dictionary["compsIdList"])
         elif restrictionType == "UpperBound":
             self.restrictionsList.append(RestrictionUpperLowerEqualBound(dictionary["compsIdList"], "<=",
                                                                          dictionary["bound"], self))
+            self.__componentAddNumberOfInstancesDependences(dictionary["compsIdList"])
         elif restrictionType == "LowerBound":
             self.restrictionsList.append(RestrictionUpperLowerEqualBound(dictionary["compsIdList"], ">=",
                                                                          dictionary["bound"], self))
+            self.__componentAddNumberOfInstancesDependences(dictionary["compsIdList"])
         elif restrictionType == "EqualBound":
             self.restrictionsList.append(RestrictionUpperLowerEqualBound(dictionary["compsIdList"], "=",
                                                                          dictionary["bound"], self))
+            self.__componentAddNumberOfInstancesDependences(dictionary["compsIdList"])
         elif restrictionType == "FullDeployment":
             self.restrictionsList.append(RestrictionFullDeployment(dictionary["alphaCompId"],
                                                                    dictionary["compsIdList"], self))
@@ -346,6 +440,16 @@ class ManeuverProblem:
 
         return dictionaryOrRelation
 
+
+    def __componentAddNumberOfInstancesDependences(self, components):
+        if len(components) == 1:
+            return
+        # transform to iternal notation from 0 to n-1
+        for comp_id in components:
+            comp_id -= 1
+        for comp_id in components:
+            self.componentsList[comp_id].numberOfInstancesDependences.update(components)
+            self.componentsList[comp_id].numberOfInstancesDependences.remove(comp_id)
 
     def __repr__(self):
         for i in self.componentsList:
@@ -416,3 +520,100 @@ class ManeuverProblem:
             if alphaValue > 0:
                 retBeta = 1
         return retAlpha, retBeta
+
+    def buildInitialAllocation(self):
+        """
+        Helper function used to build an allocation maxim that deploys each component on a different VM.
+        Used to create an initial query in order to extract all valid offers
+        :return: an allocation matrix with all different components deployed on a different VM (without taken in
+        consideration any constraints)
+        """
+        a = numpy.zeros((self.nrComp, self.nrComp))
+        for i in range(self.nrComp):
+            a[i][i] = 1
+        return a
+
+    def buildSolutinInformations(self, allocation_matrix, vms_number):
+        """
+        Builds the dictionary for json query for offers
+        :param allocation_matrix: the allocation matrix of components to VM
+        :param vms_number: VMs number
+        :return: a dictionary for
+        """
+
+        result = {}
+
+        for k in range(vms_number):
+            s = 0
+            for i in range(self.nrComp):
+                if allocation_matrix[i][k] == 1:
+                    s += 1
+            if s == 0:
+                continue
+
+            memory = 0
+
+            cpus = 0
+            gpus = 0
+            cpusType = set()
+
+            storageHDD = 0
+            storageSSD = 0
+            storageType = set()
+
+            netConnections = 0
+            netDataIn = 0
+            netDataOut = 0
+
+            keywords = set()
+            operatingSystem = set()
+
+            for i in range(self.nrComp):
+                __component = self.componentsList[i]
+                if allocation_matrix[i][k] == 1:
+                    # memory
+                    memory += int(__component.HM) if __component.HM is not None else 0
+                    # cpu
+                    __cpuType = int(__component.HCType)
+                    if __cpuType is None or __cpuType == "false":
+                        cpusType.add("CPU")
+                        __cpuType = "CPU"
+                    else:
+                        cpusType.add("GPU")
+                        __cpuType = "GPU"
+                    if __cpuType == "CPU":
+                        cpus += int(__component.HC) if __component.HC is not None else 0
+                    else:
+                        gpus += int(__component.HC) if __component.HC is not None else 0
+                    # storage
+                    __storageType = __component.HSType
+                    if __storageType == "SSD":
+                        storageType.add("SSD")
+                        __storageType = "SSD"
+                    else:
+                        storageType.add("HDD")
+                        __storageType = "HDD"
+                    if __storageType == "HDD":
+                        storageHDD += __component.HS if __component.HS is not None else 0
+                    else:
+                        storageSSD += __component.HS if __component.HS is not None else 0
+                    # network
+                    netConnections += __component.NConnections if __component.NConnections is not None else 0
+                    netDataIn += __component.NIn if __component.NIn is not None else 0
+                    netDataOut += __component.NOut if __component.NOut is not None else 0
+                    # keywords
+                    for key in __component.keywords:
+                        keywords.add(key)
+                    # OS
+                    operatingSystem.add(__component.operatingSystem)
+            result[str(k)] = {"memory": memory,
+                              "cpu": {"type": list(cpusType), "cpu": cpus, "gpu": gpus},
+                              "storage": {"type": list(storageType), "hdd": storageHDD, "ssd": storageSSD},
+                              "network": {"connections": netConnections, "dataIn": netDataIn, "dataOut": netDataOut},
+                              "keywords": list(keywords),
+                              "operatingSystem": list(operatingSystem)}
+
+            # neededVM += 1
+            result["IP"] = self.IpInfo
+        # print("result:", result, "\n")
+        return result

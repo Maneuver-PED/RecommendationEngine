@@ -8,6 +8,7 @@ from maneuverRecomadEngine.restrictions.RestrictionNumberOfInstances import Rest
 from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
 from maneuverRecomadEngine.problem.Component import Component
 import logging.config
+import time
 
 class ManeuverProblem:
     def __init__(self):
@@ -27,7 +28,7 @@ class ManeuverProblem:
         self.nrVM = nr_vm
         self.nrComp = nr_comp
         self.R = numpy.zeros((self.nrComp, self.nrComp),  dtype=numpy.int) #conflicts graph
-        self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation hraph
+        self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation graph
 
 
     def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type, solver):
@@ -89,23 +90,6 @@ class ManeuverProblem:
 
         return cpSolver.run()
 
-
-
-    def solveLIP(self, choosing_stategy, solutions_limit):
-        """
-        Start solving the problem using the chosen solver and available configurations for VM
-        :param cpSolver: Solver choosed to solve the problem
-        :return:
-        """
-        self.logger.info("Resolve problem using CP solver")
-        from maneuverRecomadEngine.exactsolvers import CP_Solver_GOT_LP
-        cpSolver = CP_Solver_GOT_LP.CP_Solver_GOT_LP(choosing_stategy, self)
-
-        for restriction in self.restrictionsList:
-            restriction.generateRestrictions(cpSolver)
-
-        return cpSolver.run()
-
     def findPartitionsBasedOnConflictsMatrix(self):# inspired from tarjan algorithm
 
         visitedComponents = {}
@@ -155,7 +139,10 @@ class ManeuverProblem:
         """
         self.logger.info("Find number of needed virtual machines based on components number restrictions")
         from maneuverRecomadEngine.exactsolvers.CP_Solver_Number_of_Instances import CP_Solver_Got_Nr_Instances
+        startt = time.time()
         cpSolver = CP_Solver_Got_Nr_Instances(self, choosing_stategy, solutions_limit)
+        stopt = time.time()
+        self.logger.info("Time for finding #of VMs:  {}".format(stopt-startt))
 
         for restriction in self.restrictionsList:
             restriction.generateRestrictions(cpSolver)

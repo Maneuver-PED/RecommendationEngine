@@ -1,0 +1,5 @@
+# ignore generated html, xml, iml, pyc files
+*.html
+*.xml
+*.iml
+*.pyc

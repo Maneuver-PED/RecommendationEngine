@@ -1,5 +1,3 @@
-# ignore generated html, xml, iml, pyc files
-*.html
-*.xml
-*.iml
-*.pyc
+.idea/*
+maneuverRecomadEngine/.idea/*
+maneuverRecomadEngine/exactsolvers/__pycache__/*

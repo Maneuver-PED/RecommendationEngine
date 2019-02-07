@@ -617,7 +617,7 @@ class Z3_SolverReal(ManeuverProblem):
 
         if self.solverTypeOptimize:
             print(a_mat)
-            return min.value(), vms_price, stoptime - startime, a_mat, vms_type
+            return min.value(), vms_price, stoptime - startime#, a_mat, vms_type
         else:
             return None, vms_price, stoptime - startime
 

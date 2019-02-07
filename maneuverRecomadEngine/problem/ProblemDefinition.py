@@ -42,19 +42,9 @@ class ManeuverProblem:
         :param solver_type: the Z3 solver type (optimize/debug)
         :return:
         """
-        #from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3
         from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
-        from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealBool
-
-        #SMTSolver = SMT_Solver_Z3.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        #SMTSolver = SMT_Solver_Z3_RealBool.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
-        #SMTSolver = SMT_Solver_Z3_RealRealOr.Z3_Solver(self.nrVM, self.nrComp, availableConfigs, self, solver_type)
         SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM, self.nrComp, availableConfigs, self, solver_type, use_vm,
                     filter_offers, use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables)
-        #SMTSolver = SMT_Solver_Z3_real.Z3_SolverReal(self.nrVM, self.nrComp, availableConfigs, self, solver_type,
-        #                                             False, True)
-
-
 
         if SMTSolver.availableConfigurations is not None:
             self.restrictionsList.append(
@@ -242,13 +232,13 @@ class ManeuverProblem:
         :return: number of VM
         """
 
-        print("useMinBinNr", useMinBinNr)
+        #print("useMinBinNr", useMinBinNr)
         runningTime, components = self.solveCPNrOfInstances("LOWEST_MIN_MIN", 10000)
         for (compId, comp) in self.componentsList.items():
             comp.minimumNumberOfInstances = components[compId]
 
         minimumBins = self.findPartitionsBasedOnConflictsMatrix()
-        print("Bin:", minimumBins)
+        #print("Bin:", minimumBins)
 
         __vmNr = numpy.sum(components)
         if useMinBinNr: __vmNr += len(minimumBins)
@@ -301,14 +291,13 @@ class ManeuverProblem:
             if (comp_id + 1) not in or_components:
                 components.append(comp_id)
                 G.add_node(comp_id)
-                print("*********",comp_id)
 
         print(self.R)
         for index_node_id1 in range(len(components) - 1):
             for index_node_id2 in range(index_node_id1 + 1, len(components)):
                 #print(components[index_node_id1], components[index_node_id2])
                 if self.R[components[index_node_id1]][components[index_node_id2]] == 1:
-                    print("__________edge: ", index_node_id1,index_node_id2)
+                    #print("__________edge: ", index_node_id1,index_node_id2)
                     G.add_edge(components[index_node_id1], components[index_node_id2])
 
         cliques = nx.find_cliques(G)
@@ -322,7 +311,7 @@ class ManeuverProblem:
             if max_comp_number < s:
                 max_comp_number = s
                 max_clique = clique
-            print("cliques ------", clique, s)
+            #print("cliques ------", clique, s)
 
         print("clique", max_clique, max_comp_number)
 
@@ -386,10 +375,13 @@ class ManeuverProblem:
         :param restrictionDictionary: From json description of the components restrictions
         :return:
         """
+
+        print("dictionary ", dictionary)
         dictionaryOrRelation = set()
         restrictionType = dictionary["type"]
         if restrictionType == "Conflicts":
-            self.restrictionsList.append(RestrictionConflict(dictionary["alphaCompId"], dictionary["compsIdList"], self))
+            self.restrictionsList.append(RestrictionConflict(dictionary["alphaCompId"],
+                                                             dictionary["compsIdList"], self))
 
         elif restrictionType == "OneToOneDependency":
             self.restrictionsList.append(RestrictionOneToOneDependency(dictionary["alphaCompId"],
@@ -408,7 +400,7 @@ class ManeuverProblem:
                 RestrictionOneToManyDependency(dictionary["alphaCompId"], dictionary["betaCompId"],
                                                dictionary["number"], self))
         elif restrictionType == "RangeBound":
-            self.restrictionsList.append(RestrictionRangeBound(dictionary["components"],
+            self.restrictionsList.append(RestrictionRangeBound(dictionary["compsIdList"],
                                                                dictionary["lowerBound"],
                                                                dictionary["upperBound"], self))
             self.__componentAddNumberOfInstancesDependences(dictionary["compsIdList"])
@@ -427,13 +419,25 @@ class ManeuverProblem:
         elif restrictionType == "FullDeployment":
             self.restrictionsList.append(RestrictionFullDeployment(dictionary["alphaCompId"],
                                                                    dictionary["compsIdList"], self))
+        elif restrictionType == "FullDeployment1":
+            full_deploy_compIds = dictionary["compsIdList"]
+            for comp_id in  full_deploy_compIds:
+                #find conflict list
+                conflicts_list = []
+                for i in range(self.nrComp):
+                    if self.R[i][comp_id-1] == 1:
+                        conflicts_list.append(i+1)
+                #add actual constain
+                self.restrictionsList.append(RestrictionFullDeployment(comp_id,
+                                                                       conflicts_list, self))
         elif restrictionType == "RequireProvideDependency":
             self.restrictionsList.append(RestrictionRequireProvideDependency(dictionary["alphaCompId"],
                                                                              dictionary["betaCompId"],
                                                                              dictionary["alphaCompIdInstances"],
                                                                              dictionary["betaCompIdInstances"], self))
         elif restrictionType == "AlternativeComponents":
-            self.restrictionsList.append(RestrictionAlphaOrBeta(dictionary["alphaCompId"], dictionary["betaCompId"],
+            self.restrictionsList.append(RestrictionAlphaOrBeta(dictionary["alphaCompId"],
+                                                                dictionary["betaCompId"],
                                                                 self))
             dictionaryOrRelation.add(dictionary["alphaCompId"])
             dictionaryOrRelation.add(dictionary["betaCompId"])
@@ -445,8 +449,10 @@ class ManeuverProblem:
         if len(components) == 1:
             return
         # transform to iternal notation from 0 to n-1
-        for comp_id in components:
-            comp_id -= 1
+        print("before components:", components)
+        for i in range(len(components)):
+            components[i] -= 1
+        print("components:",components)
         for comp_id in components:
             self.componentsList[comp_id].numberOfInstancesDependences.update(components)
             self.componentsList[comp_id].numberOfInstancesDependences.remove(comp_id)

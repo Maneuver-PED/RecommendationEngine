@@ -237,7 +237,7 @@ class Element:
                                 orComponentsDecidedNotToBeDeployed.add(compId)
                         else:
                             orComponentsDecidedNotToBeDeployed.add(comp_id)
-                            comp_id = comp.orComponentsList[int(random.random()*len(comp.orComponentsList))] #TODO: vezi ca nu e chiar corect
+                            comp_id = comp.orComponentsList[int(random.random()*len(comp.orComponentsList))] #TODO: review here
                             #print("chosee fom or list", comp_id, "instances nr", self.problem.componentsList[comp_id].minimumNumberOfInstances)
 
                             _compInstances[comp_id] = max(1, self.problem.componentsList[comp_id].minimumNumberOfInstances)
@@ -250,7 +250,7 @@ class Element:
             #print("componentId", comp_id, "initial number of instance", comp.minimumNumberOfInstances,"fond nr",comp_instances_number)
             for i in range(comp_instances_number):
                 vm_id = int(random.random() * self.problem.nrVM)
-                #TODO: construiesc lista de masini libere si aleg din ele
+                #TODO: build the VMs list which are free and choose from it
                 while self.a[comp_id][vm_id] == 1:
                      vm_id = int(random.random() * self.problem.nrVM)
                 self.addCompToVM(comp_id, vm_id)

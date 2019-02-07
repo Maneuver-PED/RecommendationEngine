@@ -503,7 +503,7 @@ def aboutOffers(path):
 
     print("storageSet", storageSet, "memorySet", memorySet)
 
-def runZ3Once(problem_file_name, configurations_file_name, solver):
+def runZ3OnceLinear(problem_file_name, configurations_file_name, solver, useSimetryBr):
 
     filename1 = problem_file_name.split("/").pop().split(".")[0]
     filename2 = configurations_file_name.split("/").pop().split(".")[0]
@@ -540,17 +540,70 @@ def runZ3Once(problem_file_name, configurations_file_name, solver):
             availableConfigurations = read_available_configurations(configurations_file_name)
             mp.priceOffersFile = configurations_file_name
             # debug/optimize
+            if useSimetryBr:
+                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations, smt2lib, smt2libsol, "optimize", solver,
+                                                use_Price_Simetry_Brecking=True, use_components_on_vm_Simetry_Breaking=True,
+                                                use_fix_variables=True, filter_offers=True)
+            else:
+                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations, smt2lib, smt2libsol, "optimize", solver,
+                                                    use_Price_Simetry_Brecking=False,
+                                                    use_components_on_vm_Simetry_Breaking=False,
+                                                    use_fix_variables=False, filter_offers=False)
+
+            print("min price = {}, price vm = {}, time = {}".format(minPrice, priceVMs, t))
+            fwriter.writerow([minPrice, priceVMs, t])
+
+        csvfile.close()
+
+def runZ3OnceNonlinear(problem_file_name, configurations_file_name, solver):
+
+    filename1 = problem_file_name.split("/").pop().split(".")[0]
+    filename2 = configurations_file_name.split("/").pop().split(".")[0]
+
+    resultsDirectoryPath = "../nonlinear_output_"+solver+"/csv/"
+    if not os.path.exists(resultsDirectoryPath):
+        os.makedirs(resultsDirectoryPath)
+
+    outcsv = resultsDirectoryPath + filename1 + "-" + filename2 + ".csv"
+
+    # File for saving the problem into SMT2LIB format
+    resultsDirectoryPath = "../nonlinear_output_"+solver+"/SMT2/"
+    if not os.path.exists(resultsDirectoryPath):
+        os.makedirs(resultsDirectoryPath)
+    smt2lib = resultsDirectoryPath + filename1 + "-" + filename2 + ".smt2"
+
+    # File for saving the solution of the problem into SMT2LIB format
+    resultsDirectoryPath = "../nonlinear_output_"+solver+"/SMT2-Sol/"
+    if not os.path.exists(resultsDirectoryPath):
+        os.makedirs(resultsDirectoryPath)
+    smt2libsol = resultsDirectoryPath + filename1 + "-" + filename2 + "-sol.smt2"
+
+    with open(outcsv, 'w', newline='') as csvfile:
+        fwriter = csv.writer(csvfile, delimiter=',', )
+        fwriter.writerow(['Price min value', 'Price for each machine', 'Time'])
+        for it in range(1):
+            mp = ManeuverProblem()
+            try:
+                mp.readConfiguration(problem_file_name)
+            except IOError:
+                print("File '%s' doesn't exist", problem_file_name)
+                exit(1)
+
+            availableConfigurations = read_available_configurations(configurations_file_name)
+            mp.priceOffersFile = configurations_file_name
+            # debug/optimize
             minPrice, priceVMs, t = mp.solveSMT(availableConfigurations, smt2lib, smt2libsol, "optimize", solver)
             print("min price = {}, price vm = {}, time = {}".format(minPrice, priceVMs, t))
             fwriter.writerow([minPrice, priceVMs, t])
 
         csvfile.close()
 
+
 if __name__ == "__main__":
     ##############################
     ### SMT_Solver_Z3_RealReal ###
     ##############################
-    # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RealReal")
+    #runZ3OnceNonlinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_10.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_20.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_40.json", "SMT_Solver_Z3_RealReal")
@@ -558,7 +611,7 @@ if __name__ == "__main__":
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_80.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_100.json", "SMT_Solver_Z3_RealReal")
     #
-    # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RealReal")
+    runZ3OnceLinear("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RelSymBreak", False)
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_10.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_20.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_40.json", "SMT_Solver_Z3_RealReal")

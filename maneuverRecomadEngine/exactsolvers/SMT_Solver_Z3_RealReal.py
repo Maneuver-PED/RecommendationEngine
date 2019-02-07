@@ -120,10 +120,13 @@ class Z3_Solver(ManeuverProblem):
 
         for j in range(self.nrVM):
             for conflictCompId in conflictCompsIdList:
-                #self.problem.logger.debug("...{} <= 1".format([self.a[alphaCompId * self.nrVM + j], self.a[conflictCompId * self.nrVM + j]]))
+                # linear version
+                # if self.solverTypeOptimize:
+                #    self.solver.add(sum([self.a[alphaCompId    * self.nrVM + j],
+                #                         self.a[conflictCompId * self.nrVM + j]]) <= 1)
                 if self.solverTypeOptimize:
-                    self.solver.add(sum([self.a[alphaCompId    * self.nrVM + j],
-                                         self.a[conflictCompId * self.nrVM + j]]) <= 1)
+                   self.solver.add(self.a[alphaCompId * self.nrVM + j] *
+                                   self.a[conflictCompId * self.nrVM + j] <= 1)
                 else:
                     self.solver.assert_and_track(
                         sum([self.a[alphaCompId * self.nrVM + j], self.a[conflictCompId * self.nrVM + j]]) <= 1, "LabelConflict: " + str(self.labelIdx_conflict))
@@ -443,14 +446,14 @@ class Z3_Solver(ManeuverProblem):
                 for k in range(self.nrVM):
                     l.append(model[self.a[i * self.nrVM + k]])
                 #print(l)
-            ll = []
+            prices = []
             for k in range(self.nrVM):
-                ll.append(model[self.PriceProv[k]])
+                prices.append(model[self.PriceProv[k]])
             #print("Price for each machine")
             #print(ll)
 
         self.createSMT2LIBFileSolution(smt2libsol, status, model)
-        return min.value(), ll, stoptime - startime
+        return min.value(), prices, stoptime - startime
 
     def createSMT2LIBFile(self, fileName):
         """

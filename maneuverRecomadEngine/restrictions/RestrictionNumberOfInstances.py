@@ -93,9 +93,9 @@ class RestrictionUpperLowerEqualBound:
 
 class RestrictionRangeBound:
     def __init__(self, componentList, n1, n2, problem):
-        self.compsIdtList = []
+        self.compsIdList = []
         for comp_id in componentList:
-            self.compsIdtList.append(comp_id - 1)
+            self.compsIdList.append(comp_id - 1)
         self.n1 = n1
         self.n2 = n2
         problem.logger.info(self)
@@ -105,7 +105,7 @@ class RestrictionRangeBound:
 
     def __repr__(self):
         return "RestrictionRangeBound: {} <= components with id list {} <= {}"\
-            .format(self.n1, self.compsIdtList, self.n2)
+            .format(self.n1, self.compsIdList, self.n2)
 
     def eval(self, solutionMatrix):
         _sum = 0
@@ -116,7 +116,7 @@ class RestrictionRangeBound:
         if _sum < self.n1 or _sum > self.n2:
             _viotatedRestrictions = 1
             self.problem.logger.debug("RestrictionRangeBound violated: {} <= (sum_comp {} = {})<= {}"\
-            .format(self.n1, self.compsIdtList,  _sum, self.n2))
+            .format(self.n1, self.compsIdList,  _sum, self.n2))
         return _viotatedRestrictions
 
 class RestrictionRequireProvideDependency:

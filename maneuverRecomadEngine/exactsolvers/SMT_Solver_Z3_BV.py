@@ -8,7 +8,7 @@ class Z3_Solver(ManeuverProblem):
     bv1 = BitVecVal(1, 32)
 
     def __init__(self, nrVm, nrComp, availableConfigurations, problem, solverType):
-
+        print("------------BV------------")
         self.__constMap = {}
         self.problem = problem
         if solverType == "optimize":

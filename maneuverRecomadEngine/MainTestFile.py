@@ -539,16 +539,29 @@ def runZ3OnceLinear(problem_file_name, configurations_file_name, solver, useSime
 
             availableConfigurations = read_available_configurations(configurations_file_name)
             mp.priceOffersFile = configurations_file_name
-            # debug/optimize
+            # debug - used for debugging
+            # optimize - used for debugging
             if useSimetryBr:
-                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations, smt2lib, smt2libsol, "optimize", solver,
-                                                use_Price_Simetry_Brecking=True, use_components_on_vm_Simetry_Breaking=True,
-                                                use_fix_variables=True, filter_offers=True)
+                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations,
+                                                    smt2lib,
+                                                    smt2libsol,
+                                                    "optimize",
+                                                    solver,
+                                                    use_Price_Simetry_Brecking=True,
+                                                    use_components_on_vm_Simetry_Breaking=True,
+                                                    use_fix_variables=True,
+                                                    filter_offers=True)
             else:
-                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations, smt2lib, smt2libsol, "optimize", solver,
+                print("here")
+                minPrice, priceVMs, t = mp.solveSMT(availableConfigurations,
+                                                    smt2lib,
+                                                    smt2libsol,
+                                                    "optimize",
+                                                    solver,
                                                     use_Price_Simetry_Brecking=False,
                                                     use_components_on_vm_Simetry_Breaking=False,
-                                                    use_fix_variables=False, filter_offers=False)
+                                                    use_fix_variables=False,
+                                                    filter_offers=False)
 
             print("min price = {}, price vm = {}, time = {}".format(minPrice, priceVMs, t))
             fwriter.writerow([minPrice, priceVMs, t])
@@ -603,7 +616,8 @@ if __name__ == "__main__":
     ##############################
     ### SMT_Solver_Z3_RealReal ###
     ##############################
-    #runZ3OnceNonlinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RealReal")
+    # TODO: argument True/False use both real symmetry breaking. Not correct
+    runZ3OnceLinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_BV", False)
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_10.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_20.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_40.json", "SMT_Solver_Z3_RealReal")
@@ -611,7 +625,7 @@ if __name__ == "__main__":
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_80.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_100.json", "SMT_Solver_Z3_RealReal")
     #
-    runZ3OnceLinear("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RelSymBreak", False)
+    #runZ3OnceLinear("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_RealReal", False)
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_10.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_20.json", "SMT_Solver_Z3_RealReal")
     # runZ3Once("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_40.json", "SMT_Solver_Z3_RealReal")
@@ -726,7 +740,7 @@ if __name__ == "__main__":
     ### SMT_Solver_Z3_IntIntOr ###
     ##############################
     # TODO for only for Oryx2: there is a bug in Z3 optimize since the problem is SAT
-    # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_IntIntOr")
+    # runZ3OnceLinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_4.json", "SMT_Solver_Z3_IntIntOr", False)
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_10.json", "SMT_Solver_Z3_IntIntOr")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_20.json", "SMT_Solver_Z3_IntIntOr")
     # runZ3Once("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_40.json", "SMT_Solver_Z3_IntIntOr")

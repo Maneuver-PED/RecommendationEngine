@@ -15,6 +15,8 @@ class Z3_SolverReal(ManeuverProblem):
         else:
             self.solverTypeOptimize = False
 
+        print("real symbreak")
+
         self.useVmVariable = use_vm_variable
         self.reduceOffers = reduce_offers
         self.use_price_simmetry_breaking = price_simmetry_breaking

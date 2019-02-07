@@ -43,12 +43,22 @@ class ManeuverProblem:
         :return:
         """
         from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
-        SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM, self.nrComp, availableConfigs, self, solver_type, use_vm,
-                    filter_offers, use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables)
+        SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM,
+                                                             self.nrComp,
+                                                             availableConfigs,
+                                                             self,
+                                                             solver_type,
+                                                             use_vm,
+                                                             filter_offers,
+                                                             use_Price_Simetry_Brecking,
+                                                             use_components_on_vm_Simetry_Breaking,
+                                                             use_fix_variables)
 
         if SMTSolver.availableConfigurations is not None:
             self.restrictionsList.append(
-                RestrictionHardware(self._getComponentsHardwareRestrictions(), SMTSolver.availableConfigurations, self))
+                RestrictionHardware(self._getComponentsHardwareRestrictions(),
+                                    SMTSolver.availableConfigurations,
+                                    self))
 
         for restriction in self.restrictionsList:
             restriction.generateRestrictions(SMTSolver)
@@ -207,10 +217,9 @@ class ManeuverProblem:
         #  -- like number of conflicts that a component is in
         self.__addInformationForEA()
 
-        # add restistriction that fix some components on VMS
-        self.__addRestrictionFixedElements(orComponents)
-
-
+        # add restriction that fixes some components on VMs
+        # TODO: this is needed for symmetry breaking not here
+        # self.__addRestrictionFixedElements(orComponents)
 
     def __addInformationForEA(self):
         for i in range(self.nrComp):

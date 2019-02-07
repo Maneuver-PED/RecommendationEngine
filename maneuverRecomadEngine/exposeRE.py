@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from problem.ProblemDefinition import ManeuverProblem
+from maneuverRecomadEngine.problem.ProblemDefinition import ManeuverProblem
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)

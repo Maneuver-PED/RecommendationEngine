@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from maneuverRecomadEngine.problem.ProblemDefinition import ManeuverProblem
 from flask_cors import CORS, cross_origin
+import json
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -16,31 +17,36 @@ def run_z3():
     if request.headers['Content-Type'] == 'application/json':
         #ManeuverProblem().readConfigurationJSON(request.json)
         # request.json
-        print("Application description (from webUI):", request.json)
+        print("Application description (from webUI):", json.dumps(request.json))
         mp = ManeuverProblem()
         mp.readConfigurationJSON(request.json)
         print("Querying...")
+        # offers: offers matching the query?
+        # full_offers: all offers
         offers, full_offers = get_available_offers("http://hal720m.sage.ieat.ro:5000/OMS/query/full", mp)
-        print("Offers after querying...", len(offers), "---", len(full_offers))
+        print("Offers after querying...")
+        print("Offers matching the query", len(offers))
+        print("Offers matching the query", len(full_offers))
 
-        print("List of Offers")
-        for o in offers:
-            print(o)
-        print("Number of offers:", len(offers))
-
+        # print("List of Offers")
+        # for o in offers:
+        #     print(o)
+        # print("Number of offers:", len(offers))
 
         minPrice, priceVMs, t, a, vms_type = mp.solveSMT(offers, None, None, "optimize", False, True, True, False, False)
-
         print("minPrice ", minPrice)
-        print("time ", t)
-        print("available Offers ", a)
-        print("vm # on list (first elem has id=0)", vms_type)
 
-        import json
-        res = json.dumps(build_responce(mp, a, vms_type, offers, full_offers))
+        if minPrice != -1:
+            print("time ", t)
+            print("available Offers ", a)
+            print("vm # on list (first elem has id=0)", vms_type)
 
-        print("JSON Offer", res)
-        return res
+            res = json.dumps(build_responce(mp, a, vms_type, offers, full_offers))
+
+            print("JSON Offer", res)
+            return res
+        else:
+            return "unsat"
     else:
         return "415 Unsupported Media Type ;)"
 
@@ -86,7 +92,6 @@ def get_available_offers(url, mp):
         :return:
         """
         import requests
-        import json
         headers = {'Content-type': 'application/json', 'Accept': '*/*'}
 
         data = mp.buildSolutinInformations(mp.buildInitialAllocation(), mp.nrComp)

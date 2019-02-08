@@ -15,7 +15,7 @@ class Z3_SolverReal(ManeuverProblem):
         else:
             self.solverTypeOptimize = False
 
-        print("real symbreak")
+        print("RealSymBreak")
 
         self.useVmVariable = use_vm_variable
         self.reduceOffers = reduce_offers
@@ -29,7 +29,7 @@ class Z3_SolverReal(ManeuverProblem):
         self.vm_with_offers = {}
         self.vmIds_for_fixedComponents = set()
 
-        print(self.availableConfigurations)
+        print("Available configs", self.availableConfigurations)
 
 
     def __initSolver(self):
@@ -618,8 +618,13 @@ class Z3_SolverReal(ManeuverProblem):
             self.createSMT2LIBFileSolution(smt2libsol, status, model)
 
         if self.solverTypeOptimize:
-            print(a_mat)
-            return min.value(), vms_price, stoptime - startime#, a_mat, vms_type
+            if status == sat:
+                print("a_mat", a_mat)
+                # do not return min.value() since the type is not comparable with -1 in the exposeRE
+                return min, vms_price, stoptime - startime, a_mat, vms_type
+            else:
+                #unsat
+                return -1, None, None, None, None
         else:
             return None, vms_price, stoptime - startime
 

@@ -1,0 +1,30 @@
+==== Rec Eng ===
+1. Modify the code such that if we run exposeRE the solver RealSymBreak is automatically called
+2. Modify the code such that we can run the solvers for different encodings with no symmetry breaking in it.
+E.g. runZ3Once(..., "SMT_Solver_Z3_BV") calls the solver for bit vectors encoding
+runZ3Once(..., "SMT_Solver_Z3_RealReal") calls the solver for reals encoding
+runZ3Once(..., "SMT_Solver_Z3_RealSymBreak") calls the solver for symetry breaking
+
+=== Web UI ===
+1. Check the json format for Network -> Low, Moderate, High
+2. Should all fields be specified otherwise the query does not match.
+It looks to me that if OS is empty unsat is return (no matching)
+3. Check the avail configs in exposeRE
+
+***
+In the paper:
+
+1. Explain why MaxSMT encoding is not a solution also using A small case study from https://rise4fun.com/Z3/tutorial/optimization:
+it should use RealBool with ite which is expensive
+2. Why bit-vectors are expensive: we need to use the 32 bit since 16 might not be enough --> we can have values, e.g. hardware > 65536.
+Then BV are expensive since of bit-blasting (flattening) -> encoding into SAT ==> many bool vars are introduced; actually
+to avoid this blow-up integer encoding is used (see more details here https://www.cs.tau.ac.il/~msagiv/courses/asv/z3py/guide-examples.htm)
+(TODO tests BV)
+
+=================================================
+
+TODO: priority in constraints: In particular,
+cardinality constraints state that at most (at least, or exactly) k out of n propositional variables can be true.
+
+TODO: read sorting circuits in OptiMathSAT for MaxSMT
+

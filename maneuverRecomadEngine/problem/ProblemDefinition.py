@@ -369,14 +369,13 @@ class ManeuverProblem:
                       comp_dictionary["Compute"]["GPU"] if "GPU" in comp_dictionary["Compute"] else "false",
                       comp_dictionary["Compute"]["Memory"] if "Memory" in comp_dictionary["Compute"] else None,
 
-                      comp_dictionary["Storage"]["StorageSize"] if "StorageSize" in comp_dictionary["Storage"] else 50,
+                      comp_dictionary["Storage"]["StorageSize"] if "StorageSize" in comp_dictionary["Storage"] else None,
                       comp_dictionary["Storage"]["StorageType"] if "StorageType" in comp_dictionary["Storage"] else None,
                       comp_dictionary["Storage"]["StorageValue"] if "StorageValue" in comp_dictionary["Storage"] else None,
 
                       comp_dictionary["Network"]["dataIn"] if "dataIn" in comp_dictionary["Network"] else None,
                       comp_dictionary["Network"]["dataOut"] if "dataOut" in comp_dictionary["Network"] else None,
-                      comp_dictionary["Network"]["networkConnections"] if "networkConnections" in comp_dictionary[
-                          "Network"] else None,
+                      comp_dictionary["Network"]["networkConnections"] if "networkConnections" in comp_dictionary["Network"] else None,
 
                       comp_dictionary["keywords"] if "keywords" in comp_dictionary else None,
                       comp_dictionary["operatingSystem"] if "operatingSystem" in comp_dictionary else None)
@@ -581,7 +580,8 @@ class ManeuverProblem:
             storageSSD = 0
             storageType = set()
 
-            netConnections = 0
+            #netConnections = 0
+            netConections = set()
             netDataIn = 0
             netDataOut = 0
 
@@ -618,9 +618,12 @@ class ManeuverProblem:
                     else:
                         storageSSD += __component.HS if __component.HS is not None else 0
                     # network
-                    netConnections += __component.NConnections if __component.NConnections is not None else 0
-                    netDataIn += __component.NIn if __component.NIn is not None else 0
-                    netDataOut += __component.NOut if __component.NOut is not None else 0
+                    #netConnections += __component.NConnections if __component.NConnections is not None else 0
+                    #netDataIn += __component.NIn if __component.NIn is not None else 0
+                    #netDataOut += __component.NOut if __component.NOut is not None else 0
+
+                    netConections = __component.NConnections if __component.NConnections is not None else ""
+
                     # keywords
                     for key in __component.keywords:
                         keywords.add(key)
@@ -629,7 +632,8 @@ class ManeuverProblem:
             result[str(k)] = {"memory": memory,
                               "cpu": {"type": list(cpusType), "cpu": cpus, "gpu": gpus},
                               "storage": {"type": list(storageType), "hdd": storageHDD, "ssd": storageSSD},
-                              "network": {"connections": netConnections, "dataIn": netDataIn, "dataOut": netDataOut},
+                              "network": {"connections": netConections, "dataIn": netDataIn, "dataOut": netDataOut},
+
                               "keywords": list(keywords),
                               "operatingSystem": list(operatingSystem)}
 

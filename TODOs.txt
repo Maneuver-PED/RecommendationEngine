@@ -1,9 +1,18 @@
+=== OMS ===
+If I don't specify anything the hardware constraints are 0 so it should return the cheapest VM.
+
+
+
+
 ==== Rec Eng ===
+0. Handle all constraints more than CPU, storage, network
 1. Modify the code such that if we run exposeRE the solver RealSymBreak is automatically called
 2. Modify the code such that we can run the solvers for different encodings with no symmetry breaking in it.
 E.g. runZ3Once(..., "SMT_Solver_Z3_BV") calls the solver for bit vectors encoding
 runZ3Once(..., "SMT_Solver_Z3_RealReal") calls the solver for reals encoding
 runZ3Once(..., "SMT_Solver_Z3_RealSymBreak") calls the solver for symetry breaking
+
+
 
 === Web UI ===
 1. Check the json format for Network -> Low, Moderate, High
@@ -20,6 +29,7 @@ it should use RealBool with ite which is expensive
 Then BV are expensive since of bit-blasting (flattening) -> encoding into SAT ==> many bool vars are introduced; actually
 to avoid this blow-up integer encoding is used (see more details here https://www.cs.tau.ac.il/~msagiv/courses/asv/z3py/guide-examples.htm)
 (TODO tests BV)
+3. Read about the fragment of pseudo-boolean constraints. it can not have of the RHS a variable which has a value from a known set.
 
 =================================================
 

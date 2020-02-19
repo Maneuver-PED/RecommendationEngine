@@ -1,3 +1,7 @@
 .idea/*
 maneuverRecomadEngine/.idea/*
 maneuverRecomadEngine/exactsolvers/__pycache__/*
+*.pyc
+alt.lp
+nou.mps
+out.mod

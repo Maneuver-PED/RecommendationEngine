@@ -219,5 +219,4 @@ class CP_Solver_Got_Nr_Instances:
         return
 
     def RestrictionManyToManyDependencyNew(self,  alphaCompId, betaCompId, n,m):
-
         self.solver.Add(m*self.components[betaCompId] - n*self.components[alphaCompId] >= 0)

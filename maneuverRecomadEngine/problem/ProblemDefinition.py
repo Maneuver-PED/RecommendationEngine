@@ -33,40 +33,40 @@ class ManeuverProblem:
         self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation hraph
 
 
-    def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type,
-                 use_vm, filter_offers,
-                 use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables
-                 ):
-        """
-        Solves the optimization problem using the imported SMT solver and available VMs configurations
-        :param self: the optimization problem
-        :param available_configurations: available VMs configurations
-        :param solver_type: the Z3 solver type (optimize/debug)
-        :return:
-        """
-        from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
-        SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM,
-                                                             self.nrComp,
-                                                             availableConfigs,
-                                                             self,
-                                                             solver_type,
-                                                             use_vm,
-                                                             filter_offers,
-                                                             use_Price_Simetry_Brecking,
-                                                             use_components_on_vm_Simetry_Breaking,
-                                                             use_fix_variables
-                                                             )
-
-        if SMTSolver.availableConfigurations is not None:
-            self.restrictionsList.append(
-                RestrictionHardware(self._getComponentsHardwareRestrictions(),
-                                    SMTSolver.availableConfigurations,
-                                    self))
-
-        for restriction in self.restrictionsList:
-            restriction.generateRestrictions(SMTSolver)
-
-        return SMTSolver.run(smt2lib, smt2libsol)
+    # def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type,
+    #              use_vm, filter_offers,
+    #              use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables
+    #              ):
+    #     """
+    #     Solves the optimization problem using the imported SMT solver and available VMs configurations
+    #     :param self: the optimization problem
+    #     :param available_configurations: available VMs configurations
+    #     :param solver_type: the Z3 solver type (optimize/debug)
+    #     :return:
+    #     """
+    #     from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
+    #     SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM,
+    #                                                          sfp,
+    #                                                          availableConfigs,
+    #                                                          self,
+    #                                                          solver_type,
+    #                                                          use_vm,
+    #                                                          filter_offers,
+    #                                                          use_Price_Simetry_Brecking,
+    #                                                          use_components_on_vm_Simetry_Breaking,
+    #                                                          use_fix_variables
+    #                                                          )
+    #
+    #     if SMTSolver.availableConfigurations is not None:
+    #         self.restrictionsList.append(
+    #             RestrictionHardware(self._getComponentsHardwareRestrictions(),
+    #                                 SMTSolver.availableConfigurations,
+    #                                 self))
+    #
+    #     for restriction in self.restrictionsList:
+    #         restriction.generateRestrictions(SMTSolver)
+    #
+    #     return SMTSolver.run(smt2lib, smt2libsol)
 
     def solveCP(self, choosing_stategy, solutions_limit, optimize_price, available_configurations, time_limit):
         """
@@ -176,7 +176,7 @@ class ManeuverProblem:
         return ea.getSolution()
 
 
-    def readConfiguration(self, jsonFilePath):
+    def readConfiguration(self, jsonFilePath, offers_list):
         """
         Open json file that contains problem configurations and fills problem data
         :param jsonFilePath: the path to JSON file
@@ -185,9 +185,9 @@ class ManeuverProblem:
         with open(jsonFilePath) as json_data:
             dictionary = json.load(json_data)
             self.logger.info(dictionary)
-        self.readConfigurationJSON(dictionary)
+        self.readConfigurationJSON(dictionary, offers_list)
 
-    def readConfigurationJSON(self, dictionary):
+    def readConfigurationJSON(self, dictionary, offers_list):
         """
         Fills problem data from a dictionary
         :param dictionary: a dictionary that contains the problem description
@@ -222,7 +222,12 @@ class ManeuverProblem:
 
         # add restriction that fixes some components on VMs
         # TODO: this is needed for symmetry breaking not here
-        # self.__addRestrictionFixedElements(orComponents)
+        self.__addRestrictionFixedElements(orComponents)
+
+        self.offers_list = offers_list
+        if offers_list is not None:
+            self.restrictionsList.append(RestrictionHardware(self._getComponentsHardwareRestrictions(),
+                                                                      offers_list, self))
 
     def __addInformationForEA(self):
         for i in range(self.nrComp):

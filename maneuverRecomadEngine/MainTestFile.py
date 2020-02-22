@@ -2,7 +2,6 @@
 from maneuverRecomadEngine.problem.ProblemDefinition import ManeuverProblem
 import maneuverRecomadEngine.exactsolvers
 
-
 import os
 import csv
 import time
@@ -11,13 +10,10 @@ import logging.config
 import json
 import numpy
 
-
-
 def read_available_configurations(fileConfigurations):
 
     with open(fileConfigurations) as json_data:
         dictionary = json.load(json_data)
-
     availableConfigurations = []
     for key, value in dictionary.items():
         l = [key]
@@ -28,8 +24,6 @@ def read_available_configurations(fileConfigurations):
         availableConfigurations.append(l)
     #print(availableConfigurations)
     return availableConfigurations
-
-
 
 def aboutOffers(path):
     with open(path) as json_data:
@@ -66,20 +60,20 @@ def runOnce(solver, mp, sb_vms_order_by_price=False,
     filename1 = ""+mp.applicationName
     filename2 = mp.priceOffersFile.split("/").pop().split(".")[0]
 
-    resultsDirectoryPath = "../nonlinear_output_"+solver_name+"/csv/"
+    resultsDirectoryPath = "../output/output_"+solver_name+"/csv/"
     if not os.path.exists(resultsDirectoryPath):
         os.makedirs(resultsDirectoryPath)
 
     outcsv = resultsDirectoryPath + filename1 + "-" + filename2 + ".csv"
 
     # File for saving the problem into SMT2LIB format
-    resultsDirectoryPath = "../jurnal_output_"+solver_name+"/SMT2/"
+    resultsDirectoryPath = "../output/output_"+solver_name+"/SMT2/"
     if not os.path.exists(resultsDirectoryPath):
         os.makedirs(resultsDirectoryPath)
     smt2lib = resultsDirectoryPath + filename1 + "-" + filename2 + ".smt2"
 
     # File for saving the solution of the problem into SMT2LIB format
-    resultsDirectoryPath = "../jurnal_output_"+solver_name+"/SMT2-Sol/"
+    resultsDirectoryPath = "../output/output_"+solver_name+"/SMT2-Sol/"
     if not os.path.exists(resultsDirectoryPath):
         os.makedirs(resultsDirectoryPath)
     smt2libsol = resultsDirectoryPath + filename1 + "-" + filename2 + "-sol.smt2"
@@ -88,10 +82,7 @@ def runOnce(solver, mp, sb_vms_order_by_price=False,
         fwriter = csv.writer(csvfile, delimiter=',', )
         fwriter.writerow(['Price min value', 'Price for each machine', 'Time'])
         for it in range(1):
-
             # debug/optimize
-
-
             getattr(solver, "init_problem")(mp, "optimize", smt2lib=smt2lib, smt2libsol=smt2libsol,
                                             sb_vms_order_by_price=sb_vms_order_by_price,
                                             sb_vms_order_by_components_number=sb_vms_order_by_components_number,
@@ -113,9 +104,7 @@ def runOnce(solver, mp, sb_vms_order_by_price=False,
 if __name__ == "__main__":
     #aboutOffers("../testInstances/offersICCP2018/offers_10.json")
 
-    # TODO: argument True/False use both real symmetry breaking. Not correct
-
-    mp = prepareManuverProblem("../testInstances/Wordpress4.json", "../testInstances/offersICCP2018/offers_20.json")
+    mp = prepareManuverProblem("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_20.json")
 
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
     # print("-----------------------------")
@@ -123,21 +112,23 @@ if __name__ == "__main__":
     # runOnce(solver, mp)
 
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_Solver
-    print("-----------------------------")
+    print("-----------Z3_Solver------------------")
+    # can we have the name Z3_SolverInt to be similar to the below?
     solver = Z3_Solver()
     runOnce(solver, mp, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
             sb_equal_vms_type_order_lex=True)
+            #this is not always good: sb_vms_order_by_components_number=True)
 
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverReal
     solver = Z3_SolverReal()
-    print("-----------------------------")
+    print("-----------Z3_SolverReal------------------")
     runOnce(solver, mp, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
             sb_equal_vms_type_order_lex=True)
     # #runZ3OnceLinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_10.json", )
     #
     from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CP_Solver_CPlex
     solver = CP_Solver_CPlex()
-    print("-----------------------------")
+    print("------------CP_Solver_CPlex-----------------")
     runOnce(solver, mp, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
             sb_equal_vms_type_order_lex=True)
 

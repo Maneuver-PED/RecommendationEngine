@@ -111,12 +111,12 @@ class CP_Solver_CPlex(ManuverSolver):
             for index, var in self.vmType.items():
                 print(var.solution_value, end=" ")
                 vmType.append(var.solution_value)
-            print("\n vmPrice")
+            print("\nvmPrice")
 
             for index, var in self.PriceProv.items():
                 print(var.solution_value, end=" ")
                 vmPrice.append(var.solution_value)
-            print("\n Vm Aquired")
+            print("\nVm Aquired")
             for index,var in self.vm.items():
                print(var.solution_value, end=" ")
             print()

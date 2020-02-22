@@ -9,7 +9,6 @@ class Z3_Solver(Z3_Solver_Parent):
         Creates the variables used in the solver and the constraints on them as well as others (offers encoding, usage vector, etc.)
         :return: None
         """
-
         super()._defineVariablesAndConstraints()
 
         # values from availableConfigurations
@@ -30,10 +29,8 @@ class Z3_Solver(Z3_Solver_Parent):
             for j in range(self.nrVM):
                 self.solver.add(Implies(self.a[i * self.nrVM + j] == 1, Not(self.vmType[j] == 0)))
 
-
         super()._encodeOffers(1)
         super()._simetry_breaking()
-
 
     def constraintsHardware(self, componentsRequirements):
         """
@@ -43,9 +40,6 @@ class Z3_Solver(Z3_Solver_Parent):
         """
 
         super()._constraintsHardware(componentsRequirements, 1)
-
-
-
 
     # def _defineVariablesAndConstraints(self):
     #     """

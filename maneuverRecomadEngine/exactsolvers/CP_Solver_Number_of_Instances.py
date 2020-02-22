@@ -127,7 +127,7 @@ class CP_Solver_Got_Nr_Instances:
         :param alphaCompId: ID of component alpha, ID should be in set {1,...,N}
         :param betaCompId: ID of component beta, ID should be in set {1,...,N}
         :param n: depending instances number
-        :return:
+        :return:python /Applications/CPLEX_Studio1210/python/setup.py install
         """
         self.solver.Add(n * self.components[alphaCompId] - self.components[betaCompId] > 0)
         self.solver.Add(n * self.components[alphaCompId] - self.components[betaCompId] <= n)

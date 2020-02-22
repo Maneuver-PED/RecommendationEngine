@@ -30,56 +30,54 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         # VMType  - type of a leased VM
         self.VMType = {}
 
-
     def _simetry_breaking(self):
         max_id = -1
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
                 max_id = vmid
-
+        # VMs are order decreasingly based on price
         if self.sb_vms_order_by_price:
             print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
             for j in range(max_id + 1, self.nrVM - 1):
-                print(self.PriceProv[j] >= self.PriceProv[j + 1])
+                #print(self.PriceProv[j] >= self.PriceProv[j + 1])
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
 
+        # ??? where is this used??? might give wrong results, run e.g. SecureWebContainer with this option True
         if self.sb_vms_order_by_components_number:
             for j in range(max_id + 1, self.nrVM - 1):
                 self.solver.add(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= sum(
                     [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
 
-
-        #k=0
         for j in range(self.nrVM - 1):
+            # VMs with same type have the same price
             if self.sb_redundant_price:
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j + 1],
                                         self.PriceProv[j] == self.PriceProv[j + 1]))
+            # VMs with same type have the same number of procs
             if self.sb_redundant_processor:
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j+1],
                                         self.ProcProv[j] == self.ProcProv[j + 1]))
+            # VMs with same type have the same amount of memory
             if self.sb_redundant_memory:
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j+1],
                                     self.MemProv[j] >= self.MemProv[j + 1]))
+            # VMs with same type have the same storage
             if self.sb_redundant_storage:
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j+1],
                                     self.StorageProv[j] == self.StorageProv[j + 1]))
-
-
-            # #Sym br type 3 - 1
+            # VMs with the same type should be ordered decreasingly on the number of components
             if self.sb_equal_vms_type_order_by_components_number:
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j+1],
                                     sum([self.a[i+j] for i in range(0, len(self.a), self.nrVM)]) >=
                                       sum([self.a[i+j+1] for i in range(0, len(self.a), self.nrVM)])))
-            # Sym br type 3 - 2
+            # VMs with the same type should ocuppy columns from top left
             if self.sb_equal_vms_type_order_lex:
                 for i in range(0, self.nrComp):
                     l= [self.a[u*self.nrVM + j] == self.a[u*self.nrVM + j+1] for u in range(0,i)]
                     l.append(self.vmType[j] == self.vmType[j+1])
                     self.solver.add(Implies(And(l), self.a[i*self.nrVM + j] >= self.a[i*self.nrVM + j+1]))
 
-
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
-
         print("PriceOrder Z3", start_vm_id, end_vm_id)
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id-1):
@@ -112,7 +110,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
 
     def _encodeOffers(self, scale_factor):
 
-        print("scale_falctor",scale_factor)
+        print("scale_factor ",scale_factor)
         # encode offers
         for j in range(self.nrVM):
             self.solver.add(self.PriceProv[j] >= 0)
@@ -129,8 +127,8 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 self.solver.add(Implies(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == 0, self.PriceProv[j] == 0))
 
         priceIndex = len(self.offers_list[0]) - 1
-        print("price Index", self.offers_list[0], priceIndex)
-        print("price Index", self.offers_list[1], priceIndex)
+        print("price Index ", self.offers_list[0], priceIndex)
+        print("price Index ", self.offers_list[1], priceIndex)
         for vm_id in range(self.nrVM):
             index = 0
             availableOffers = []
@@ -490,10 +488,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                        self.MemProv[k])
             tmp.append(sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][2] if int(scale_factor)==1 else componentsRequirements[i][2]/ scale_factor)) for i in range(self.nrComp)]) <=
                        self.StorageProv[k])
-
         self.solver.add(tmp)
-
-
 
     def createSMT2LIBFile(self, fileName):
         """
@@ -557,28 +552,32 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
 
         if status == sat:
             model = self.solver.model()
+            print("Column represents VM number")
             a_mat = []
             for i in range(self.nrComp):
                 l = []
                 for k in range(self.nrVM):
                     l.append(model[self.a[i * self.nrVM + k]])
                 a_mat.append(l)
-
+                print(l)
+            #print("Price for each machine")
             vms_price = []
             for k in range(self.nrVM):
                 vms_price.append(model[self.PriceProv[k]])
-
+            print(vms_price)
+            #print("Type for each machine")
             vms_type = []
             for k in range(self.nrVM):
                 vms_type.append(model[self.vmType[k]])
+            #print(vms_type)
         else:
-            print("!!!!!!!UNSAT")
+            print("UNSAT")
 
         self.createSMT2LIBFileSolution(self.smt2libsol, status, model)
 
         if self.solverTypeOptimize:
             if status == sat:
-                print("a_mat", a_mat)
+                #print("a_mat", a_mat)
                 # do not return min.value() since the type is not comparable with -1 in the exposeRE
                 return min.value(), vms_price, stoptime - startime, a_mat, vms_type
             else:

@@ -2,7 +2,7 @@ from z3 import *
 from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3 import Z3_Solver_Parent
 #from util.UtilsRE import Constants
 
-class Z3_SolverReal(Z3_Solver_Parent):
+class Z3_SolverRealSymBreak(Z3_Solver_Parent):
 
     def _defineVariablesAndConstraints(self):
         """
@@ -17,9 +17,10 @@ class Z3_SolverReal(Z3_Solver_Parent):
         self.VMType = {}
 
         # values from availableConfigurations
-        self.ProcProv = [Real('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.MemProv = [Real('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.StorageProv = [Real('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
+        if self.default_offers_encoding:
+            self.ProcProv = [Real('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.MemProv = [Real('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.StorageProv = [Real('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
         self.PriceProv = [Real('PriceProv%i' % j) for j in range(1, self.nrVM + 1)]
 
         if self.use_vm_vector_in_encoding:
@@ -62,7 +63,6 @@ class Z3_SolverReal(Z3_Solver_Parent):
 
         # add the  the offers
         self._encodeOffers(1000.)
-        super()._simetry_breaking()
 
     def constraintsHardware(self, componentsRequirements):
         """

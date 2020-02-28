@@ -2,7 +2,7 @@ from z3 import *
 from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3 import Z3_Solver_Parent
 
 
-class Z3_SolverSimple(Z3_Solver_Parent):#ManeuverProblem):
+class Z3_SolverIntInt(Z3_Solver_Parent):#ManeuverProblem):
 
 
     def _defineVariablesAndConstraints(self):
@@ -14,9 +14,10 @@ class Z3_SolverSimple(Z3_Solver_Parent):#ManeuverProblem):
         super()._defineVariablesAndConstraints()
 
         # values from availableConfigurations
-        self.ProcProv = [Int('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.MemProv = [Int('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.StorageProv = [Int('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
+        if self.default_offers_encoding:
+            self.ProcProv = [Int('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.MemProv = [Int('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.StorageProv = [Int('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
         self.PriceProv = [Int('PriceProv%i' % j) for j in range(1, self.nrVM + 1)]
 
         self.a = [Int('C%i_VM%i' % (i + 1, j + 1)) for i in range(self.nrComp) for j in range(self.nrVM)]
@@ -44,4 +45,5 @@ class Z3_SolverSimple(Z3_Solver_Parent):#ManeuverProblem):
         super()._constraintsHardware(componentsRequirements, 1)
 
 
-
+    def convert_price(self, price):
+        return price / 1000.0

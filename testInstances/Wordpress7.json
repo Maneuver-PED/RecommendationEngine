@@ -1,5 +1,5 @@
 {
-"application" : "WordPress",
+"application" : "WordPress7",
 "comment-general": "From the Zephyrus-ASE paper: at least 3 replicas of Wordpress or at least 7 DNS (we can not capture OR in the UI, we have here the 3 Wordpress replicas); Answer: minimum 4VMs",
 "components" :[
   {"id": 1, "name" : "WordPress",

@@ -35,6 +35,8 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
                 max_id = vmid
+
+        print("vmIds_for_fixedComponents: ", self.vmIds_for_fixedComponents, max_id)
         # VMs are order decreasingly based on price
         if self.sb_vms_order_by_price:
             print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
@@ -70,12 +72,21 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 self.solver.add(Implies(self.vmType[j] == self.vmType[j+1],
                                     sum([self.a[i+j] for i in range(0, len(self.a), self.nrVM)]) >=
                                       sum([self.a[i+j+1] for i in range(0, len(self.a), self.nrVM)])))
-            # VMs with the same type should ocuppy columns from top left
+            # VMs with the same type should occupy columns from top left
             if self.sb_equal_vms_type_order_lex:
                 for i in range(0, self.nrComp):
-                    l= [self.a[u*self.nrVM + j] == self.a[u*self.nrVM + j+1] for u in range(0,i)]
+                    l = [self.a[u*self.nrVM + j] == self.a[u*self.nrVM + j+1] for u in range(0, i)]
                     l.append(self.vmType[j] == self.vmType[j+1])
                     self.solver.add(Implies(And(l), self.a[i*self.nrVM + j] >= self.a[i*self.nrVM + j+1]))
+            # One to one dependency
+            if self.sb_one_to_one_dependency:
+                for one_to_one_group in self.problem.one_to_one_dependencies:
+                    component = -1
+                    for first_item in one_to_one_group:
+                        component=first_item
+                        break
+                    for comp_id in one_to_one_group:
+                        self.solver.add(self.a[comp_id * self.nrVM + component] == 1)
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("PriceOrder Z3", start_vm_id, end_vm_id)
@@ -108,8 +119,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         self.vm_with_offers[vm_id] = comp_id
         self.vmIds_for_fixedComponents.add(vm_id)
 
-    def _encodeOffers(self, scale_factor):
+        print("!!!!!! set comp " , comp_id , " on vm " , vm_id, self.vmIds_for_fixedComponents)
 
+    def _encodeOffers(self, scale_factor):
         print("scale_factor ",scale_factor)
         # encode offers
         for j in range(self.nrVM):
@@ -126,64 +138,89 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             for j in range(self.nrVM):
                 self.solver.add(Implies(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == 0, self.PriceProv[j] == 0))
 
+        print("_encodeOffers self.default_offers_encoding", self.default_offers_encoding)
         priceIndex = len(self.offers_list[0]) - 1
-        print("price Index ", self.offers_list[0], priceIndex)
-        print("price Index ", self.offers_list[1], priceIndex)
-        for vm_id in range(self.nrVM):
-            index = 0
-            availableOffers = []
-            for offer in self.offers_list:
-                index += 1
-                addOffer = True
-                if self.offers_list_filtered:
-                    if vm_id in self.vm_with_offers:
-                        # testez daca oferta e aplicabila
-                        comp_id = self.vm_with_offers[vm_id]
-                        if offer[1] < self.problem.componentsList[comp_id].HC:
-                            addOffer = False
-                        elif offer[2] < self.problem.componentsList[comp_id].HM:
-                            addOffer = False
-                        elif offer[3] < self.problem.componentsList[comp_id].HS:
-                            addOffer = False
-                if addOffer:
-                    availableOffers.append(index)
-
-
-                    if self.use_vm_vector_in_encoding:
-                        if self.solverTypeOptimize:
+        if self.default_offers_encoding:
+            print("price Index ", self.offers_list[0], priceIndex)
+            print("price Index ", self.offers_list[1], priceIndex)
+            for vm_id in range(self.nrVM):
+                index = 0
+                availableOffers = []
+                for offer in self.offers_list:
+                    index += 1
+                    addOffer = True
+                    if self.offers_list_filtered:
+                        if vm_id in self.vm_with_offers:
+                            # testez daca oferta e aplicabila
+                            comp_id = self.vm_with_offers[vm_id]
+                            if offer[1] < self.problem.componentsList[comp_id].HC:
+                                addOffer = False
+                            elif offer[2] < self.problem.componentsList[comp_id].HM:
+                                addOffer = False
+                            elif offer[3] < self.problem.componentsList[comp_id].HS:
+                                addOffer = False
+                    if addOffer:
+                        availableOffers.append(index)
+                        if self.use_vm_vector_in_encoding:
+                            if self.solverTypeOptimize:
+                                self.solver.add(
+                                    Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
+                                            And(self.PriceProv[vm_id] == (offer[priceIndex] if int(scale_factor) == 1 else offer[priceIndex] / scale_factor),
+                                                self.ProcProv[vm_id] == offer[1],
+                                                self.MemProv[vm_id] == (offer[2] if int(scale_factor) == 1 else offer[2] / scale_factor),
+                                                self.StorageProv[vm_id] == (offer[3] if int(scale_factor) == 1 else offer[3] / scale_factor)
+                                                )
+                                    ))
+                            else:
+                                self.solver.assert_and_track(
+                                    Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
+                                            And(self.PriceProv[vm_id] == (offer[priceIndex] if int(scale_factor)==1 else offer[priceIndex]/ scale_factor),
+                                                 self.ProcProv[vm_id] == offer[1],
+                                                 self.MemProv[vm_id] == (offer[2] if int(scale_factor) ==1 else offer[2] / scale_factor),
+                                                 self.StorageProv[vm_id] == (offer[3] if int(scale_factor) ==1 else offer[3] / scale_factor)
+                                                )
+                                    ), "Label: " + str(self.labelIdx))
+                                self.labelIdx += 1
+                        else:
+                            price = offer[priceIndex] if int(scale_factor) == 1 else offer[priceIndex] / scale_factor
                             self.solver.add(
-                                Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
-                                        And(self.PriceProv[vm_id] == (offer[priceIndex] if int(scale_factor) == 1 else offer[priceIndex] / scale_factor),
+                                Implies(And(sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)]) >= 1,
+                                            self.vmType[vm_id] == index),
+                                        And(self.PriceProv[vm_id] == price,
                                             self.ProcProv[vm_id] == offer[1],
                                             self.MemProv[vm_id] == (offer[2] if int(scale_factor) == 1 else offer[2] / scale_factor),
                                             self.StorageProv[vm_id] == (offer[3] if int(scale_factor) == 1 else offer[3] / scale_factor)
                                             )
-                                ))
+                                        ))
+
+                lst = [self.vmType[vm_id] == offerID for offerID in availableOffers]
+                self.solver.add(Or(lst))
+        else:
+
+            print("!!!!!!!!!!! Add price")
+            # new encoding
+            for vm_id in range(self.nrVM):
+                index = 0
+                for offer in self.offers_list:
+                    index += 1
+                    price = offer[priceIndex] if int(scale_factor) == 1 else offer[priceIndex] / scale_factor
+                    if self.use_vm_vector_in_encoding:
+                        if self.solverTypeOptimize:
+                            self.solver.add(
+                                Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
+                                        self.PriceProv[vm_id] == price
+                                        ))
                         else:
                             self.solver.assert_and_track(
                                 Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
-                                        And(self.PriceProv[vm_id] == (offer[priceIndex] if int(scale_factor)==1 else offer[priceIndex]/ scale_factor),
-                                             self.ProcProv[vm_id] == offer[1],
-                                             self.MemProv[vm_id] == (offer[2] if int(scale_factor) ==1 else offer[2] / scale_factor),
-                                             self.StorageProv[vm_id] == (offer[3] if int(scale_factor) ==1 else offer[3] / scale_factor)
-                                            )
-                                ), "Label: " + str(self.labelIdx))
+                                        self.PriceProv[vm_id] == price, "Label: " + str(self.labelIdx)))
                             self.labelIdx += 1
                     else:
-                        price = offer[priceIndex] if int(scale_factor) == 1 else offer[priceIndex] / scale_factor
                         self.solver.add(
                             Implies(And(sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)]) >= 1,
                                         self.vmType[vm_id] == index),
-                                    And(self.PriceProv[vm_id] == price,
-                                        self.ProcProv[vm_id] == offer[1],
-                                        self.MemProv[vm_id] == (offer[2] if int(scale_factor) == 1 else offer[2] / scale_factor),
-                                        self.StorageProv[vm_id] == (offer[3] if int(scale_factor) == 1 else offer[3] / scale_factor)
-                                        )
+                                    self.PriceProv[vm_id] == price,
                                     ))
-
-            lst = [self.vmType[vm_id] == offerID for offerID in availableOffers]
-            self.solver.add(Or(lst))
-
 
     def RestrictionConflict(self, alphaCompId, conflictCompsIdList):
         """
@@ -318,25 +355,26 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                     sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)])
                     <= bound)
             else:
-                self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) <= bound
+                #self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) <= bound
                 self.solver.assert_and_track(
-                    sum([If(self.a[compId * self.nrVM + j], 1, 0) for compId in compsIdList for j in range(self.nrVM)]) <= bound, "LabelUpperLowerEqualBound" + str(self.labelIdx))
+                    sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)])
+                    <= bound, "LabelUpperLowerEqualBound" + str(self.labelIdx))
                 self.labelIdx += 1
         elif operator == ">=":
             if self.solverTypeOptimize:
                 self.solver.add(
                     sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) >= bound)
             else:
-                self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) >= bound
+                #self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) >= bound
                 self.solver.assert_and_track(
-                    sum([If(self.a[compId * self.nrVM + j], 1, 0) for compId in compsIdList for j in range(self.nrVM)]) >= bound, "LabelUpperLowerEqualBound" + str(self.labelIdx))
+                    sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) >= bound, "LabelUpperLowerEqualBound" + str(self.labelIdx))
                 self.labelIdx += 1
         elif operator == "=":
             if self.solverTypeOptimize:
                 self.solver.add(
                     sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) == bound)
             else:
-                self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) == bound
+                #self.__constMap[str("LabelUpperLowerEqualBound" + str(self.labelIdx))] = sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) == bound
 
                 self.solver.assert_and_track(
                     sum([self.a[compId * self.nrVM + j] for compId in compsIdList for j in range(self.nrVM)]) == bound, "LabelUpperLowerEqualBound" + str(self.labelIdx))
@@ -395,11 +433,10 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                         (If(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= 1, 1, 0)))
                 else:
                     self.solver.assert_and_track(
-                        (sum(
-                            [If(self.a[alphaCompId * self.nrVM + j], 1, 0)] + [If(self.a[_compId * self.nrVM + j], 1, 0)
-                                                                               for _compId in
-                                                                               notInConflictCompsIdList])) ==
-                        (sum([If(self.a[i + j], 1, 0) for i in range(0, len(self.a), self.nrVM)]) >= 1),
+                        (sum([self.a[alphaCompId * self.nrVM + j]] + [self.a[_compId * self.nrVM + j] for _compId in
+                                                                      notInConflictCompsIdList]))
+                        ==
+                        (If(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= 1, 1, 0)),
                         "LabelFullDeployment: " + str(self.labelIdx)
                     )
                     self.labelIdx += 1
@@ -476,19 +513,179 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         :param componentsRequirements: list of components requirements as given by the user
         :return: None
         """
-
         self.problem.logger.debug("constraintsHardware: componentsRequirements={}".format(componentsRequirements))
         componentsRequirements = [[0 if i is None else i for i in line] for line in componentsRequirements]
 
-        tmp = []
-        for k in range(self.nrVM):
-            tmp.append(sum([self.a[i * self.nrVM + k] * (componentsRequirements[i][0]) for i in range(self.nrComp)]) <=
-                       self.ProcProv[k])
-            tmp.append(sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][1] if int(scale_factor)==1 else componentsRequirements[i][1]/ scale_factor)) for i in range(self.nrComp)]) <=
-                       self.MemProv[k])
-            tmp.append(sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][2] if int(scale_factor)==1 else componentsRequirements[i][2]/ scale_factor)) for i in range(self.nrComp)]) <=
-                       self.StorageProv[k])
-        self.solver.add(tmp)
+        if self.default_offers_encoding:
+            tmp = []
+            for k in range(self.nrVM):
+                tmp.append(sum([self.a[i * self.nrVM + k] * (componentsRequirements[i][0]) for i in range(self.nrComp)]) <=
+                           self.ProcProv[k])
+                tmp.append(sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][1] if int(scale_factor)==1 else componentsRequirements[i][1]/ scale_factor)) for i in range(self.nrComp)]) <=
+                           self.MemProv[k])
+                tmp.append(sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][2] if int(scale_factor)==1 else componentsRequirements[i][2]/ scale_factor)) for i in range(self.nrComp)]) <=
+                           self.StorageProv[k])
+            self.solver.add(tmp)
+        else:
+
+            print("scale_factor: ", scale_factor)
+
+            components_Requirements = componentsRequirements.copy()
+            if scale_factor != 1:
+                for i in range(self.nrComp):
+                    components_Requirements[i][1] /= scale_factor
+                    components_Requirements[i][2] /= scale_factor
+            cpu_values = {}
+            memory_values = {}
+            storage_values = {}
+            index = 0
+            for offer in self.offers_list:
+                index += 1
+                cpu = offer[1]
+                if cpu in cpu_values:
+                    cpu_values[cpu].append(index)
+                else:
+                    cpu_values[cpu] = [index]
+
+                memory = offer[2] if scale_factor == 1 else (offer[2] /scale_factor)
+
+                if memory in memory_values:
+                    memory_values[memory].append(index)
+                else:
+                    memory_values[memory] = [index]
+
+                storage = offer[3] if int(scale_factor) == 1 else (offer[3] /scale_factor)
+                if storage in storage_values:
+                    storage_values[storage].append(index)
+                else:
+                    storage_values[storage] = [index]
+
+            tmp1 = []
+            tmp2 = []
+            tmp3 = []
+            print(cpu_values)
+            print(memory_values)
+            print(storage_values)
+
+            for k in range(self.nrVM):
+                #reversed(sorted(test_dict.keys()))
+                #for key, val in cpu_values.items():
+                keys = list(cpu_values.keys())
+                keys.sort(reverse=True)
+
+                key = keys[0]
+                tmp1.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) >
+                    key, self.vmType[k] == 0)
+                )
+                offers_aplicable = cpu_values[key].copy()
+                keys.pop(0)
+                for key in keys:
+                    values = cpu_values[key]
+                    tmp1.append(Implies(
+                        sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) >
+                    key, Or([self.vmType[k] == index for index in offers_aplicable])
+                    ))
+                    offers_aplicable.extend(values)
+                    offers_aplicable.sort()
+
+
+                key = keys.pop()
+                tmp1.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) <=
+                    key, Or([self.vmType[k] == index for index in offers_aplicable])
+                ))
+
+                keys = list(memory_values.keys())
+                keys.sort(reverse=True)
+
+                key = keys[0]
+                tmp3.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][1]) for i in range(self.nrComp)]) >
+                    key, self.vmType[k] == 0)
+                )
+                offers_aplicable = memory_values[key].copy()
+                offers_aplicable.sort()
+                keys.pop(0)
+
+                for key in keys:
+                    values = memory_values[key]
+                    tmp3.append(Implies(
+                        sum([self.a[i * self.nrVM + k] * (components_Requirements[i][1]) for i in
+                             range(self.nrComp)]) >
+                        key, Or([self.vmType[k] == index for index in offers_aplicable])
+                    ))
+                    offers_aplicable.extend(values)
+                    offers_aplicable.sort()
+
+                key = keys.pop()
+                tmp2.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][1]) for i in range(self.nrComp)]) <=
+                    key, Or([self.vmType[k] == index for index in offers_aplicable])
+                ))
+
+                keys = list(storage_values.keys())
+                keys.sort(reverse=True)
+                key = keys[0]
+                tmp2.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][2]) for i in range(self.nrComp)]) >
+                    key, self.vmType[k] == 0)
+                )
+
+                offers_aplicable = storage_values[key].copy()
+                offers_aplicable.sort()
+                keys.pop(0)
+
+                for key in keys:
+                    values = storage_values[key]
+
+                    tmp2.append(Implies(
+                        sum([self.a[i * self.nrVM + k] * (components_Requirements[i][2]) for i in
+                             range(self.nrComp)]) >
+                        key, Or([self.vmType[k] == index for index in offers_aplicable])
+                    ))
+                    offers_aplicable.extend(values)
+                    offers_aplicable.sort()
+
+                key = keys.pop()
+                tmp3.append(Implies(
+                    sum([self.a[i * self.nrVM + k] * (components_Requirements[i][2]) for i in
+                         range(self.nrComp)]) <=
+                    key, Or([self.vmType[k] == index for index in offers_aplicable])
+                ))
+                        #for key, val in memory_values.items():
+                # keys = sorted(memory_values.keys())
+                # offers_aplicable = []
+                # for key in keys:
+                #     values = memory_values[key]
+                #
+                #     offers_aplicable.extend(values)
+                #     print("keys memory: ", str(key), values, offers_aplicable)
+                #     tmp2.append(Implies(
+                #         sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][1] if int(scale_factor) == 1 else
+                #                                              componentsRequirements[i][1] / scale_factor)) for i in range(self.nrComp)]) <=
+                #         key, Or([self.vmType[k] == index for index in offers_aplicable])))
+                #
+                # #for key, val in memory_values.items():
+                # keys = sorted(storage_values.keys())
+                #
+                # offers_aplicable = []
+                # for key in keys:
+                #
+                #     values = storage_values[key]
+                #
+                #     offers_aplicable.extend(values)
+                #     print("keys storage: ", str(key), values, offers_aplicable)
+                #     tmp3.append(Implies(
+                #         sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][2] if int(scale_factor) == 1 else
+                #                                              componentsRequirements[i][2] / scale_factor)) for i in range(self.nrComp)]) <=
+                #         key, Or([self.vmType[k] == index for index in offers_aplicable])))
+            self.solver.add(tmp1)
+            self.solver.add(tmp2)
+            self.solver.add(tmp3)
+
+
+
 
     def createSMT2LIBFile(self, fileName):
         """
@@ -521,6 +718,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             foo.write(']')
         foo.close()
 
+    def convert_price(self, price):
+        return price
+
     def run(self):
         """
         Invokes the solving of the problem (solution and additional effect like creation of special files)
@@ -543,9 +743,10 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         if not self.solverTypeOptimize:
             c = self.solver.unsat_core()
             self.problem.logger.debug("unsat_constraints= {}".format(c))
-            for cc in c:
-                self.problem.logger.debug(
-                    "Constraint label: {} constraint description {}".format(str(cc), self.__constMap[cc]))
+            print("unsat_constraints= {}".format(c))
+            # for cc in c:
+            #     self.problem.logger.debug(
+            #         "Constraint label: {} constraint description {}".format(str(cc), self.__constMap[cc]))
 
         self.problem.logger.info("Z3 status: {}".format(status))
 
@@ -573,15 +774,17 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         else:
             print("UNSAT")
 
-        self.createSMT2LIBFileSolution(self.smt2libsol, status, model)
+
 
         if self.solverTypeOptimize:
             if status == sat:
-                #print("a_mat", a_mat)
+                print("a_mat", a_mat)
+                self.createSMT2LIBFileSolution(self.smt2libsol, status, model)
                 # do not return min.value() since the type is not comparable with -1 in the exposeRE
-                return min.value(), vms_price, stoptime - startime, a_mat, vms_type
+                return self.convert_price(min.value()), vms_price, stoptime - startime, a_mat, vms_type
             else:
                 # unsat
                 return -1, None, None, None, None
         else:
-            return None, vms_price, stoptime - startime
+            return None, None, stoptime - startime
+

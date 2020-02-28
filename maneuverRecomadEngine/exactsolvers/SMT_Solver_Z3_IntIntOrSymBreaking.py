@@ -2,7 +2,7 @@ from z3 import *
 from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3 import Z3_Solver_Parent
 
 
-class Z3_Solver(Z3_Solver_Parent):
+class Z3_SolverIntIntSymBreak(Z3_Solver_Parent):
 
     def _defineVariablesAndConstraints(self):
         """
@@ -12,9 +12,10 @@ class Z3_Solver(Z3_Solver_Parent):
         super()._defineVariablesAndConstraints()
 
         # values from availableConfigurations
-        self.ProcProv = [Int('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.MemProv = [Int('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
-        self.StorageProv = [Int('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
+        if self.default_offers_encoding:
+            self.ProcProv = [Int('ProcProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.MemProv = [Int('MemProv%i' % j) for j in range(1, self.nrVM + 1)]
+            self.StorageProv = [Int('StorageProv%i' % j) for j in range(1, self.nrVM + 1)]
         self.PriceProv = [Int('PriceProv%i' % j) for j in range(1, self.nrVM + 1)]
 
         self.a = [Int('C%i_VM%i' % (i + 1, j + 1)) for i in range(self.nrComp) for j in range(self.nrVM)]
@@ -30,7 +31,7 @@ class Z3_Solver(Z3_Solver_Parent):
                 self.solver.add(Implies(self.a[i * self.nrVM + j] == 1, Not(self.vmType[j] == 0)))
 
         super()._encodeOffers(1)
-        super()._simetry_breaking()
+
 
     def constraintsHardware(self, componentsRequirements):
         """
@@ -75,3 +76,6 @@ class Z3_Solver(Z3_Solver_Parent):
     #     """
     #
     #     super()._constraintsHardware(componentsRequirements, 1)
+
+    def convert_price(self, price):
+        return price / 1000.0

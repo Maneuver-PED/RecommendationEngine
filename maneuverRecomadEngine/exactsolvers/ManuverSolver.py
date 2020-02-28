@@ -2,18 +2,13 @@ from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHa
 
 class ManuverSolver(object):
 
-    '''
-       :param problem - manuverProblem
-       :param solver_type: optimize-run optimization; SAT-run only constraints satisfaction problem
-       :param offers_list: list with available offers from VM providers
-    '''
-    def init_problem(self, problem, solver_type, sb_vms_order_by_price=False,
+    def init_problem(self, problem, solver_type, default_offers_encoding=True, sb_vms_order_by_price=False,
                      sb_vms_order_by_components_number=False,
                      sb_fix_variables=False, sb_redundant_price=False, sb_redundant_processor=False, sb_redundant_memory=False,
                      sb_redundant_storage=False, sb_equal_vms_type_order_by_components_number=False,
                      sb_equal_vms_type_order_lex = False,
                      smt2lib=None, smt2libsol=None,
-                     use_vm_vector_in_encoding=False, offers_list_filtered=False):
+                     use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False):
 
 
         self.__constMap = {}
@@ -41,6 +36,10 @@ class ManuverSolver(object):
         self.smt2libsol = smt2libsol
         self.use_vm_vector_in_encoding = use_vm_vector_in_encoding
         self.offers_list_filtered = offers_list_filtered
+        self.sb_one_to_one_dependency = sb_one_to_one_dependency
+        self.default_offers_encoding = default_offers_encoding
+
+        print("self.default_offers_encoding", self.default_offers_encoding)
 
         self._initSolver()
 
@@ -48,15 +47,15 @@ class ManuverSolver(object):
         from maneuverRecomadEngine.restrictions.RestrictionConflicts import RestrictionConflict, RestrictionAlphaOrBeta
         from maneuverRecomadEngine.restrictions.RestrictionDependences import RestrictionOneToManyDependency, RestrictionOneToOneDependency, RestrictionManyToManyDependency
         for restriction in self.problem.restrictionsList:
-            # if isinstance(restriction, RestrictionConflict) or isinstance(restriction, RestrictionHardware)or \
-            #         isinstance(restriction, RestrictionAlphaOrBeta) \
-            #         or isinstance(restriction, RestrictionManyToManyDependency)\
-            #         or isinstance(restriction, RestrictionOneToOneDependency)\
-            #         or isinstance(restriction, RestrictionOneToManyDependency):
             restriction.generateRestrictions(self)
+
+        self._simetry_breaking()
 
     def run(self):
         print("Start evaluation")
+
+    def _simetry_breaking(self):
+        print("Parent class simetry breaking")
 
     def _initSolver(self):
         print("Start solver initialization")

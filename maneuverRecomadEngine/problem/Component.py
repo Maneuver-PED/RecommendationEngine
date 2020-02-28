@@ -28,11 +28,12 @@ class Component:
         self.numberOfInstancesDependences = set()
 
 
+
     def getMinimumPossibleNumberOfInstances(self, comps_set):
         """
         Get minimum nr of instances for fix components
         If the number of instances of a set of components depends on a value, then the minimum number of instances of
-        the conponent in the set is the minimum of the number of instancess of all components
+        the component in the set is the minimum of the number of instances of all components
         :return:
         """
         if len(self.numberOfInstancesDependences) == 0:
@@ -40,7 +41,7 @@ class Component:
         else:
             minimum = self.minimumNumberOfInstances
             for comp_id in self.numberOfInstancesDependences:
-                if minimum  > comps_set[comp_id].minimumNumberOfInstances:
+                if minimum > comps_set[comp_id].minimumNumberOfInstances:
                     minimum = comps_set[comp_id].minimumNumberOfInstances
         return minimum
 

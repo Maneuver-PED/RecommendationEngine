@@ -25,6 +25,7 @@ class ManeuverProblem:
         self.priceOffersFile = None
         self.nrComp = 0
         self.nrVM = 0
+        self.one_to_one_dependencies = []
 
     def init(self, nr_vm, nr_comp):# used at initilization for test instances
         self.nrVM = nr_vm
@@ -404,6 +405,7 @@ class ManeuverProblem:
         elif restrictionType == "OneToOneDependency":
             self.restrictionsList.append(RestrictionOneToOneDependency(dictionary["alphaCompId"],
                                                                        dictionary["betaCompId"], self))
+            self.__fill_one_to_one_dependency_list(dictionary["alphaCompId"],dictionary["betaCompId"])
         elif restrictionType == "ManyToManyDependency":
             self.restrictionsList.append(RestrictionManyToManyDependency(dictionary["alphaCompId"],
                                                                          dictionary["betaCompId"],
@@ -461,6 +463,25 @@ class ManeuverProblem:
             dictionaryOrRelation.add(dictionary["betaCompId"])
 
         return dictionaryOrRelation
+
+
+    def __fill_one_to_one_dependency_list(self, alpha_component_id, beta_component_id):
+        """
+        Function create a list with one to one dependency relations between components
+        :parameter alpha_component_id: first component id
+        :parameter beta_component_id: second component id
+        """
+        alpha_component_id -= 1
+        beta_component_id -= 1
+        found = False
+        for dependency_group in self.one_to_one_dependencies:
+            if alpha_component_id in dependency_group or beta_component_id in dependency_group:
+                dependency_group.add(alpha_component_id)
+                dependency_group.add(beta_component_id)
+                found = True
+        if not found:
+            self.one_to_one_dependencies.append({alpha_component_id, beta_component_id})
+
 
 
     def __componentAddNumberOfInstancesDependences(self, components):

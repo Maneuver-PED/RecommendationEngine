@@ -181,7 +181,7 @@ def agregate_tests(solverName, outputFileName):
                             fileInfo.extend([values, numpy.mean(vtimes), numpy.std(vtimes)])
 
                     except:
-                        fileInfo.extend(["", ""])
+                        fileInfo.extend(["", "", ""])
                         print("file not found")
             outfile.writerow(fileInfo)
 
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     repetion_mumber = 3
 
     #start_tests()
-    agregate_tests("output_Z3_SolverIntIntSymBreak", "agregateIntInt")
+    agregate_tests("output_Z3_SolverRealSymBreak", "agregateReal")
 
     # repetion_mumber = 1
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak

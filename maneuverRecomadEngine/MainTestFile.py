@@ -50,7 +50,7 @@ def prepareManuverProblem(problem_file_name, configurations_file_name):
 
     return mp
 
-def runOnce(solver, mp, outFolderDetails, repetion_mumber=1, default_offers_encoding=True, sb_vms_order_by_price=False,
+def runOnce(solver, mp, outFolderDetails, repetion_number=1, default_offers_encoding=True, sb_vms_order_by_price=False,
                      sb_vms_order_by_components_number=False,
                      sb_fix_variables=False, sb_redundant_price=False, sb_redundant_processor=False, sb_redundant_memory=False,
                      sb_redundant_storage=False, sb_equal_vms_type_order_by_components_number=False,
@@ -93,7 +93,7 @@ def runOnce(solver, mp, outFolderDetails, repetion_mumber=1, default_offers_enco
                                             sb_equal_vms_type_order_lex,
                                             sb_one_to_one_dependency])
         fwriter.writerow(['Price min value', 'Price for each machine', 'Time'])
-        for it in range(repetion_mumber):
+        for it in range(repetion_number):
             # debug/optimize
             getattr(solver, "init_problem")(mp, "optimize", smt2lib=smt2lib, smt2libsol=smt2libsol,
                                             default_offers_encoding=default_offers_encoding,
@@ -116,7 +116,7 @@ def runOnce(solver, mp, outFolderDetails, repetion_mumber=1, default_offers_enco
 
 def agregate_tests(solverName, outputFileName):
     offers = ["offers_20", "offers_40", "offers_100", "offers_250", "offers_500"]
-    applications = ["Oryx 2", "WebIntrusionDetection", "WordPress4" , "WordPress5", "WordPress6", "WordPress7", "WordPress8"]
+    applications = ["Oryx2", "SecureBillingEmail", "SecureWebContainer", "Wordpress3", "Wordpress4", "Wordpress5", "Wordpress6", "Wordpress7", "Wordpress8"]
     configurations = ["simple_offerOld",
                       "simple_offerNew",
                       "price_offerOld",
@@ -135,8 +135,8 @@ def agregate_tests(solverName, outputFileName):
                        "price_fixvar_redundant_byLoad_offerNew",
                        "price_fixvar_redundant_lex_offerOld",
                        "price_fixvar_redundant_lex_offerNew",
-                       "simple_oneToOne",
-                      "simple_oneToOne"
+                       "simple_oneToOne_offerOld",
+                      "simple_oneToOne_offerNew"
                       ]
 
     firstLine = ["strategy"]
@@ -191,10 +191,11 @@ def start_tests():
     offers = ["../testInstances/offersLPAR2018/offers_20.json", "../testInstances/offersLPAR2018/offers_40.json",
               "../testInstances/offersLPAR2018/offers_100.json", "../testInstances/offersLPAR2018/offers_250.json",
               "../testInstances/offersLPAR2018/offers_500.json"]
-    test_files = ["../testInstances/Oryx2.json", "../testInstances/SecureWebContainer.json",
-                  "../testInstances/WordPress4.json", "../testInstances/WordPress5.json",
-                  "../testInstances/WordPress6.json", "../testInstances/WordPress7.json",
-                  "../testInstances/WordPress8.json"
+
+    test_files = ["../testInstances/Oryx2.json", "../testInstances/SecureBillingEmail.json", "../testInstances/SecureWebContainer.json",
+                  "../testInstances/Wordpress3.json", "../testInstances/Wordpress4.json", "../testInstances/Wordpress5.json",
+                  "../testInstances/Wordpress6.json", "../testInstances/Wordpress7.json",
+                  "../testInstances/Wordpress8.json"
                   ]
     configurations = [("simple_offerOld", True, False, False, False, False, False, False, False, False, False, False),
                      ("simple_offerNew", False, False, False, False, False, False, False, False, False, False, False),
@@ -244,7 +245,7 @@ def start_tests():
 
                 print("-----------Z3_Solver------------------")
                 solver = Z3_SolverIntIntSymBreak()
-                runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
+                runOnce(solver, mp, configuration[0], repetion_number=repetion_number,
                         default_offers_encoding=configuration[1],
                         sb_vms_order_by_price=configuration[2],
                         sb_vms_order_by_components_number=configuration[3],
@@ -261,7 +262,7 @@ def start_tests():
 
                 solver = Z3_SolverRealSymBreak()
                 print("-----------Z3_SolverReal------------------")
-                runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
+                runOnce(solver, mp, configuration[0], repetion_number=repetion_number,
                         default_offers_encoding=configuration[1],
                         sb_vms_order_by_price=configuration[2],
                         sb_vms_order_by_components_number=configuration[3],
@@ -285,21 +286,21 @@ if __name__ == "__main__":
     # print("-----------------------------")
     # solver = Z3_SolverSimple()
     # runOnce(solver, mp)
-    repetion_mumber = 3
+    repetion_number = 5
 
-    #start_tests()
-    agregate_tests("output_Z3_SolverRealSymBreak", "agregateReal")
+    start_tests()
+    #agregate_tests("output_Z3_SolverRealSymBreak", "agregateReal")
 
-    # repetion_mumber = 1
+    # repetion_number = 1
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
     # print("-----------Z3_Solver------------------")
     # # # can we have the name Z3_SolverInt to be similar to the below?
     # solver = Z3_SolverIntIntSymBreak()
-    # runOnce(solver, mp, "flavia",repetion_mumber = repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
+    # runOnce(solver, mp, "flavia",repetion_number = repetion_number, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
     #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False)
     #         #this is not always good: sb_vms_order_by_components_number=True)
     # print("-----------Z3_Solver fix------------------")
-    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=True,
+    # runOnce(solver, mp, "flavia", repetion_number=repetion_number, sb_vms_order_by_price=True, sb_fix_variables=True,
     #         sb_redundant_memory=False, sb_redundant_price=False,
     #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False)
 
@@ -308,7 +309,7 @@ if __name__ == "__main__":
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
     # solver = Z3_SolverRealSymBreak()
     # print("-----------Z3_SolverReal------------------")
-    # runOnce(solver, mp, repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
+    # runOnce(solver, mp, repetion_number=repetion_number, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
     #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False)
     # # #runZ3OnceLinear("../testInstances/Oryx2.json", "../testInstances/offersICCP2018/offers_10.json", )
     # #

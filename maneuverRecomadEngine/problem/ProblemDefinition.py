@@ -152,7 +152,7 @@ class ManeuverProblem:
     def solveCPNrOfInstances(self, choosing_stategy, solutions_limit):
         """
         Start solving components number problem using the chosen solver and available configurations for VM
-        :param cpSolver: Solver choosed to solve the problem
+        :param cpSolver: Solver chouse to solve the problem
         :return:
         """
         self.logger.info("Find number of needed virtual machines based on components number restrictions")

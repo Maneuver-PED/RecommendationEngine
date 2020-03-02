@@ -48,13 +48,15 @@ def prepareManuverProblem(problem_file_name, configurations_file_name):
 
     mp.priceOffersFile = configurations_file_name
 
+    print("m1!!!!!!", mp.nrComp, mp.nrVM)
     return mp
 
 def runOnce(solver, mp, outFolderDetails, repetion_mumber=1, default_offers_encoding=True, sb_vms_order_by_price=False,
                      sb_vms_order_by_components_number=False,
                      sb_fix_variables=False, sb_redundant_price=False, sb_redundant_processor=False, sb_redundant_memory=False,
                      sb_redundant_storage=False, sb_equal_vms_type_order_by_components_number=False,
-                     sb_equal_vms_type_order_lex=False, sb_one_to_one_dependency=False):
+                     sb_equal_vms_type_order_lex=False, sb_one_to_one_dependency=False, sb_lex_line=False,
+            sb_lex_line_price=False):
 
     solver_name = solver.__class__.__name__
     filename1 = ""+mp.applicationName
@@ -106,7 +108,9 @@ def runOnce(solver, mp, outFolderDetails, repetion_mumber=1, default_offers_enco
                                             sb_redundant_storage=sb_redundant_storage,
                                             sb_equal_vms_type_order_by_components_number=sb_equal_vms_type_order_by_components_number,
                                             sb_equal_vms_type_order_lex=sb_equal_vms_type_order_lex,
-                                            sb_one_to_one_dependency=sb_one_to_one_dependency
+                                            sb_one_to_one_dependency=sb_one_to_one_dependency,
+                                            sb_lex_line=sb_lex_line,
+                                            sb_lex_line_price=sb_lex_line_price
                                             )
             minPrice, priceVMs, t, a, vms_type = solver.run()
             print("min price = {}, price vm = {}, time = {}".format(minPrice, priceVMs, t))
@@ -135,8 +139,12 @@ def agregate_tests(solverName, outputFileName):
                        "price_fixvar_redundant_byLoad_offerNew",
                        "price_fixvar_redundant_lex_offerOld",
                        "price_fixvar_redundant_lex_offerNew",
-                       "simple_oneToOne",
-                      "simple_oneToOne"
+                       "simple_oneToOne_offerOld",
+                       "simple_oneToOne_offerNew",
+                      "row_lex_offerOld",
+                      "row_lex_offerNew",
+                      "row_lex_price_offerOld",
+                      "row_lex_price_offerNew"
                       ]
 
     firstLine = ["strategy"]
@@ -187,63 +195,70 @@ def agregate_tests(solverName, outputFileName):
 
 
 
-def start_tests():
-    offers = ["../testInstances/offersLPAR2018/offers_20.json", "../testInstances/offersLPAR2018/offers_40.json",
+def start_tests(solver):
+    offers = ["../testInstances/offersLPAR2018/offers_20.json"
+    , "../testInstances/offersLPAR2018/offers_40.json",
               "../testInstances/offersLPAR2018/offers_100.json", "../testInstances/offersLPAR2018/offers_250.json",
               "../testInstances/offersLPAR2018/offers_500.json"]
-    test_files = ["../testInstances/Oryx2.json", "../testInstances/SecureWebContainer.json",
+    test_files = ["../testInstances/Oryx2.json"
+        , "../testInstances/SecureWebContainer.json",
                   "../testInstances/WordPress4.json", "../testInstances/WordPress5.json",
                   "../testInstances/WordPress6.json", "../testInstances/WordPress7.json",
                   "../testInstances/WordPress8.json"
                   ]
-    configurations = [("simple_offerOld", True, False, False, False, False, False, False, False, False, False, False),
-                     ("simple_offerNew", False, False, False, False, False, False, False, False, False, False, False),
-                     ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False),
-                     ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False),
-                     ("vmLoad_offerOld", True, False, True, False, False, False, False, False, False, False, False),
-                     ("vmLoad_offerNew", False, False, True, False, False, False, False, False, False, False, False),
-                     (
-                     "price_redundant_offerOld", True, True, False, False, True, True, True, True, False, False, False),
+    configurations = [
+                    ("simple_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False),
+                    ("simple_offerNew", False, False, False, False, False, False, False, False, False, False, False, False, False),
+                     ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False),
+                     ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False, False, False),
+                     ("vmLoad_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False),
+                     ("vmLoad_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False),
+                    ("price_redundant_offerOld", True, True, False, False, True, True, True, True, False, False, False, False, False),
                      ("price_redundant_offerNew", False, True, False, False, True, False, False, False, False, False,
-                      False),
-                     ("fixvar_offerOld", True, False, True, False, False, False, False, False, False, False, False),
-                     ("fixvar_offerNew", False, False, True, False, False, False, False, False, False, False, False),
+                      False, False, False),
+
+                     ("fixvar_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False),
+                     ("fixvar_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False),
                      ("price_fixvar_redundant_offerOld", True, True, False, True, True, True, True, True, False, False,
-                      False),
+                      False, False, False),
                      ("price_fixvar_redundant_offerNew", False, True, False, True, True, False, False, False, False,
                       False,
-                      False),
+                      False, False, False),
                      (
-                     "price_fixvar_offerOld", True, True, False, True, False, False, False, False, False, False, False),
+                     "price_fixvar_offerOld", True, True, False, True, False, False, False, False, False, False, False, False, False),
                      ("price_fixvar_offerNew", False, True, False, True, False, False, False, False, False, False,
-                      False),
+                      False, False, False),
                      ("price_fixvar_redundant_byLoad_offerOld", True, True, False, True, True, True, True, True, True,
                       False,
-                      False),
+                      False, False, False),
                      ("price_fixvar_redundant_byLoad_offerNew", False, True, False, True, True, False, False, False,
                       True,
                       False,
-                      False),
+                      False, False, False),
                      ("price_fixvar_redundant_lex_offerOld", True, True, False, True, True, True, True, True, False,
-                      True,
-                      False),
-                     ("price_fixvar_redundant_lex_offerNew", False, True, False, True, True, False, False, False,
-                      False,
-                      True,
-                      False),
-                     ("simple_oneToOne_offerOld", True, False, False, False, False, False, False, False, False, False, True),
-                     ("simple_oneToOne_offerNew", False, False, False, False, False, False, False, False, False, False, True)
-                     ]
+                      True, False, False, False),
+
+                     ("price_fixvar_redundant_lex_offerNew",  False, True, False, True, True, True, True, True,
+                      False, True, False, False, False),
+                     ("simple_oneToOne_offerOld", True, False, False, False, False, False, False, False, False, False, True, False, False),
+                     ("simple_oneToOne_offerNew", False, False, False, False, False, False, False, False, False, False, True, False, False),
+                    ("row_lex_offerOld", True, False, False, False, False, False, False, False, False, False, True, True, False),
+                    ("row_lex_offerNew", False, False, False, False, False, False, False, False, False, False, True, True, False),
+                    ("row_lex_price_offerOld", True, False, False, False, False, False, False, False, False, False, True, True, True),
+                    ("row_lex_price_offerNew", False, False, False, False, False, False, False, False, False, False, True, True, True)
+                    ]
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
 
     for offer in offers:
         for problem in test_files:
             mp = prepareManuverProblem(problem, offer)
+            print("main", mp.nrComp, mp.nrVM)
             for configuration in configurations:
 
-                print("-----------Z3_Solver------------------")
-                solver = Z3_SolverIntIntSymBreak()
+                # print("-----------Z3_Solver------------------")
+                # solver = Z3_SolverIntIntSymBreak()
+                print(configuration)
                 runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
                         default_offers_encoding=configuration[1],
                         sb_vms_order_by_price=configuration[2],
@@ -255,53 +270,63 @@ def start_tests():
                         sb_redundant_storage=configuration[8],
                         sb_equal_vms_type_order_by_components_number=configuration[9],
                         sb_equal_vms_type_order_lex=configuration[10],
-                        sb_one_to_one_dependency=configuration[11]
+                        sb_one_to_one_dependency=configuration[11],
+                        sb_lex_line=configuration[12],
+                        sb_lex_line_price=configuration[13]
                         )
 
 
-                solver = Z3_SolverRealSymBreak()
-                print("-----------Z3_SolverReal------------------")
-                runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
-                        default_offers_encoding=configuration[1],
-                        sb_vms_order_by_price=configuration[2],
-                        sb_vms_order_by_components_number=configuration[3],
-                        sb_fix_variables=configuration[4],
-                        sb_redundant_price=configuration[5],
-                        sb_redundant_processor=configuration[6],
-                        sb_redundant_memory=configuration[7],
-                        sb_redundant_storage=configuration[8],
-                        sb_equal_vms_type_order_by_components_number=configuration[9],
-                        sb_equal_vms_type_order_lex=configuration[10],
-                        sb_one_to_one_dependency=configuration[11]
-                        )
+                # solver = Z3_SolverRealSymBreak()
+                # print("-----------Z3_SolverReal------------------")
+                # runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
+                #         default_offers_encoding=configuration[1],
+                #         sb_vms_order_by_price=configuration[2],
+                #         sb_vms_order_by_components_number=configuration[3],
+                #         sb_fix_variables=configuration[4],
+                #         sb_redundant_price=configuration[5],
+                #         sb_redundant_processor=configuration[6],
+                #         sb_redundant_memory=configuration[7],
+                #         sb_redundant_storage=configuration[8],
+                #         sb_equal_vms_type_order_by_components_number=configuration[9],
+                #         sb_equal_vms_type_order_lex=configuration[10],
+                #         sb_one_to_one_dependency=configuration[11]
+                #         )
 
 
 if __name__ == "__main__":
     #aboutOffers("../testInstances/offersICCP2018/offers_10.json")
 
-    mp = prepareManuverProblem("../testInstances/SecureWebContainer.json", "../testInstances/offersICCP2018/offers_20.json")
+    mp1 = prepareManuverProblem("../testInstances/SecureWebContainer.json", "../testInstances/offersLPAR2018/offers_20.json")
+
 
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
     # print("-----------------------------")
     # solver = Z3_SolverSimple()
     # runOnce(solver, mp)
-    repetion_mumber = 3
 
-    #start_tests()
-    agregate_tests("output_Z3_SolverRealSymBreak", "agregateReal")
+    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_SolverSymBreak
 
-    # repetion_mumber = 1
-    # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
-    # print("-----------Z3_Solver------------------")
-    # # # can we have the name Z3_SolverInt to be similar to the below?
+    solver = CPlex_SolverSymBreak()
+
+    repetion_mumber = 1
+
+    #start_tests(solver)
+    agregate_tests("CPlex_SolverSymBreak", "agregatecplex")
+
+    repetion_mumber = 1
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
+    print("-----------Z3_Solver------------------")
+    # # can we have the name Z3_SolverInt to be similar to the below?
     # solver = Z3_SolverIntIntSymBreak()
-    # runOnce(solver, mp, "flavia",repetion_mumber = repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
-    #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False)
-    #         #this is not always good: sb_vms_order_by_components_number=True)
+    runOnce(solver, mp1, "flavia",repetion_mumber = repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=False, sb_redundant_price=False,
+            sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False,
+            sb_lex_line=False)
+            #this is not always good: sb_vms_order_by_components_number=True)
     # print("-----------Z3_Solver fix------------------")
-    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=True,
+    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False,
     #         sb_redundant_memory=False, sb_redundant_price=False,
-    #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False)
+    #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False, sb_vms_order_by_components_number=False,
+    #         sb_lex_line=False, sb_lex_line_price=False)
 
 
     #
@@ -315,7 +340,13 @@ if __name__ == "__main__":
     # from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_SolverSymBreak
     # solver = CPlex_SolverSymBreak()
     # print("------------CP_Solver_CPlex-----------------")
-    # runOnce(solver, mp, sb_vms_order_by_price=True, sb_fix_variables=False, sb_redundant_memory=True, sb_redundant_price=False,
+    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False,
+    #         sb_redundant_memory=True, sb_redundant_price=False,
+    #         sb_equal_vms_type_order_lex=False, default_offers_encoding=True)
+    #
+    # print("------------new offer CP_Solver_CPlex-----------------")
+    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False,
+    #         sb_redundant_memory=True, sb_redundant_price=False,
     #         sb_equal_vms_type_order_lex=False, default_offers_encoding=False)
 
 #wordpress 4

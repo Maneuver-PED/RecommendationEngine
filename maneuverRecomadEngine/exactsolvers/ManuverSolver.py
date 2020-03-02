@@ -8,7 +8,8 @@ class ManuverSolver(object):
                      sb_redundant_storage=False, sb_equal_vms_type_order_by_components_number=False,
                      sb_equal_vms_type_order_lex = False,
                      smt2lib=None, smt2libsol=None,
-                     use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False):
+                     use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False,
+                     sb_lex_line=False, sb_lex_line_price=False):
 
 
         self.__constMap = {}
@@ -38,6 +39,8 @@ class ManuverSolver(object):
         self.offers_list_filtered = offers_list_filtered
         self.sb_one_to_one_dependency = sb_one_to_one_dependency
         self.default_offers_encoding = default_offers_encoding
+        self.sb_lex_line=sb_lex_line
+        self.sb_lex_line_price = sb_lex_line_price
 
         print("self.default_offers_encoding", self.default_offers_encoding)
 
@@ -49,12 +52,12 @@ class ManuverSolver(object):
         for restriction in self.problem.restrictionsList:
             restriction.generateRestrictions(self)
 
-        self._simetry_breaking()
+        self._symmetry_breaking()
 
     def run(self):
         print("Start evaluation")
 
-    def _simetry_breaking(self):
+    def _symmetry_breaking(self):
         print("Parent class simetry breaking")
 
     def _initSolver(self):

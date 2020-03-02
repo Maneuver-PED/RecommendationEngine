@@ -15,37 +15,41 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.nr_comps = self.problem.nrComp
 
         self.model = cpx.Model(name="Manuver Model")
+        self.model.parameters.timelimit.set(400.0)
         self.__define_variables()
         self.__add_offers_restrictions()
 
 
     def __define_variables(self):
         """
-        Creates the variables used in the solver and the constraints on them as well as others (offers encoding, usage vector, etc.)
+        Creates the variables used in the solver and the constraints on them as well as others (offers encoding,
+        usage vector, etc.)
         :return: None
         """
         # VM usage vector vm in {0, 1}, k = 1..M; vm_k = 1 if at least one component is assigned to vm_k.
         self.vm = {j: self.model.binary_var(name="vm{0}".format(j+1)) for j in range(self.nr_vms)}
 
         # Assignment matrix a_{alpha,k}: 1 if component alpha is on machine k, 0 otherwise
+        print("???????", self.nr_comps, self.nr_vms)
         self.a = {(i, j): self.model.binary_var(name="C{0}_VM{1}".format(i+1, j+1))
                   for i in range(self.nr_comps) for j in range(self.nr_vms)}
 
         for j in range(self.nr_vms):
-            self.model.add_equivalence(
-                self.vm[j], self.model.sum(self.a[i, j] for i in range(self.nr_comps)) >= 1,
+            self.model.add_equivalence( self.vm[j], self.model.sum(self.a[i, j] for i in range(self.nr_comps)) >= 1,
                 name="c{0}_vm_allocated".format(j))
-
-            # self.model.add_constraint(ct=self.model.add_equivalence(
-            #     self.model.logical_ self.vm[j] == 0, self.model.sum(self.a[i, j] for i in range(self.nr_comps)) == 0),
-            #     ctname="c{0}_vm_free".format(j))
 
         self.__define_variables_offers()
 
 
     def __define_variables_offers(self):
-
+        """
+        Function that describes the offers
+        :return:
+        """
+        maxType = len(self.offers_list)
         if self.default_offers_encoding:
+            self.vmType = {(j): self.model.integer_var(lb=0, ub=maxType, name="vmType{0}".format(j + 1))
+                           for j in range(self.nr_vms)}
             # values from availableConfigurations
             minProc = min(self.offers_list[t][1] for t in range(len(self.offers_list)))
             maxProc = max(self.offers_list[t][1] for t in range(len(self.offers_list)))
@@ -54,7 +58,6 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
             minMem = min(self.offers_list[t][2] for t in range(len(self.offers_list)))
             maxMem = max(self.offers_list[t][2] for t in range(len(self.offers_list)))
-            print("minMem", minMem, "maxMem", maxMem)
             self.MemProv = {(j): self.model.integer_var(lb=minMem, ub=maxMem,
                 name="MemProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
@@ -62,32 +65,32 @@ class CPlex_SolverSymBreak(ManuverSolver):
             maxSto = max(self.offers_list[t][3] for t in range(len(self.offers_list)))
             self.StorageProv = {(j): self.model.integer_var(#b=minSto, ub=maxSto,
                  name="StorageProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+        else:
+            self.newVmType = {(i, j): self.model.binary_var(name="newType{0}_VM{1}".format(i + 1, j + 1))
+                              for i in range(maxType) for j in range(self.nr_vms)}
+
+            # for j in range(self.nr_vms):
+            #     self.model.add_indicator(
+            #         self.vm[j], self.model.sum(self.newVmType[i, j] for i in range(len(self.offers_list))) >= 1,
+            #         name="c{0}_vm_allocated".format(j))
 
         maxPrice = max(self.offers_list[t][len(self.offers_list[0]) - 1] for t in range(len(self.offers_list)))
-
-        print("MAX price, ", maxPrice)
         self.PriceProv = {(j): self.model.integer_var(lb=0, ub=maxPrice,
             name="PriceProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
-        maxType = len(self.offers_list)
-        self.vmType = {(j): self.model.integer_var(lb=0, ub=maxType,
-            name="vmType{0}".format(j + 1)) for j in range(self.nr_vms)}
-
         # If a machine is not leased then its price is 0
         for j in range(self.nr_vms):
-            self.model.add_indicator(self.vm[j], self.PriceProv[j] == 0, active_value=0,
-                name="c{0}_vm_free_price_0".format(j))
+            self.model.add_indicator(self.vm[j], self.PriceProv[j]==0, active_value=0,
+                                     name="c{0}_vm_free_price_0".format(j))
 
 
     def run(self):
         objective = self.model.sum(self.PriceProv[j] for j in range(self.nr_vms))
-        #objective = self.model.sum(self.v
-
         self.model.minimize(objective)
 
-        self.model.prettyprint("out")
-        self.model.export_as_lp("alt")
-        self.model.export_as_mps("nou")
+#        self.model.prettyprint("out")
+#        self.model.export_as_lp("alt")
+#        self.model.export_as_mps("nou")
 
         vmPrice = []
         vmType = []
@@ -98,24 +101,40 @@ class CPlex_SolverSymBreak(ManuverSolver):
         xx = self.model.solve()
         stoptime = time.time()
 
-
         print("cplex: ", self.model.get_solve_status(), self.model.get_statistics)
-        print(self.vm)
+
         if (dc.status.JobSolveStatus.OPTIMAL_SOLUTION ==  self.model.get_solve_status()):
             print(self.model.solve_details)
             print("vmType")
-            for index, var in self.vmType.items():
-                print(var.solution_value, end=" ")
-                vmType.append(var.solution_value)
-            print("\nvmPrice")
 
+            if (self.default_offers_encoding):
+                for index, var in self.vmType.items():
+                    print(var.solution_value, end=" ")
+                    vmType.append(var.solution_value)
+            else:
+                vmType = []
+                l = []
+                col = 0
+                for index, var in self.newVmType.items():
+                    if col == self.problem.nrVM:
+                        vmType.append(l)
+                        l = []
+                        col = 0
+                    col += 1
+                    l.append(int(var.solution_value))
+                    vmType.append(l)
+
+
+            print("\nvmPrice")
             for index, var in self.PriceProv.items():
                 print(var.solution_value, end=" ")
                 vmPrice.append(var.solution_value)
+
             print("\nVm Aquired")
             for index,var in self.vm.items():
                print(var.solution_value, end=" ")
             print()
+
 
             l=[]
             col = 0
@@ -128,12 +147,13 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 col += 1
                 l.append(int(var.solution_value))
             a_mat.append(l)
+            print("\n comp allocation matrix", self.nrVM, self.nrComp)
             for l in a_mat:
                 print(l)
 
             print(xx.get_objective_value())
         else:
-            print("!!!!!!!!!!Unsolve")
+            print("!!!!!!!!!!Unsolve CPLEX")
             print(self.model.get_time_limit())
             cr = ConflictRefiner()
             conflicts = cr.refine_conflict(self.model)
@@ -207,7 +227,8 @@ class CPlex_SolverSymBreak(ManuverSolver):
         if self.default_offers_encoding:
             tmp = []
             for k in range(self.nr_vms):
-                self.model.add_constraint(ct=self.model.sum(self.a[i, k] * componentsRequirements[i][0] for i in range(self.nr_comps)) <= self.ProcProv[k],
+                self.model.add_constraint(ct=self.model.sum(self.a[i, k] * componentsRequirements[i][0]
+                                                            for i in range(self.nr_comps)) <= self.ProcProv[k],
                                           ctname="c_hard")
                 self.model.add_constraint(
                     ct=self.model.sum(self.a[i, k] * componentsRequirements[i][1] for i in range(self.nr_comps)) <=
@@ -242,105 +263,69 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 else:
                     storage_values[storage] = [index]
 
-            tmp1 = []
-            tmp2 = []
-            tmp3 = []
-            print(cpu_values)
-            print(memory_values)
-            print(storage_values)
+            self.__encode_carachteristic(cpu_values, 0, componentsRequirements, "cpu")
+            self.__encode_carachteristic(memory_values, 1, componentsRequirements, "mem")
+            self.__encode_carachteristic(storage_values, 2, componentsRequirements, "sto")
 
-            for k in range(self.nrVM):
-                # reversed(sorted(test_dict.keys()))
-                # for key, val in cpu_values.items():
-                keys = list(cpu_values.keys())
-                keys.sort(reverse=True)
+    def __encode_carachteristic(self, characteristic_values, characteristic_index, componentsRequirements, text):
+        """
+        Helper function in order to encode harware constraints
+        """
+        for k in range(self.nrVM):
+            keys = list(characteristic_values.keys())
+            keys.sort(reverse=True)
 
-                # self.betaSum = self.model.integer_var(lb=0, ub=self.nr_vms, name="betaSum{0}".format(self.orCntIndex))
-                #
-                # self.orCntIndex += 1
-                #
-                # self.model.add_constraint(
-                #     ct=self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) == self.alphaSum,
-                #     ctname="c_or_alpha")
-                #print("k", k)
-                var = self.model.integer_var(lb=0, name="aux_vm_cpu{0}".format(k))
-                self.model.add_constraint(ct=self.model.sum([self.a[i, k] * componentsRequirements[i][0] for i in range(self.nr_comps)]) == var, ctname="set_vm_cpu")
+            cpus_sum = self.model.integer_var(lb=0, name="{}_sum{}".format(text, k))
+            self.model.add_constraint(
+                ct=self.model.sum([self.a[i, k] * componentsRequirements[i][characteristic_index] for i in range(self.nr_comps)]) == cpus_sum,
+                ctname="set_vm_{}{}".format(text, k))
+            key = keys[0]
+            offers_applicable = characteristic_values[key].copy()
 
-                key = keys[0]
-                # tmp1.append(Implies(
-                #     sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) >
-                #     key, self.vmType[k] == 0)
-                # )
-                self.model.add(self.model.if_then(if_ct=var >= key+1, then_ct=self.vmType[k] == 0))
+            var_aux1 = self.model.binary_var("sum_equal_zero_{}__vm{}_{}".format(text, k, key))
+            var_aux2 = self.model.binary_var("sum_upper_bound_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(var_aux1, cpus_sum == 0)
+            self.model.add_equivalence(var_aux2, cpus_sum >= key + 1)
+            for offer_id in range(len(self.offers_list)):
+                self.model.add_indicator(var_aux1, self.newVmType[offer_id, k] == 0)
+                self.model.add_indicator(var_aux2, self.newVmType[offer_id, k] == 0)
 
-                offers_aplicable = cpu_values[key].copy()
-                keys.pop(0)
-                #print(keys)
-                for key in keys:
-                    values = cpu_values[key]
-                    self.model.add(self.model.if_then(if_ct=var >= key+1, then_ct=self.model.sum([self.vmType[k] == index for index in offers_aplicable]) >=1))
-                    # tmp1.append(Implies(
-                    #     sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) >
-                    #     key, Or([self.vmType[k] == index for index in offers_aplicable])
-                    # ))
-                    offers_aplicable.extend(values).sort()
+            keys.pop(0)
+            # print(keys)
+            for key in keys:
+                values = characteristic_values[key]
+                var1 = self.model.binary_var("available_offers_{}__vm{}_{}".format(text, k, key))
 
-                key = keys.pop()
-                self.model.add(self.model.if_then(if_ct=var <= key, then_ct=self.model.sum([self.vmType[k] == index for index in
-                                                                                    offers_aplicable])>=1))
-                # tmp1.append(Implies(
-                #     sum([self.a[i * self.nrVM + k] * (components_Requirements[i][0]) for i in range(self.nrComp)]) <=
-                #     key, Or([self.vmType[k] == index for index in offers_aplicable])
-                # ))
+                self.model.add_equivalence(var1,
+                                    self.model.sum([self.newVmType[index - 1, k] for index in offers_applicable]) >= 1)
 
-                keys = list(memory_values.keys())
-                keys.sort(reverse=True)
+                var_aux3 = self.model.binary_var("sum_inner_bounds_{}__vm{}_{}".format(text, k, key))
+                self.model.add_equivalence(var_aux3, cpus_sum >= key + 1)
 
-                key = keys[0]
-                var = self.model.integer_var(name="aux_vm_mem{0}".format(k))
-                self.model.add_constraint(ct=self.model.sum(
-                    [self.a[i, k] * (componentsRequirements[i][1]) for i in range(self.nrComp)]) == var)
-                self.model.add(self.model.if_then(if_ct= var >= key+1, then_ct=self.vmType[k] == 0))
-                offers_aplicable = memory_values[key].copy()
-                keys.pop(0)
+                self.model.add_indicator(var_aux3, var1 == 1)
+                offers_applicable.extend(values)
+                offers_applicable.sort()
 
 
-                for key in keys:
-                    values = memory_values[key]
-                    self.model.add(self.model.if_then(if_ct=var >= key+1, then_ct=self.model.sum(
-                                                                           [self.vmType[k] == index for index in
-                                                                            offers_aplicable])>=1))
 
-                    offers_aplicable.extend(values).sort()
+            key = keys.pop()
+            var1 = self.model.binary_var("available_offers_{}_vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(var1,
+                                       self.model.sum([self.newVmType[index - 1, k] for index in offers_applicable]) >= 1)
 
-                key = keys.pop()
-                self.model.add(self.model.if_then(if_ct=var <= key,
-                                   then_ct=self.model.sum([self.vmType[k] == index for index in
-                                                                      offers_aplicable])>=1))
+            var_aux6 = self.model.binary_var("sum_ge_one_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(var_aux6, cpus_sum >= 1)
+            var_aux7 = self.model.binary_var("sum_le_lower_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(var_aux7, cpus_sum <= key +1)
 
-                keys = list(storage_values.keys())
-                keys.sort(reverse=True)
-                key = keys[0]
-                var = self.model.integer_var(name="aux_vm_storage{0}".format(k))
-                self.model.add_constraint(ct=self.model.sum(
-                    [self.a[i, k] * (componentsRequirements[i][2]) for i in range(self.nrComp)]) == var)
-                self.model.add(self.model.if_then(if_ct=var >= key+1, then_ct=self.vmType[k] == 0))
+            var_aux8 = self.model.binary_var("sum_and_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(var_aux8, LogicalAndExpr(self.model, [var_aux6, var_aux7])==1)
 
-                offers_aplicable = storage_values[key].copy()
-                keys.pop(0)
+            self.model.add_indicator(var_aux8, var1 == 1)
+            # self.model.add_constraint(
+            #     self.model.add_if_then(if_ct=LogicalAndExpr(self.model, [var_aux6, var_aux7])==1 , then_ct=var1 == 1))
 
-                for key in keys:
-                    values = storage_values[key]
-                    self.model.add(self.model.if_then(if_ct=var >= key+1, then_ct=self.model.sum(
-                                                                           [self.vmType[k] == index for index in
-                                                                            offers_aplicable])>=1))
 
-                    offers_aplicable.extend(values).sort()
-
-                key = keys.pop()
-                self.model.add(self.model.if_then(if_ct=var <= key,
-                                   then_ct=self.model.sum([self.vmType[k] == index for index in
-                                                                      offers_aplicable])>=1))
 
     def RestrictionOneToOneDependency(self, alphaCompId, betaCompId):
         """
@@ -351,10 +336,6 @@ class CPlex_SolverSymBreak(ManuverSolver):
         """
         for j in range(self.nr_vms):
             self.model.add_constraint(ct=self.a[alphaCompId, j] == self.a[betaCompId, j], ctname="c_one_2_one_dependency")
-
-        #self.solver.add(self.a[alphaCompId * self.nr_vms + j] == self.a[betaCompId * self.nr_vms + j])
-
-
 
     def RestrictionManyToManyDependency(self, alphaCompId, betaCompId, relation):
         """
@@ -368,28 +349,17 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :return: None
         """
         if relation == "<=":
-                # self.solver.add(
-                #     sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) <=
-                #     sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]))
             self.model.add_constraint(ct=
                 self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) <=
                 self.model.sum(self.a[betaCompId, j]for j in range(self.nr_vms)),
                                           ctname="c_many_2_many_dependency_le")
 
         elif relation == ">=":
-
-                # self.solver.add(
-                #     sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) >=
-                #     sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]))
-            self.model.add_constraint(ct=
-                                  self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) >=
+            self.model.add_constraint(ct=self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) >=
                                   self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)),
                                   ctname="c_many_2_many_dependency_ge")
 
         elif relation == "=":
-                # self.solver.add(
-                #     sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) ==
-                #     sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]))
                 self.model.add_constraint(ct=
                                           self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) ==
                                           self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)),
@@ -405,20 +375,12 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :return: None
         """
 
-            # self.solver.add(
-            #     noInstances * sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) -
-            #     sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) > 0)
         self.model.add_constraint(ct=
                                   noInstances * self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms))-
                                   self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) >= 1,
                                   ctname="c_one_2_many_dependency_p1")
 
-
-            # self.solver.add(
-            #     noInstances * sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) -
-            #     sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) <= noInstances)
-
-        self.model.add_constraint(ct= noInstances * self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms))-
+        self.model.add_constraint(ct=noInstances * self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms))-
                                   self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) <= noInstances,
                                   ctname="c_one_2_many_dependency_p1")
 
@@ -438,25 +400,16 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.problem.logger.debug("RestrictionUpperLowerEqualBound: {} {} {} ".format(compsIdList, operator, bound))
 
         if operator == "<=":
-
-                # self.solver.add(
-                #     sum([self.a[compId * self.nr_vms + j] for compId in compsIdList for j in range(self.nr_vms)]) <= bound)
             self.model.add_constraint(
                 ct= self.model.sum(self.a[compId, j] for compId in compsIdList for j in range(self.nr_vms)) <= bound,
                 ctname="c_upper_lower_bound")
 
         elif operator == ">=":
-
-                # self.solver.add(
-                #     sum([self.a[compId * self.nr_vms + j] for compId in compsIdList for j in range(self.nr_vms)]) >= bound)
             self.model.add_constraint(
             ct=self.model.sum(self.a[compId, j] for compId in compsIdList for j in range(self.nr_vms)) >= bound,
             ctname="c_upper_lower_bound")
 
         elif operator == "=":
-            # if not self.debug:
-            #     self.solver.add(
-            #         sum([self.a[compId * self.nr_vms + j] for compId in compsIdList for j in range(self.nr_vms)]) == bound)
             self.model.add_constraint(
                 ct=self.model.sum(self.a[compId, j] for compId in compsIdList for j in range(self.nr_vms)) == bound,
                 ctname="c_upper_lower_bound")
@@ -473,17 +426,9 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :return:
         """
         for i in range(len(compsIdList)): compsIdList[i] -= 1
-        # if not self.debug:
-        #     self.solver.add(
-        #         sum([self.a[compId * self.nr_vms + j] for compId in compsIdList for j in range(self.nr_vms)]) >= lowerBound)
-
         self.model.add_constraint(
             ct=self.model.sum(self.a[compId, j] for compId in compsIdList for j in range(self.nr_vms)) >= lowerBound,
             ctname="c_range_bound")
-
-        # if not self.debug:
-        #     self.solver.add(
-        #         sum([self.a[compId * self.nr_vms + j] for compId in compsIdList for j in range(self.nr_vms)]) <= upperBound)
         self.model.add_constraint(
             ct=self.model.sum(self.a[compId, j] for compId in compsIdList for j in range(self.nr_vms)) <= upperBound,
             ctname="c_range_bound")
@@ -497,9 +442,6 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :param inConflictCompsIdList: the list of components that alphaCompId is in conflict in
         :return: None
         """
-
-
-        print("!!!!!!!!!!!  ", alphaCompId, inConflictCompsIdList)# 4 [3, 0]
         for j in range(self.nr_vms):
             # self.solver.add(
             #     sum([self.a[alphaCompId * self.nr_vms + j]] + [self.a[_compId * self.nr_vms + j] for _compId in
@@ -507,15 +449,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
             l = [self.a[_compId, j] for _compId in inConflictCompsIdList]
             l.append(self.a[alphaCompId, j])
-            # self.model.add_constraint(
-            #     ct=self.model.sum(l) <=self.vm[j],
-            #     ctname="c_range_bound")
-            #self.model.add_indicator(self.vm[j], self.a[alphaCompId, j] == 0, active_value=0, name="c_full_deplpyment")
             self.model.add_indicator(self.vm[j], self.model.sum(l) == 1, name="c_full_deployment"+str(j))
-
-
-            #print(j, " uff: " + alphaCompId + [(" " + _compId) for _compId in notInConflictCompsIdList] )
-
 
 
     def RestrictionRequireProvideDependency(self, alphaCompId, betaCompId, alphaCompIdInstances, betaCompIdInstances):
@@ -527,15 +461,6 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :param betaCompIdInstances: number of instances of component betaCompId
         :return: None
         """
-        # self.problem.logger.debug("RestrictionRequireProvideDependency: alphaCompId={}, betaCompId={}, alphaCompIdInstances={}, "
-        #                          "betaCompIdInstances={}".format(alphaCompId, betaCompId, alphaCompIdInstances, betaCompIdInstances))
-
-
-            # self.solver.add(
-            #     alphaCompIdInstances * sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) <=
-            #     betaCompIdInstances * sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]))
-
-
         self.model.add_constraint(
             ct=alphaCompIdInstances*self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) <=
                betaCompIdInstances * self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)),
@@ -552,37 +477,6 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.problem.logger.debug(
             "RestrictionAlphaOrBeta: alphaCompId={}, betaCompId={}".format(alphaCompId, betaCompId))
         print("RestrictionAlphaOrBeta", alphaCompId, betaCompId)
-            # self.solver.add(
-            #     Or(sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) == 0,
-            #        sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) >= 1))
-            # self.solver.add(
-            #     Or(sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) == 0,
-            #        sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) >= 1))
-
-            # self.solver.add(
-            #     Xor(sum([self.a[betaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) == 0,
-            #         sum([self.a[alphaCompId * self.nr_vms + j] for j in range(self.nr_vms)]) == 0, True))
-
-        # aux_var_alpha = self.model.binary_var(name="or_alpha")
-        # self.model.add_equivalence(
-        #     aux_var_alpha, self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) == 0)
-        # # self.model.add_equivalence(
-        # #     aux_var_alpha,
-        # #     self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) >= 1)
-        #
-        # aux_var_beta = self.model.binary_var(name="or_beta")
-        # self.model.add_equivalence(
-        #     aux_var_beta, self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) == 0)
-
-
-        # LogicalOrExpr(self.model, [self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) == 0,
-        #                            self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) >= 1])
-        #
-        # LogicalOrExpr(self.model, [self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) == 0,
-        #                            self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) >= 1])
-        #
-        # self.model.add_constraint(ct=self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms))+
-        #                              self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) >= 1, ctname="c_or")
 
         self.alphaSum = self.model.integer_var(lb=0, ub=self.nr_vms, name="alphaSum{0}".format(self.orCntIndex))
         self.betaSum = self.model.integer_var(lb=0, ub=self.nr_vms, name="betaSum{0}".format(self.orCntIndex))
@@ -607,97 +501,57 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :return: None
         """
 
-        print("??????????????__add_hardware_restrictions")
-
         if self.offers_list is None:
             return
 
         componentsRequirements = self.problem._getComponentsHardwareRestrictions()
         self.problem.logger.debug("constraintsHardware: componentsRequirements={}".format(componentsRequirements))
         componentsRequirements = [[0 if i is None else int(i) for i in line] for line in componentsRequirements]
-        print("componentsRequirements", componentsRequirements)
-
-        # for i in range(self.nr_comps):
-        #     componentsRequirements[i][1] /= 1000.
-        #     componentsRequirements[i][2] /= 1000.
 
         for k in range(self.nr_vms):
-            # tmp.append(sum([componentsRequirements[i][0] * self.a[i * self.nr_vms + k] for i in range(self.nr_comps)]) <=
-            #            self.ProcProv[k])
+            if self.default_offers_encoding:
+                    self.model.add_constraint(
+                        ct=self.model.sum(self.a[i, k]*componentsRequirements[i][0] for i in range(self.nr_comps)) <=
+                           self.ProcProv[k], ctname="c_hardware_proc{}".format(k))
 
-            self.model.add_constraint(
-                ct=self.model.sum(self.a[i, k]*componentsRequirements[i][0] for i in range(self.nr_comps)) <= self.ProcProv[k],
-                ctname="c_hardware_proc")
+                    self.model.add_constraint(
+                        ct=self.model.sum(self.a[i, k]*componentsRequirements[i][1] for i in range(self.nr_comps)) <=
+                           self.MemProv[k], ctname="c_hardware_mem{}".format(k))
 
-            # tmp.append(sum([componentsRequirements[i][1] * self.a[i * self.nr_vms + k] for i in range(self.nr_comps)]) <=
-            #            self.MemProv[k])
-
-            self.model.add_constraint(
-                ct=self.model.sum(self.a[i, k]*componentsRequirements[i][1] for i in range(self.nr_comps)) <=
-                   self.MemProv[k],
-                ctname="c_hardware_mem")
-
-            # tmp.append(sum([componentsRequirements[i][2] * self.a[i * self.nr_vms + k] for i in range(self.nr_comps)]) <=
-            #            self.StorageProv[k])
-
-            self.model.add_constraint(
-                ct=self.model.sum(self.a[i, k]*componentsRequirements[i][2] for i in range(self.nr_comps)) <=
-                   self.StorageProv[k],
-                ctname="c_hardware_storage")
-
-        # if not self.debug:
-        #     for constaint in tmp:
-        #         self.solver.add(constaint)
-        # else:
-        #     for constaint in tmp:
-        #         self.solver.assert_and_track(constaint, "Label: " + str(self.labelIdx))
-        #         self.labelIdx += 1
+                    self.model.add_constraint(
+                        ct=self.model.sum(self.a[i, k]*componentsRequirements[i][2] for i in range(self.nr_comps)) <=
+                           self.StorageProv[k], ctname="c_hardware_storage{}".format(k))
+            else:
+                #implemented in constraintsHardware() function
+                pass
 
 
     def __add_offers_restrictions(self):
-
-
         if self.default_offers_encoding:
             cnt = 0
             for vm_id in range(self.nr_vms):
                 addedOffers = []
-                vars = []
                 for t in range(len(self.offers_list)):
                     addOffer = True
                     if self.offers_list_filtered:
                         if vm_id in self.vm_with_offers:
-                            # testez daca oferta e aplicabila
+                            # test if offer is applicable to problem
                             comp_id = self.vm_with_offers[vm_id]
                             if self.offers_list[t][1] < self.problem.componentsList[comp_id].HC:
                                 addOffer = False
-                            elif self.offers_list[t][2] < self.problem.componentsList[comp_id].HM:# / 1000.:
+                            elif self.offers_list[t][2] < self.problem.componentsList[comp_id].HM:
                                 addOffer = False
-                            elif self.offers_list[t][3] < self.problem.componentsList[comp_id].HS:# / 1000.:
+                            elif self.offers_list[t][3] < self.problem.componentsList[comp_id].HS:
                                 addOffer = False
                     if addOffer:
                         cnt += 1
                         addedOffers.append(t + 1)
-                                # self.solver.add(
-                                #     Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == t + 1),
-                                #             And(self.PriceProv[vm_id] == self.offers[t][len(self.offers[0]) - 1],
-                                #                 self.ProcProv[vm_id] == self.offers[t][1],
-                                #                 self.MemProv[vm_id] == self.offers[t][2],
-                                #                 self.StorageProv[vm_id] == self.offers[t][3]
-                                #                 )
-                                #             ))
-                        var = self.model.binary_var(name="aux_hard{0}".format(cnt))
-                        vars.append(var)
 
+                        var = self.model.binary_var(name="aux_hard{0}".format(cnt))
                         ct = self.model.add_equivalence(var, self.vmType[vm_id] == t + 1)
 
-                        # ct = self.model.add_indicator(var, LogicalAndExpr(self.model, [
-                        #                             self.PriceProv[vm_id] == int(self.offers[t][len(self.offers[0]) - 1]),
-                        #                             self.ProcProv[vm_id] == int(self.offers[t][1]),
-                        #                             self.MemProv[vm_id] == int(self.offers[t][2]),
-                        #                             self.StorageProv[vm_id] == int(self.offers[t][3])
-                        #                             ])==1)
-
-                        self.model.add_indicator(var,  self.PriceProv[vm_id] == int(self.offers_list[t][len(self.offers_list[0]) - 1])
+                        self.model.add_indicator(var,
+                                                 self.PriceProv[vm_id] == int(self.offers_list[t][len(self.offers_list[0]) - 1])
                                                  , active_value=1,
                                                  name="c_order_vm_price".format(vm_id))
                         self.model.add_indicator(var, (self.ProcProv[vm_id] == int(self.offers_list[t][1])),
@@ -705,17 +559,12 @@ class CPlex_SolverSymBreak(ManuverSolver):
                         self.model.add_indicator(var, (self.MemProv[vm_id] == int(self.offers_list[t][2])),
                                                  name="c_order_vm_memory".format(vm_id))
                         self.model.add_indicator(var, (self.StorageProv[vm_id] == int(self.offers_list[t][3])),
-                                                  name="c_order_vm_storage".format(vm_id))
+                                                 name="c_order_vm_storage".format(vm_id))
 
-                    else:
-                        self.model.add_indicator(self.vm[vm_id], self.vmType[vm_id] != t+1)
-                print("offers: ", vm_id, addedOffers)
                 lst = [(self.vmType[vm_id] == offer) for offer in addedOffers]
                 ct = self.model.add_indicator(self.vm[vm_id], self.vmType[vm_id] >= 1)
-                #Todo: oare nu e in plus
-                #self.model.add_constraint(ct=self.model.logical_or(lst)==1, ctname="c_offers_type")
+
         else:
-            print("!!!!!!!!!!! Add price")
             # new encoding
             priceIndex = len(self.offers_list[0]) - 1
             for vm_id in range(self.nrVM):
@@ -723,38 +572,30 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 for offer in self.offers_list:
                     index += 1
                     price = offer[priceIndex]
-
-                    self.model.add(self.model.if_then(if_ct=self.vmType[vm_id] == index,
-                                              then_ct=self.PriceProv[vm_id] == price), name="alternative_offer")
-
-                                # Implies(And(self.vm[vm_id] == 1, self.vmType[vm_id] == index),
-                                #         self.PriceProv[vm_id] == price
-                                #         ))
-
+                    self.model.add_indicator(self.newVmType[index - 1, vm_id], self.PriceProv[vm_id] == price,
+                                             name="price_type_mapping_offer{}_vm{}".format(index-1, vm_id))
 
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
+        print("RestrictionPriceOrder",start_vm_id, end_vm_id)
 
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id - 1):
-                # sum c1 <= sum c2 <= sum c3 - fortez la inceput masinile goale <- de vazut daca ajuta daca cres numarul de vm-uri
-                # self.solver.add(sum([self.a[i + j] for i in range(0, len(self.a), self.nr_vms)]) >= sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nr_vms)]))
-                #self.solver.add(self.PriceProv[j] <= self.PriceProv[j + 1])
                 self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1], ctname="c_price_lex_order")
 
 
     def RestrictionComponentsNumberOrder(self, start_vm_id, end_vm_id):
         if self.sb_vms_order_by_components_number:
             for j in range(start_vm_id, end_vm_id - 1):
-                # sum c1 <= sum c2 <= sum c3 - fortez la inceput masinile goale <- de vazut daca ajuta daca cres numarul de vm-uri
-                # self.model.add(sum([self.a[i + j] for i in range(0, len(self.a), self.nr_vms)]) <= sum(
-                #     [self.a[i + j + 1] for i in range(0, len(self.a), self.nr_vms)]))
-                self.model.add_constraint(ct=self.model.sum(self.a[i, j] for i in range(self.nr_comps)) <= self.model.sum(self.a[i, j+1] for i in range(self.nr_compss)), ctname="c_offers_type")
-                # for j in range(start_vm_id, end_vm_id - 1):
-                #     self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
+                self.model.add_constraint(ct=self.model.sum(self.a[i, j] for i in range(self.nr_comps)) <=
+                                             self.model.sum(self.a[i, j+1] for i in range(self.nr_compss)),
+                                          ctname="c_offers_type")
 
-    def _simetry_breaking(self):
 
+    def _symmetry_breaking(self):
+        """
+        Different symmetry breaking
+        """
         max_id = -1
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
@@ -765,75 +606,102 @@ class CPlex_SolverSymBreak(ManuverSolver):
         if self.sb_vms_order_by_price:
             print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
             for j in range(max_id + 1, self.nrVM - 1):
-                # print(self.PriceProv[j] >= self.PriceProv[j + 1])
+
                 self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1],  ctname="c_price_lex_order")
 
         # ??? where is this used??? might give wrong results, run e.g. SecureWebContainer with this option True
         if self.sb_vms_order_by_components_number:
             for j in range(max_id + 1, self.nrVM - 1):
-                self.model.add_constraint(ct=sum([self.a[i][j] for i in range(0, self.nr_comps)]) >= sum(
-                    [self.a[i][j + 1] for i in range(0, self.nr_comps)]),   ctname="c_vm_load_lex_order")
-        for j in range(self.nrVM - 1):
+                self.model.add_constraint(ct=sum([self.a[i, j] for i in range(0, self.nr_comps)]) >= sum(
+                    [self.a[i, j + 1] for i in range(0, self.nr_comps)]),   ctname="c_vm_load_lex_order")
 
+
+        for j in range(self.nrVM - 1):
             if self.sb_redundant_price or self.sb_redundant_processor or self.sb_redundant_memory or \
                     self.sb_redundant_storage or self.sb_equal_vms_type_order_by_components_number:
                 var = self.model.binary_var(name="aux_vmType{0}".format(j))
-                #vars.model(var)
 
-                ct = self.model.add_equivalence(var, self.vmType[j] == self.vmType[j + 1])
+                if self.default_offers_encoding:
+                    self.model.add_equivalence(var, self.vmType[j] == self.vmType[j + 1])
+                else:
+                    self.model.add_equivalence(var, self.model.sum([self.newVmType[offer, j] == self.newVmType[offer, j+1]
+                                                                    for offer in range(len(self.offers_list))]) == 1)
 
-            # VMs with same type have the same price
-            if self.sb_redundant_price:
-                self.model.add_indicator(var,
-                                        self.PriceProv[j] == self.PriceProv[j + 1], name="sb_redundant_price")
-
-            if self.default_offers_encoding:
-                # VMs with same type have the same number of procs
-                if self.sb_redundant_processor:
+                # VMs with same type have the same price
+                if self.sb_redundant_price:
                     self.model.add_indicator(var,
-                                            self.ProcProv[j] == self.ProcProv[j + 1], name="sb_redundant_procesor")
-                # VMs with same type have the same amount of memory
-                if self.sb_redundant_memory:
+                                            self.PriceProv[j] == self.PriceProv[j + 1], name="sb_redundant_price")
+
+                if self.default_offers_encoding:
+                    # VMs with same type have the same number of procs
+                    if self.sb_redundant_processor:
+                        self.model.add_indicator(var,
+                                                self.ProcProv[j] == self.ProcProv[j + 1], name="sb_redundant_procesor")
+                    # VMs with same type have the same amount of memory
+                    if self.sb_redundant_memory:
+                        self.model.add_indicator(var,
+                                                self.MemProv[j] >= self.MemProv[j + 1], name="sb_redundant_memory")
+
+                    # VMs with same type have the same storage
+                    if self.sb_redundant_storage:
+                        self.model.add_indicator(var,
+                                                self.StorageProv[j] == self.StorageProv[j + 1], name="sb_redundant_storage")
+
+                # VMs with the same type should be ordered decreasingly on the number of components
+                if self.sb_equal_vms_type_order_by_components_number:
                     self.model.add_indicator(var,
-                                            self.MemProv[j] >= self.MemProv[j + 1], name="sb_redundant_memory")
+                                            sum([self.a[i, j] for i in range(self.nrComp)]) >=
+                                            sum([self.a[i, j + 1] for i in range(self.nrComp)]),
+                                            name="sb_equal_vms_type_order_by_components_number")
 
-                # VMs with same type have the same storage
-                if self.sb_redundant_storage:
-                    self.model.add_indicator(var,
-                                            self.StorageProv[j] == self.StorageProv[j + 1], name="sb_redundant_storage")
-            # VMs with the same type should be ordered decreasingly on the number of components
-            if self.sb_equal_vms_type_order_by_components_number:
-                self.model.add_indicator(var,
-                                        sum([self.a[i, j] for i in range(0, len(self.a), self.nrVM)]) >=
-                                        sum([self.a[i, j + 1] for i in range(0, len(self.a), self.nrVM)]),
-                                        name="sb_equal_vms_type_order_by_components_number")
-            # VMs with the same type should occupy columns from top left
-            if self.sb_equal_vms_type_order_lex:
-                for i in range(0, self.nrComp):
-                    l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
-                    l.append(self.vmType[j] == self.vmType[j + 1])
-                    var = self.model.binary_var(name="aux_vmType{0}".format(j))
 
-                    ct = self.model.add_equivalence(var,  LogicalAndExpr(self.model, l))
-                    self.model.add_indicator(var, self.a[i, j] >= self.a[i,  j + 1])
+                # VMs with the same type should occupy columns from top left
+                if self.sb_equal_vms_type_order_lex:
+                    for i in range(0, self.nrComp):
+                        l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
 
-            # One to one dependency
-            if self.sb_one_to_one_dependency:
-                for one_to_one_group in self.problem.one_to_one_dependencies:
-                    component = -1
-                    for first_item in one_to_one_group:
-                        component = first_item
-                        break
-                    for comp_id in one_to_one_group:
-                        self.model.add_constraint(ct=self.a[comp_id, component] == 1, ctname="sb_one_to_one")
+                        if self.default_offers_encoding:
+                            l.append(self.vmType[j] == self.vmType[j + 1])
+                        else:
+                            l.append(self.model.sum(
+                                [self.newVmType[offer, j] == self.newVmType[offer, j + 1]
+                                 for offer in range(len(self.offers_list))]) == 1)
 
-# [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], \
-# [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-# [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+
+                        #l.append(self.vmType[j] == self.vmType[j + 1])
+                        var = self.model.binary_var(name="top_vmType{0}_comp{1}".format(j,i))
+
+                        self.model.add_equivalence(var,  LogicalAndExpr(self.model,l)==1)
+                        self.model.add_indicator(var, self.a[i, j] >= self.a[i,  j + 1])
+
+                # One to one dependency
+                if self.sb_one_to_one_dependency:
+                    for one_to_one_group in self.problem.one_to_one_dependencies:
+                        component = -1
+                        for first_item in one_to_one_group:
+                            component = first_item
+                            break
+                        for comp_id in one_to_one_group:
+                            self.model.add_constraint(ct=self.a[comp_id, component] == 1, ctname="sb_one_to_one")
+
+
+
+        #lex order on line
+        #component 0
+        print("elf.sb_lex_line", self.sb_lex_line, self.sb_lex_line_price)
+        if self.sb_lex_line:
+            instances_nr = 0
+            for vm_id in range(self.nrVM-1):
+                self.model.add_constraint(self.a[0, vm_id] >= self.a[0, vm_id+1])
+            instances_nr = self.problem.componentsList[0].minimumNumberOfInstances
+            if self.sb_lex_line_price:
+                for vm_id in range(instances_nr-1):
+                    self.model.add_constraint(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+
+            for comp_id in range(1,self.nrComp):
+                for vm_id in range(instances_nr+1, self.nrVM - 1):
+                    self.model.add_constraint(self.a[comp_id, vm_id] >= self.a[comp_id, vm_id + 1])
+                if self.sb_lex_line_price:
+                    for vm_id in range(instances_nr + 1, instances_nr+ self.problem.componentsList[comp_id].minimumNumberOfInstances-1):
+                        self.model.add_constraint(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+                instances_nr += self.problem.componentsList[comp_id].minimumNumberOfInstances

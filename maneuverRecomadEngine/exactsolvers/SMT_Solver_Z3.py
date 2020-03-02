@@ -30,7 +30,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         # VMType  - type of a leased VM
         self.VMType = {}
 
-    def _simetry_breaking(self):
+    def _symmetry_breaking(self):
         max_id = -1
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
@@ -87,6 +87,27 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                         break
                     for comp_id in one_to_one_group:
                         self.solver.add(self.a[comp_id * self.nrVM + component] == 1)
+
+        #lex order on line
+        #component 0
+        print("elf.sb_lex_line",self.sb_lex_line, self.sb_lex_line_price)
+        if self.sb_lex_line:
+            instances_nr = 0
+            for vm_id in range(self.nrVM-1):
+                self.solver.add(self.a[vm_id] >= self.a[vm_id+1])
+            instances_nr = self.problem.componentsList[0].minimumNumberOfInstances
+            if self.sb_lex_line_price:
+                for vm_id in range(instances_nr-1):
+                    self.solver.add(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+                    print(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+
+            for comp_id in range(1,self.nrComp):
+                for vm_id in range(instances_nr+1, self.nrVM - 1):
+                    self.solver.add(self.a[comp_id*self.nrVM + vm_id] >= self.a[comp_id*self.nrVM + vm_id + 1])
+                if self.sb_lex_line_price:
+                    for vm_id in range(instances_nr + 1, instances_nr+ self.problem.componentsList[comp_id].minimumNumberOfInstances-1):
+                        self.solver.add(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+                instances_nr += self.problem.componentsList[comp_id].minimumNumberOfInstances
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("PriceOrder Z3", start_vm_id, end_vm_id)

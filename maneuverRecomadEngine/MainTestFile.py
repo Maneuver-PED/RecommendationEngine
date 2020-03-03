@@ -198,7 +198,7 @@ def agregate_tests(solverName, outputFileName):
             outfile.writerow(fileInfo)
 
 
-def start_tests(solver):
+def start_tests(solver, repetion_number=1):
     offers = ["../testInstances/offersLPAR2018/offers_20.json"
         , "../testInstances/offersLPAR2018/offers_40.json",
               "../testInstances/offersLPAR2018/offers_100.json", "../testInstances/offersLPAR2018/offers_250.json",
@@ -269,7 +269,7 @@ def start_tests(solver):
                 # print("-----------Z3_Solver------------------")
                 # solver = Z3_SolverIntIntSymBreak()
                 print(configuration)
-                runOnce(solver, mp, configuration[0], repetion_mumber=repetion_mumber,
+                runOnce(solver, mp, configuration[0], repetion_number=repetion_number,
 
                         default_offers_encoding=configuration[1],
                         sb_vms_order_by_price=configuration[2],
@@ -303,13 +303,13 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
 
-    solver = Z3_SolverIntIntSymBreak()
+    #solver = Z3_SolverIntIntSymBreak()
     #solver = Z3_SolverRealSymBreak()
-    #solver = CPlex_SolverSymBreak()
+    solver = CPlex_SolverSymBreak()
 
-    repetion_mumber = 5
+    repetion_number = 5
 
-    start_tests(solver)
+    start_tests(solver, repetion_number= repetion_number)
     #agregate_tests("CPlex_SolverSymBreak", "agregatecplex")
 
     # repetion_mumber = 1

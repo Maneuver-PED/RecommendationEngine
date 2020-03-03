@@ -171,7 +171,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 print(" \tfor: %s" % ct)
 
 
-        return xx.get_objective_value(), vmPrice , stoptime-starttime, a_mat, vmType
+        return xx.get_objective_value()/1000, vmPrice , stoptime-starttime, a_mat, vmType
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
         """

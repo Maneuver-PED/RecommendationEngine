@@ -109,6 +109,19 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                         self.solver.add(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
                 instances_nr += self.problem.componentsList[comp_id].minimumNumberOfInstances
 
+        if self.sb_lex_col_binary:
+            print("constraint flav")
+            for vm_id in range(self.nrVM - 1):
+                list_comps = []
+                for comp_id in range(self.nrComp):
+                    if not self.problem.componentsList[comp_id].fullDeployedComponent:
+                        list_comps.append(comp_id)
+            n = len(list_comps)
+            n = n - 1
+            for vm_id in range(self.nrVM-1):
+                self.solver.add(sum([self.a[list_comps[i]*self.nrVM+vm_id]*(2**(n-i)) for i in range(len(list_comps))]) >=
+                                sum([self.a[list_comps[i] * self.nrVM+vm_id+1] * (2 ** (n-i)) for i in range(len(list_comps))]))
+
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("PriceOrder Z3", start_vm_id, end_vm_id)
         if self.sb_vms_order_by_price:

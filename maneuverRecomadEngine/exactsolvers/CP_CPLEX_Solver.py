@@ -15,7 +15,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.nr_comps = self.problem.nrComp
 
         self.model = cpx.Model(name="Manuver Model")
-        self.model.parameters.timelimit.set(400.0)
+        self.model.parameters.timelimit.set(4000.0)
         self.__define_variables()
         self.__add_offers_restrictions()
 
@@ -76,11 +76,11 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
         maxPrice = max(self.offers_list[t][len(self.offers_list[0]) - 1] for t in range(len(self.offers_list)))
         self.PriceProv = {(j): self.model.integer_var(lb=0, ub=maxPrice,
-            name="PriceProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+                                                      name="PriceProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
         # If a machine is not leased then its price is 0
         for j in range(self.nr_vms):
-            self.model.add_indicator(self.vm[j], self.PriceProv[j]==0, active_value=0,
+            self.model.add_indicator(self.vm[j], self.PriceProv[j] == 0, active_value=0,
                                      name="c{0}_vm_free_price_0".format(j))
 
 
@@ -89,7 +89,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.model.minimize(objective)
 
 #        self.model.prettyprint("out")
-#        self.model.export_as_lp("alt")
+        self.model.export_as_lp("alt")
 #        self.model.export_as_mps("nou")
 
         vmPrice = []
@@ -103,7 +103,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
         print("cplex: ", self.model.get_solve_status(), self.model.get_statistics)
 
-        if (dc.status.JobSolveStatus.OPTIMAL_SOLUTION ==  self.model.get_solve_status()):
+        if dc.status.JobSolveStatus.OPTIMAL_SOLUTION == self.model.get_solve_status():
             print(self.model.solve_details)
             print("vmType")
 
@@ -115,14 +115,20 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 vmType = []
                 l = []
                 col = 0
+                line=0
                 for index, var in self.newVmType.items():
                     if col == self.problem.nrVM:
+                        line +=1
                         vmType.append(l)
+                        #print(l)
                         l = []
                         col = 0
                     col += 1
                     l.append(int(var.solution_value))
-                    vmType.append(l)
+                    if l[len(l)-1]==1:
+                        print(line, len(l)-1)
+                vmType.append(l)
+                print(l)
 
 
             print("\nvmPrice")
@@ -263,6 +269,14 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 else:
                     storage_values[storage] = [index]
 
+            for k in range(self.nrVM):
+                self.model.add_indicator(self.vm[k], self.model.sum(
+                    [self.newVmType[index, k] for index in range(len(self.offers_list))]) == 1,
+                                         name='no_offer_vm_free')#, active_value=0)
+
+            print("cpus:", cpu_values.keys(),cpu_values)
+            # print("memory:", memory_values.keys(), memory_values)
+            # print("storage:", storage_values.keys(), storage_values)
             self.__encode_carachteristic(cpu_values, 0, componentsRequirements, "cpu")
             self.__encode_carachteristic(memory_values, 1, componentsRequirements, "mem")
             self.__encode_carachteristic(storage_values, 2, componentsRequirements, "sto")
@@ -271,60 +285,61 @@ class CPlex_SolverSymBreak(ManuverSolver):
         """
         Helper function in order to encode harware constraints
         """
+        print("characteristic_values", characteristic_values)
+        print([componentsRequirements[i][characteristic_index] for i in range(self.nr_comps)])
         for k in range(self.nrVM):
             keys = list(characteristic_values.keys())
             keys.sort(reverse=True)
 
+            #calculate resources sum
             cpus_sum = self.model.integer_var(lb=0, name="{}_sum{}".format(text, k))
             self.model.add_constraint(
                 ct=self.model.sum([self.a[i, k] * componentsRequirements[i][characteristic_index] for i in range(self.nr_comps)]) == cpus_sum,
                 ctname="set_vm_{}{}".format(text, k))
+            #to many components on VM (execed max offer)
             key = keys[0]
             offers_applicable = characteristic_values[key].copy()
+            cpus_sum_exceed_max = self.model.binary_var("sum_upper_bound_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(cpus_sum_exceed_max, cpus_sum >= key + 1)
+            self.model.add_indicator(cpus_sum_exceed_max,
+                                     self.model.sum([self.newVmType[index, k] for index in range(len(self.offers_list))]) == 0)
 
-            var_aux1 = self.model.binary_var("sum_equal_zero_{}__vm{}_{}".format(text, k, key))
-            var_aux2 = self.model.binary_var("sum_upper_bound_{}__vm{}_{}".format(text, k, key))
-            self.model.add_equivalence(var_aux1, cpus_sum == 0)
-            self.model.add_equivalence(var_aux2, cpus_sum >= key + 1)
-            for offer_id in range(len(self.offers_list)):
-                self.model.add_indicator(var_aux1, self.newVmType[offer_id, k] == 0)
-                self.model.add_indicator(var_aux2, self.newVmType[offer_id, k] == 0)
-
+            #in bounds
+            ##remove max
             keys.pop(0)
-            # print(keys)
             for key in keys:
+                #print(key, "offers_applicable", offers_applicable)
                 values = characteristic_values[key]
-                var1 = self.model.binary_var("available_offers_{}__vm{}_{}".format(text, k, key))
+                _offers = self.model.binary_var("available_offers_{}__vm{}_{}".format(text, k, key))
 
-                self.model.add_equivalence(var1,
-                                    self.model.sum([self.newVmType[index - 1, k] for index in offers_applicable]) >= 1)
+                self.model.add_equivalence(_offers, self.model.sum([self.newVmType[index-1, k] for index in offers_applicable]) == 1)
 
-                var_aux3 = self.model.binary_var("sum_inner_bounds_{}__vm{}_{}".format(text, k, key))
-                self.model.add_equivalence(var_aux3, cpus_sum >= key + 1)
+                cpus_limit = self.model.binary_var("sum_inner_bounds_{}__vm{}_{}".format(text, k, key))
+                self.model.add_equivalence(cpus_limit, cpus_sum >= key + 1)
 
-                self.model.add_indicator(var_aux3, var1 == 1)
+                #print("tex>=", key+1, offers_applicable)
+
+                self.model.add_indicator(cpus_limit, _offers == 1)
                 offers_applicable.extend(values)
                 offers_applicable.sort()
 
-
-
+            #lower bound
             key = keys.pop()
-            var1 = self.model.binary_var("available_offers_{}_vm{}_{}".format(text, k, key))
-            self.model.add_equivalence(var1,
-                                       self.model.sum([self.newVmType[index - 1, k] for index in offers_applicable]) >= 1)
+            #print("lower<=", key, offers_applicable)
+            # if key == 1:
+            #     cpus_limit_low = self.model.binary_var("sum_lower_bounds_{}__vm{}_{}".format(text, k, key))
+            #     self.model.add_equivalence(cpus_limit_low, cpus_sum == 1)
+            #     self.model.add_indicator(cpus_limit_low, self.model.sum([self.newVmType[index - 1, k]
+            #                                                      for index in offers_applicable]) == 1)
+            # else:
 
-            var_aux6 = self.model.binary_var("sum_ge_one_{}__vm{}_{}".format(text, k, key))
-            self.model.add_equivalence(var_aux6, cpus_sum >= 1)
-            var_aux7 = self.model.binary_var("sum_le_lower_{}__vm{}_{}".format(text, k, key))
-            self.model.add_equivalence(var_aux7, cpus_sum <= key +1)
+            cpus_limit_low = self.model.binary_var("sum_lower_bounds_{}__vm{}_{}".format(text, k, key))
+            self.model.add_equivalence(cpus_limit_low, cpus_sum <= key)
+            cpus_limit_one = self.model.binary_var("sum_lower_bounds_{}__vm{}_{}".format(text, k, key))
 
-            var_aux8 = self.model.binary_var("sum_and_{}__vm{}_{}".format(text, k, key))
-            self.model.add_equivalence(var_aux8, LogicalAndExpr(self.model, [var_aux6, var_aux7])==1)
-
-            self.model.add_indicator(var_aux8, var1 == 1)
-            # self.model.add_constraint(
-            #     self.model.add_if_then(if_ct=LogicalAndExpr(self.model, [var_aux6, var_aux7])==1 , then_ct=var1 == 1))
-
+            self.model.add_equivalence(cpus_limit_one, cpus_sum >= 1)
+            self.model.add_if_then(if_ct=cpus_limit_low+cpus_limit_one==2, then_ct=self.model.sum([self.newVmType[index - 1, k]
+                                                                 for index in offers_applicable]) == 1)
 
 
     def RestrictionOneToOneDependency(self, alphaCompId, betaCompId):
@@ -450,6 +465,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
             l = [self.a[_compId, j] for _compId in inConflictCompsIdList]
             l.append(self.a[alphaCompId, j])
             self.model.add_indicator(self.vm[j], self.model.sum(l) == 1, name="c_full_deployment"+str(j))
+            self.model.add_indicator(self.vm[j], self.model.sum(l) == 0, name="c_full_deployment" + str(j),active_value=0)
 
 
     def RestrictionRequireProvideDependency(self, alphaCompId, betaCompId, alphaCompIdInstances, betaCompIdInstances):
@@ -478,22 +494,17 @@ class CPlex_SolverSymBreak(ManuverSolver):
             "RestrictionAlphaOrBeta: alphaCompId={}, betaCompId={}".format(alphaCompId, betaCompId))
         print("RestrictionAlphaOrBeta", alphaCompId, betaCompId)
 
-        self.alphaSum = self.model.integer_var(lb=0, ub=self.nr_vms, name="alphaSum{0}".format(self.orCntIndex))
-        self.betaSum = self.model.integer_var(lb=0, ub=self.nr_vms, name="betaSum{0}".format(self.orCntIndex))
+        alphaSum = self.model.binary_var(name="alphaSum{0}".format(self.orCntIndex))
+        betaSum = self.model.binary_var(name="betaSum{0}".format(self.orCntIndex))
 
         self.orCntIndex += 1
 
-        self.model.add_constraint(
-            ct=self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) == self.alphaSum,
-            ctname="c_or_alpha")
-        self.model.add_constraint(
-            ct=self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) == self.betaSum,
-            ctname="c_or_beta")
+        self.model.add_equivalence(alphaSum, self.model.sum(self.a[alphaCompId, j] for j in range(self.nr_vms)) >= 1,
+            name="c_or_alpha")
+        self.model.add_equivalence(betaSum, self.model.sum(self.a[betaCompId, j] for j in range(self.nr_vms)) >= 1,
+            name="c_or_beta")
 
-        LogicalOrExpr(self.model, [self.alphaSum == 0, self.alphaSum >= 1])
-        LogicalOrExpr(self.model, [self.betaSum == 0, self.betaSum >= 1])
-
-        self.model.add_constraint(ct=self.model.sum(self.alphaSum + self.betaSum) >= 1, ctname="c_or")
+        self.model.add_constraint(ct=self.model.sum([alphaSum ,betaSum]) == 1, ctname="c_or")
 
     def __add_hardware_restrictions(self):
         """
@@ -705,3 +716,60 @@ class CPlex_SolverSymBreak(ManuverSolver):
                     for vm_id in range(instances_nr + 1, instances_nr+ self.problem.componentsList[comp_id].minimumNumberOfInstances-1):
                         self.model.add_constraint(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
                 instances_nr += self.problem.componentsList[comp_id].minimumNumberOfInstances
+
+        if self.sb_lex_col_binary:
+            list_comps = []
+            for comp_id in range(self.nrComp):
+                if not self.problem.componentsList[comp_id].fullDeployedComponent:
+                    list_comps.append(comp_id)
+            n=len(list_comps)
+            n=n-1
+            for vm_id in range(self.nrVM-1):
+                self.model.add_constraint(self.model.sum([self.a[list_comps[i],vm_id]*(2**(i)) for i in range(len(list_comps))]) <=
+                                      self.model.sum([self.a[list_comps[i],vm_id+1]*(2**(i)) for i in range(len(list_comps))]),ctname="lex_flav")
+        #         self.model.add_if_then(if_ct=self.model.sum([self.a[list_comps[i],vm_id]*(2**(i)) for i in range(len(list_comps))]) ==
+        #                               self.model.sum([self.a[list_comps[i],vm_id+1]*(2**(i)) for i in range(len(list_comps))]),
+        #                                then_ct=self.PriceProv[vm_id]==self.PriceProv[vm_id+1] )
+        # #     # for comp_id in range(self.nrComp-1):
+            #     self.model.add_constraint(self.model.sum([self.a[comp_id,vm_id]*(2**vm_id) for vm_id in range(self.nrVM)]) >=
+            #                               self.model.sum([self.a[comp_id+1,vm_id]*(2**vm_id) for vm_id in range(self.nrVM)]),ctname="lex_flav")
+
+        # if self.sb_lex_line_flav:
+        #     i1 = 0
+        #     i2 = 1
+        #     while(self.problem.componentsList[i1].fullDeployedComponent or len(self.problem.componentsList[i1].orComponentsList)>0):
+        #         i1+=1
+        #     while (self.problem.componentsList[i2 ].fullDeployedComponent or len(
+        #             self.problem.componentsList[i2].orComponentsList) > 0):
+        #         i2 += 1
+            # while(i1<self.nrComp and i2<self.nrComp):
+            #     # for comp_id in range(self.nrComp-1):
+            #     self.model.add_constraint(self.model.sum([self.a[i1,vm_id]*(2**vm_id) for vm_id in range(self.nrVM)]) <=
+            #                                   self.model.sum([self.a[i2,vm_id]*(2**vm_id) for vm_id in range(self.nrVM)]),ctname="lex_flav")
+            #     i1=i2
+            #     i2+=1
+            #     while i2 < self.nrComp and( self.problem.componentsList[i2 ].fullDeployedComponent or len(
+            #             self.problem.componentsList[i2 ].orComponentsList) > 0):
+            #         i2 += 1
+
+
+# [1, 1, 1, 0, 0, 0, 0, 0]
+# [0, 0, 0, 1, 1, 0, 0, 0]
+# [0, 0, 0, 0, 0, 0, 0, 0]
+# [0, 0, 0, 0, 0, 1, 0, 0]
+# [0, 0, 0, 0, 0, 0, 1, 1]
+# 1210
+
+# [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+# [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
+# [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+# [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+# [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+# [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+# [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# [4400, 4400, 4400, 4400, 4400, 4400, 0, 0, 0, 0, 0]
+# a_mat [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+# min price = 26400/1000,

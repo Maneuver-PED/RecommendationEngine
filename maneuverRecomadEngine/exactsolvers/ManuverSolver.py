@@ -9,7 +9,7 @@ class ManuverSolver(object):
                      sb_equal_vms_type_order_lex = False,
                      smt2lib=None, smt2libsol=None,
                      use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False,
-                     sb_lex_line=False, sb_lex_line_price=False):
+                     sb_lex_line=False, sb_lex_line_price=False, sb_lex_col_binary=False):
 
 
         self.__constMap = {}
@@ -41,14 +41,12 @@ class ManuverSolver(object):
         self.default_offers_encoding = default_offers_encoding
         self.sb_lex_line=sb_lex_line
         self.sb_lex_line_price = sb_lex_line_price
+        self.sb_lex_col_binary = sb_lex_col_binary
 
         print("self.default_offers_encoding", self.default_offers_encoding)
 
         self._initSolver()
 
-        from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
-        from maneuverRecomadEngine.restrictions.RestrictionConflicts import RestrictionConflict, RestrictionAlphaOrBeta
-        from maneuverRecomadEngine.restrictions.RestrictionDependences import RestrictionOneToManyDependency, RestrictionOneToOneDependency, RestrictionManyToManyDependency
         for restriction in self.problem.restrictionsList:
             restriction.generateRestrictions(self)
 

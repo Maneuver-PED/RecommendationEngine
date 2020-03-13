@@ -1,0 +1,66 @@
+{
+"application" : "WordPress8",
+"comment-general": "From the Zephyrus-ASE paper: at least 3 replicas of Wordpress or at least 7 DNS (we can not capture OR in the UI, we have here the 3 Wordpress replicas); Answer: minimum 4VMs",
+"components" :[
+  {"id": 1, "name" : "WordPress",
+    "Compute": {"CPU":2, "GPU":"false", "Memory": 512},
+    "Storage": {"StorageType": "HDD", "StorageSize": 1000},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "Linux",
+    "preferences": {}
+  },
+  {"id": 2, "name" : "MySQL",
+    "Compute": {"CPU":2, "GPU":"false", "Memory": 512},
+    "Storage": {"StorageType": "HDD", "StorageSize": 2000},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "Linux",
+    "preferences": {}
+
+  },
+  {"id": 3, "name" : "DNSLoadBalancer",
+    "comments": "As load balancers, either DNS or HTTP",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 2048},
+    "Storage": {"StorageType": "HDD", "StorageSize": 500},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "Linux",
+    "preferences": {}
+  },
+  {"id": 4, "name" : "HTTPLoadBalancer",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 2048},
+    "Storage": {"StorageType": "HDD", "StorageSize": 500},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "Linux",
+    "preferences": {}
+  },
+  {"id": 5, "name" : "Varnish",
+    "Compute": {"CPU":4, "GPU":"false", "Memory": 4000},
+    "Storage": {"StorageType": "HDD", "StorageSize": 500},
+    "Network": {},
+    "keywords": [],
+    "operatingSystem": "Linux",
+    "preferences": {}
+  }
+],
+"IP" : {"publicIPs": 1, "IPType": "IP4"},
+"comment-restrictions": "RequireProvideDependency to be read as: for 1 instance of component with id 2 there must be at least ",
+"restrictions" : [{"type":"LowerBound",  "compsIdList":[1], "bound": 9},
+                  {"type":"LowerBound",  "compsIdList":[2], "bound": 2},
+                  {"type":"LowerBound",  "compsIdList":[5], "bound": 2},
+                  {"type":"RequireProvideDependency", "alphaCompId":3, "betaCompId":1,
+                    "alphaCompIdInstances":7, "betaCompIdInstances":1},
+                  {"type":"UpperBound",  "compsIdList":[3], "bound": 1},
+                  {"type":"RequireProvideDependency", "alphaCompId":4, "betaCompId":1,
+                    "alphaCompIdInstances":3, "betaCompIdInstances":1},
+                  {"type":"RequireProvideDependency", "alphaCompId":1, "betaCompId":2,
+                    "alphaCompIdInstances":2, "betaCompIdInstances":3},
+                  {"type":"AlternativeComponents", "alphaCompId":3, "betaCompId":4},
+                  {"type":"AlternativeComponents", "alphaCompId":3, "betaCompId":5},
+                  {"type":"Conflicts", "alphaCompId":3, "compsIdList":[1, 2, 5]},
+                  {"type":"Conflicts", "alphaCompId":4, "compsIdList":[1, 2, 5]},
+                  {"type":"Conflicts", "alphaCompId":5, "compsIdList":[2, 3, 4]}
+]
+}

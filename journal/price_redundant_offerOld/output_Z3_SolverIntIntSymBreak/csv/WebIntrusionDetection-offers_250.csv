@@ -1,0 +1,5 @@
+True,False,False,False,True,True,True,True,False,False,False
+Price min value,Price for each machine,Time
+1622/1000,"[210, 210, 210, 460, 0, 532]",7.255385875701904
+1622/1000,"[210, 460, 210, 210, 0, 532]",8.4728422164917
+1622/1000,"[0, 460, 210, 210, 532, 210]",10.615547180175781

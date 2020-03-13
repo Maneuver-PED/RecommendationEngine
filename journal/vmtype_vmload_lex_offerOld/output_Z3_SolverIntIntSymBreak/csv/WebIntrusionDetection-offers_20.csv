@@ -1,0 +1,5 @@
+True,False,False,False,False,False,False,False,True,True,False
+Price min value,Price for each machine,Time
+3759/1000,"[379, 1288, 402, 0, 402, 1288]",0.3945908546447754
+3759/1000,"[402, 1288, 0, 379, 1288, 402]",0.3056929111480713
+3759/1000,"[0, 1288, 379, 402, 402, 1288]",0.3402690887451172

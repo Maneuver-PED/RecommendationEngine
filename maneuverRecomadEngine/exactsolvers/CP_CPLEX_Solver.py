@@ -30,13 +30,12 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.vm = {j: self.model.binary_var(name="vm{0}".format(j+1)) for j in range(self.nr_vms)}
 
         # Assignment matrix a_{alpha,k}: 1 if component alpha is on machine k, 0 otherwise
-        print("???????", self.nr_comps, self.nr_vms)
+        print("CPLEX __define_variables ", self.nr_comps, self.nr_vms)
         self.a = {(i, j): self.model.binary_var(name="C{0}_VM{1}".format(i+1, j+1))
                   for i in range(self.nr_comps) for j in range(self.nr_vms)}
 
         for j in range(self.nr_vms):
-            self.model.add_equivalence( self.vm[j], self.model.sum(self.a[i, j] for i in range(self.nr_comps)) >= 1,
-                name="c{0}_vm_allocated".format(j))
+            self.model.add_equivalence( self.vm[j], self.model.sum(self.a[i, j] for i in range(self.nr_comps)) >= 1, name="c{0}_vm_allocated".format(j))
 
         self.__define_variables_offers()
 
@@ -53,21 +52,17 @@ class CPlex_SolverSymBreak(ManuverSolver):
             # values from availableConfigurations
             minProc = min(self.offers_list[t][1] for t in range(len(self.offers_list)))
             maxProc = max(self.offers_list[t][1] for t in range(len(self.offers_list)))
-            self.ProcProv = {(j): self.model.integer_var(lb=minProc, ub=maxProc,
-                name="ProcProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+            self.ProcProv = {(j): self.model.integer_var(lb=minProc, ub=maxProc, name="ProcProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
             minMem = min(self.offers_list[t][2] for t in range(len(self.offers_list)))
             maxMem = max(self.offers_list[t][2] for t in range(len(self.offers_list)))
-            self.MemProv = {(j): self.model.integer_var(lb=minMem, ub=maxMem,
-                name="MemProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+            self.MemProv = {(j): self.model.integer_var(lb=minMem, ub=maxMem, name="MemProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
             minSto = min(self.offers_list[t][3] for t in range(len(self.offers_list)))
             maxSto = max(self.offers_list[t][3] for t in range(len(self.offers_list)))
-            self.StorageProv = {(j): self.model.integer_var(#b=minSto, ub=maxSto,
-                 name="StorageProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+            self.StorageProv = {(j): self.model.integer_var(lb=minSto, ub=maxSto, name="StorageProv{0}".format(j + 1)) for j in range(self.nr_vms)}
         else:
-            self.newVmType = {(i, j): self.model.binary_var(name="newType{0}_VM{1}".format(i + 1, j + 1))
-                              for i in range(maxType) for j in range(self.nr_vms)}
+            self.newVmType = {(i, j): self.model.binary_var(name="newType{0}_VM{1}".format(i + 1, j + 1)) for i in range(maxType) for j in range(self.nr_vms)}
 
             # for j in range(self.nr_vms):
             #     self.model.add_indicator(
@@ -75,22 +70,19 @@ class CPlex_SolverSymBreak(ManuverSolver):
             #         name="c{0}_vm_allocated".format(j))
 
         maxPrice = max(self.offers_list[t][len(self.offers_list[0]) - 1] for t in range(len(self.offers_list)))
-        self.PriceProv = {(j): self.model.integer_var(lb=0, ub=maxPrice,
-                                                      name="PriceProv{0}".format(j + 1)) for j in range(self.nr_vms)}
+        self.PriceProv = {(j): self.model.integer_var(lb=0, ub=maxPrice, name="PriceProv{0}".format(j + 1)) for j in range(self.nr_vms)}
 
         # If a machine is not leased then its price is 0
         for j in range(self.nr_vms):
-            self.model.add_indicator(self.vm[j], self.PriceProv[j] == 0, active_value=0,
-                                     name="c{0}_vm_free_price_0".format(j))
+            self.model.add_indicator(self.vm[j], self.PriceProv[j] == 0, active_value=0, name="c{0}_vm_free_price_0".format(j))
 
 
     def run(self):
         objective = self.model.sum(self.PriceProv[j] for j in range(self.nr_vms))
         self.model.minimize(objective)
-
-#        self.model.prettyprint("out")
+#       self.model.prettyprint("out")
         self.model.export_as_lp("alt")
-#        self.model.export_as_mps("nou")
+#       self.model.export_as_mps("nou")
 
         vmPrice = []
         vmType = []
@@ -101,12 +93,11 @@ class CPlex_SolverSymBreak(ManuverSolver):
         xx = self.model.solve()
         stoptime = time.time()
 
-        print("cplex: ", self.model.get_solve_status(), self.model.get_statistics)
+        print("CPLEX: ", self.model.get_solve_status(), self.model.get_statistics)
 
         if dc.status.JobSolveStatus.OPTIMAL_SOLUTION == self.model.get_solve_status():
             print(self.model.solve_details)
-            print("vmType")
-
+            print("CPLEX vmType")
             if (self.default_offers_encoding):
                 for index, var in self.vmType.items():
                     print(var.solution_value, end=" ")
@@ -130,22 +121,18 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 vmType.append(l)
                 print(l)
 
-
             print("\nvmPrice")
             for index, var in self.PriceProv.items():
                 print(var.solution_value, end=" ")
                 vmPrice.append(var.solution_value)
-
             print("\nVm Aquired")
             for index,var in self.vm.items():
                print(var.solution_value, end=" ")
             print()
 
-
             l=[]
             col = 0
             for index, var in self.a.items():
-
                 if (col == self.problem.nrVM):
                     a_mat.append(l)
                     l = []
@@ -156,10 +143,9 @@ class CPlex_SolverSymBreak(ManuverSolver):
             print("\n comp allocation matrix", self.nrVM, self.nrComp)
             for l in a_mat:
                 print(l)
-
             print(xx.get_objective_value())
         else:
-            print("!!!!!!!!!!Unsolve CPLEX")
+            print("Unsolve CPLEX")
             print(self.model.get_time_limit())
             cr = ConflictRefiner()
             conflicts = cr.refine_conflict(self.model)
@@ -211,14 +197,10 @@ class CPlex_SolverSymBreak(ManuverSolver):
             compId += 1
 
         self.problem.logger.debug(
-            "RestrictionConflict: alphaCompId = {} conflictComponentsList = {}".format(alphaCompId,
-                                                                                       conflictCompsIdList))
-
+            "RestrictionConflict: alphaCompId = {} conflictComponentsList = {}".format(alphaCompId, conflictCompsIdList))
         for j in range(self.nr_vms):
             for conflictCompId in conflictCompsIdList:
                 self.model.add_constraint(ct=self.a[alphaCompId, j]+ self.a[conflictCompId, j] <= 1, ctname="c_comp_conflict")
-
-
 
     def constraintsHardware(self, componentsRequirements):
         """
@@ -236,14 +218,12 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 self.model.add_constraint(ct=self.model.sum(self.a[i, k] * componentsRequirements[i][0]
                                                             for i in range(self.nr_comps)) <= self.ProcProv[k],
                                           ctname="c_hard")
-                self.model.add_constraint(
-                    ct=self.model.sum(self.a[i, k] * componentsRequirements[i][1] for i in range(self.nr_comps)) <=
-                       self.MemProv[k],
-                    ctname="c_hard_mem")
-                self.model.add_constraint(
-                    ct=self.model.sum(self.a[i, k] * componentsRequirements[i][2] for i in range(self.nr_comps)) <=
-                       self.StorageProv[k],
-                    ctname="c_hard_storage")
+                self.model.add_constraint(ct=self.model.sum(self.a[i, k] * componentsRequirements[i][1]
+                                                            for i in range(self.nr_comps)) <= self.MemProv[k],
+                                          ctname="c_hard_mem")
+                self.model.add_constraint(ct=self.model.sum(self.a[i, k] * componentsRequirements[i][2]
+                                                            for i in range(self.nr_comps)) <= self.StorageProv[k],
+                                          ctname="c_hard_storage")
         else:
             cpu_values = {}
             memory_values = {}
@@ -274,7 +254,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
                     [self.newVmType[index, k] for index in range(len(self.offers_list))]) == 1,
                                          name='no_offer_vm_free')#, active_value=0)
 
-            print("cpus:", cpu_values.keys(),cpu_values)
+            print("CPLEX cpus:", cpu_values.keys(),cpu_values)
             # print("memory:", memory_values.keys(), memory_values)
             # print("storage:", storage_values.keys(), storage_values)
             self.__encode_carachteristic(cpu_values, 0, componentsRequirements, "cpu")
@@ -285,7 +265,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         """
         Helper function in order to encode harware constraints
         """
-        print("characteristic_values", characteristic_values)
+        print("CPLEX characteristic_values", characteristic_values)
         print([componentsRequirements[i][characteristic_index] for i in range(self.nr_comps)])
         for k in range(self.nrVM):
             keys = list(characteristic_values.keys())
@@ -350,7 +330,8 @@ class CPlex_SolverSymBreak(ManuverSolver):
         :return: None
         """
         for j in range(self.nr_vms):
-            self.model.add_constraint(ct=self.a[alphaCompId, j] == self.a[betaCompId, j], ctname="c_one_2_one_dependency")
+            self.model.add_constraint(ct=self.a[alphaCompId, j] == self.a[betaCompId, j],
+                                      ctname="c_one_2_one_dependency")
 
     def RestrictionManyToManyDependency(self, alphaCompId, betaCompId, relation):
         """

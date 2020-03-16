@@ -125,7 +125,7 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1, default_offers_enco
 def agregate_tests(solverName, outputFileName):
     offers = ["offers_20", "offers_40", "offers_100", "offers_250", "offers_500"]
     applications = ["Oryx 2", "SecureBillingEmail", "WebIntrusionDetection", "Wordpress3", "Wordpress4", "Wordpress5",
-                    "Wordpress6", "Wordpress7", "Wordpress8"]
+                    "Wordpress6", "Wordpress7", "Wordpress8", "Wordpress9", "Wordpress10", "Wordpress11", "Wordpress12"]
     configurations = ["simple_offerOld",
                       "simple_offerNew",
                       "price_offerOld",
@@ -204,68 +204,77 @@ def agregate_tests(solverName, outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = [
-         "../testInstances/offersLPAR2018/offers_20.json"
-         , "../testInstances/offersLPAR2018/offers_40.json"
-            ,  "../testInstances/offersLPAR2018/offers_100.json", "../testInstances/offersLPAR2018/offers_250.json",
-               "../testInstances/offersLPAR2018/offers_500.json"
+          "../testInstances/offersLPAR2018/offers_20.json",
+          "../testInstances/offersLPAR2018/offers_40.json",
+       "../testInstances/offersLPAR2018/offers_100.json",
+        "../testInstances/offersLPAR2018/offers_250.json",
+        "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
-        "../testInstances/Oryx2.json", "../testInstances/SecureBillingEmail.json",
-                  # "../testInstances/SecureWebContainer.json",
-                  # "../testInstances/Wordpress3.json", "../testInstances/Wordpress4.json",
-                  # "../testInstances/Wordpress5.json",
-                  # "../testInstances/Wordpress6.json", "../testInstances/Wordpress7.json",
-                  # "../testInstances/Wordpress8.json"
-
+        "../testInstances/Oryx2.json",
+        "../testInstances/SecureBillingEmail.json",
+        "../testInstances/SecureWebContainer.json",
+         "../testInstances/Wordpress3.json",
+        "../testInstances/Wordpress4.json",
+         #          "../testInstances/Wordpress5.json",
+         #         "../testInstances/Wordpress6.json",
+         #            "../testInstances/Wordpress7.json",
+         #            "../testInstances/Wordpress8.json",
+         #             "../testInstances/Wordpress9.json",
+         # "../testInstances/Wordpress10.json",
+         # "../testInstances/Wordpress11.json",
+         # "../testInstances/Wordpress12.json"
                   ]
     configurations = [
         # ("simple_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False, False),
         # ("simple_offerNew", False, False, False, False, False, False, False, False, False, False, False, False, False, False),
-        ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False, False),
-        ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False, False, False, False),
-        ("vmLoad_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False, False),
-        ("vmLoad_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False, False),
-        ("price_redundant_offerOld", True, True, False, False, True, True, True, True, False, False, False, False, False,
-         False),
-        ("price_redundant_offerNew", False, True, False, False, True, False, False, False, False, False,
-         False, False, False, False),
-
-        ("fixvar_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False, False),
-        ("fixvar_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False, False),
-        ("price_fixvar_redundant_offerOld", True, True, False, True, True, True, True, True, False, False,
-         False, False, False, False),
-        ("price_fixvar_redundant_offerNew", False, True, False, True, True, False, False, False, False,
-         False,
-         False, False, False, False),
-        ("price_fixvar_offerOld", True, True, False, True, False, False, False, False, False, False, False, False,
-            False, False),
-        ("price_fixvar_offerNew", False, True, False, True, False, False, False, False, False, False,
-         False, False, False, False),
-        ("price_fixvar_redundant_byLoad_offerOld", True, True, False, True, True, True, True, True, True,
-         False,
-         False, False, False, False),
-        ("price_fixvar_redundant_byLoad_offerNew", False, True, False, True, True, False, False, False,
-         True,
-         False,
-         False, False, False, False),
-        ("price_fixvar_redundant_lex_offerOld", True, True, False, True, True, True, True, True, False,
-         True, False, False, False, False),
-
-        ("price_fixvar_redundant_lex_offerNew", False, True, False, True, True, True, True, True,
-         False, True, False, False, False, False),
-        ("simple_oneToOne_offerOld", True, False, False, False, False, False, False, False, False, False, True, False,
-         False, False),
-        ("simple_oneToOne_offerNew", False, False, False, False, False, False, False, False, False, False, True, False,
-         False, False),
-        ("row_lex_offerOld", True, False, False, False, False, False, False, False, False, False, True, True, False, False),
-        ("row_lex_offerNew", False, False, False, False, False, False, False, False, False, False, True, True, False, False),
-        ("row_lex_price_offerOld", True, False, False, False, False, False, False, False, False, False, True, True,
-         True, False),
-        ("row_lex_price_offerNew", False, False, False, False, False, False, False, False, False, False, True, True,
-         True, False),
-        ("lex_col_binary_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False,
-         True),
+       # ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False, False),
+        # ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False, False, False, False),
+        # ("vmLoad_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False, False),
+        ("vmLoad_lex_col_binary_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False, True),
+        # ("lex_col_binary_offerOld",      True, False, True, False, False, False, False, False, False, False, False, False, False, True),
+        # ("vmLoad_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False, False),
+        #("price_redundant_offerOld", True, True, False, False, True, True, True, True, False, False, False, False, False, False),
+        #("redundant_offerOld",        True, False, False, False, True, True, True, True, False, False, False, False, False, False),
+        # ("price_redundant_offerNew", False, True, False, False, True, False, False, False, False, False,
+        #  False, False, False, False),
+        #
+        #("fixvar_offerOld", True, False, False, True, False, False, False, False, False, False, False, False, False, False),
+        # ("fixvar_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False, False),
+        # ("price_fixvar_redundant_offerOld", True, True, False, True, True, True, True, True, False, False,
+        #  False, False, False, False),
+        # ("price_fixvar_redundant_offerNew", False, True, False, True, True, False, False, False, False,
+        #  False,
+        #  False, False, False, False),
+        # ("price_fixvar_offerOld", True, True, False, True, False, False, False, False, False, False, False, False,
+        #     False, False),
+        # ("price_fixvar_offerNew", False, True, False, True, False, False, False, False, False, False,
+        #  False, False, False, False),
+        # ("price_fixvar_redundant_byLoad_offerOld", True, True, False, True, True, True, True, True, True,
+        #  False,
+        #  False, False, False, False),
+        # ("price_fixvar_redundant_byLoad_offerNew", False, True, False, True, True, False, False, False,
+        #  True,
+        #  False,
+        #  False, False, False, False),
+        # ("price_fixvar_redundant_lex_offerOld", True, True, False, True, True, True, True, True, False,
+        #  True, False, False, False, False),
+        #
+        # ("price_fixvar_redundant_lex_offerNew", False, True, False, True, True, True, True, True,
+        #  False, True, False, False, False, False),
+        # ("simple_oneToOne_offerOld", True, False, False, False, False, False, False, False, False, False, True, False,
+        #  False, False),
+        # ("simple_oneToOne_offerNew", False, False, False, False, False, False, False, False, False, False, True, False,
+        #  False, False),
+        # ("row_lex_offerOld", True, False, False, False, False, False, False, False, False, False, True, True, False, False),
+        # ("row_lex_offerNew", False, False, False, False, False, False, False, False, False, False, True, True, False, False),
+        # ("row_lex_price_offerOld", True, False, False, False, False, False, False, False, False, False, True, True,
+        #  True, False),
+        # ("row_lex_price_offerNew", False, False, False, False, False, False, False, False, False, False, True, True,
+        #  True, False),
+        # ("lex_col_binary_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False,
+        #  True),
         # ("lex_col_binary_offerNew", False, False, False, False, False, False, False, False, False, False, False, False, False,
         #  True)
 
@@ -303,8 +312,8 @@ def start_tests(solver, repetion_number=1):
 if __name__ == "__main__":
     # aboutOffers("../testInstances/offersICCP2018/offers_10.json")
 
-    mp1 = prepareManuverProblem("../testInstances/SecureBillingEmail.json",#Wordpress3 #Oryx2
-                                "../testInstances/offersLPAR2018/offers_100.json")
+    #mp1 = prepareManuverProblem("../testInstances/SecureBillingEmail.json",#Wordpress3 #Oryx2
+    #                            "../testInstances/offersLPAR2018/offers_100.json")
 
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
     # print("-----------------------------")
@@ -320,7 +329,7 @@ if __name__ == "__main__":
     #solver = Z3_SolverRealSymBreak()
     solver = CPlex_SolverSymBreak()
 
-    repetion_number = 5
+    repetion_number = 3
 
     start_tests(solver, repetion_number= repetion_number)
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex")

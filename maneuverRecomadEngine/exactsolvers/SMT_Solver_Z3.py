@@ -45,10 +45,16 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
 
         # ??? where is this used??? might give wrong results, run e.g. SecureWebContainer with this option True
-        if self.sb_vms_order_by_components_number:
+        if self.sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex:
             for j in range(max_id + 1, self.nrVM - 1):
                 self.solver.add(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= sum(
                     [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
+            if self.sb_vms_order_by_components_number_order_lex:
+                for i in range(0, self.nrComp):
+                    l = [self.a[u*self.nrVM + j] == self.a[u*self.nrVM + j+1] for u in range(0, i)]
+                    l.append(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == sum(
+                    [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
+                    self.solver.add(Implies(And(l), self.a[i*self.nrVM + j] >= self.a[i*self.nrVM + j+1]))
 
         for j in range(self.nrVM - 1):
             # VMs with same type have the same price
@@ -821,4 +827,3 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 return -1, None, None, None, None
         else:
             return None, None, stoptime - startime
-

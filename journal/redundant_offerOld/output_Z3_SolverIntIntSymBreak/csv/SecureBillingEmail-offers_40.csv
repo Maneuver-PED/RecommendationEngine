@@ -1,0 +1,5 @@
+True,False,False,False,True,True,True,True,False,False,False
+Price min value,Price for each machine,Time
+1012/1000,"[252, 252, 128, 252, 128]",0.6221568584442139
+1012/1000,"[252, 252, 252, 128, 128]",0.49472641944885254
+1012/1000,"[252, 252, 252, 128, 128]",0.5603797435760498

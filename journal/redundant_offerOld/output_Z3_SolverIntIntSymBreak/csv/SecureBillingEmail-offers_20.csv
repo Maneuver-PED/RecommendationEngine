@@ -1,0 +1,5 @@
+True,False,False,False,True,True,True,True,False,False,False
+Price min value,Price for each machine,Time
+1416/1000,"[128, 128, 379, 402, 379]",0.20684289932250977
+1416/1000,"[402, 379, 128, 379, 128]",0.21468138694763184
+1416/1000,"[379, 128, 128, 402, 379]",0.2622659206390381

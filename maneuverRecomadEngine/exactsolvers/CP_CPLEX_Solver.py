@@ -16,8 +16,19 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
         self.model = cpx.Model(name="Manuver Model")
         self.model.parameters.timelimit.set(2400.0)
+        self.model.parameters.mip.tolerances.mipgap.set(0)
+        #self.model.parameters.benders.tolerances.optimalitycut.set(1e-9)
+        self.model.parameters.preprocessing.reduce.set(1)
+
+        # CPXPARAM_Preprocessing_Reduce
+        # 1
+        # CPXPARAM_MIP_Tolerances_AbsMIPGap
+        # 0
+        # CPXPARAM_MIP_Tolerances_MIPGap
+        # 0
+
         self.__define_variables()
-        self.__add_offers_restrictions()
+
 
 
     def __define_variables(self):
@@ -176,11 +187,11 @@ class CPlex_SolverSymBreak(ManuverSolver):
             return
 
         if value == 1:
-            self.model.add_constraint(ct=self.a[comp_id, vm_id] == 1, ctname="c_fix_component")
+            self.model.add_constraint(ct=self.a[comp_id, vm_id] == 1, ctname="a_c_fix_component")
             for compId in self.problem.componentsList[comp_id].conflictComponentsList:
-                self.model.add_constraint(ct=self.a[compId, vm_id] == 0, ctname="c_fix_component")
+                self.model.add_constraint(ct=self.a[compId, vm_id] == 0, ctname="a_c_fix_component")
         else:
-            self.model.add_constraint(ct=self.a[comp_id, vm_id] == 0, ctname="c_fix_component")
+            self.model.add_constraint(ct=self.a[comp_id, vm_id] == 0, ctname="a_c_fix_component")
 
         self.vm_with_offers[vm_id] = comp_id
         self.vmIds_for_fixedComponents.add(vm_id)
@@ -518,7 +529,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 pass
 
 
-    def __add_offers_restrictions(self):
+    def _add_offers_restrictions(self):
         if self.default_offers_encoding:
             cnt = 0
             for vm_id in range(self.nr_vms):
@@ -602,7 +613,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1],  ctname="c_price_lex_order")
 
         # ??? where is this used??? might give wrong results, run e.g. SecureWebContainer with this option True
-        if self.sb_vms_order_by_components_number or self(self.sb_vms_order_by_components_number_order_lex):
+        if self.sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex:
             for j in range(max_id + 1, self.nrVM - 1):
 
                 self.model.add_constraint(ct=sum([self.a[i, j] for i in range(0, self.nr_comps)]) >= sum(

@@ -339,11 +339,9 @@ class ManeuverProblem:
         for comp_id in max_clique:
             instances = self.componentsList[comp_id].getMinimumPossibleNumberOfInstances(self.componentsList)
             startVm = vm_id
-            complementary_elements = max_clique.copy()
-            complementary_elements.remove(comp_id)
             for instance in range(instances):
                 print(
-                    "Fix component {} on VM {} number of instances {} comp name {} conflict comp {} with 1".format(comp_id, vm_id, instances,
+                    "Fix component {} on VM {} number of instances {} comp name {} conflict comp {}".format(comp_id, vm_id, instances,
                                                                                            self.componentsList[
                                                                                                comp_id].name,
 
@@ -351,19 +349,11 @@ class ManeuverProblem:
                                                                                                comp_id].conflictComponentsList
                                                                                            )
                 )
-                self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm_id, self))
-                #set the others components to zero
-                for compId in complementary_elements:
-                    self.restrictionsList.append(RestrictionFixComponentOnVM(compId, vm_id, self, value=0))
-                    print(
-                        "Fix component {} on VM {} number of instances {} comp name {} conflict comp {} with 0".format(compId,
-                                       vm_id, instances, self.componentsList[compId].name, self.componentsList[
-                                                                                                                           compId].conflictComponentsList)
-                    )
+                self.restrictionsList.insert(0, RestrictionFixComponentOnVM(comp_id, vm_id, self))
                 vm_id += 1
             endVm = vm_id
 
-            self.restrictionsList.append(RestrictionPriceOrder(startVm, endVm, self))
+            self.restrictionsList.insert(0, RestrictionPriceOrder(startVm, endVm, self))
 
             # for vm in range(startVm-1):
             #     self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm, self, 0))

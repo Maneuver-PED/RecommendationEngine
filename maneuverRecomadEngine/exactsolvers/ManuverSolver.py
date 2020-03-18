@@ -49,16 +49,40 @@ class ManuverSolver(object):
 
         self._initSolver()
 
+        from maneuverRecomadEngine.restrictions.RestrictionFixComponents import RestrictionFixComponentOnVM
+        from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
+
         for restriction in self.problem.restrictionsList:
-            restriction.generateRestrictions(self)
+            if isinstance(restriction, RestrictionFixComponentOnVM):
+                print("price", restriction)
+                restriction.generateRestrictions(self)
+
+        for restriction in self.problem.restrictionsList:
+            if not isinstance(restriction, RestrictionFixComponentOnVM):# and not isinstance(restriction, RestrictionHardware) :
+                print(restriction)
+                restriction.generateRestrictions(self)
+
+        # for restriction in self.problem.restrictionsList:
+        #     if  isinstance(restriction,RestrictionHardware):
+        #         print(restriction)
+        #         restriction.generateRestrictions(self)
+        #
+
+
 
         self._symmetry_breaking()
+        self._add_offers_restrictions()
+
+
 
     def run(self):
         print("Start evaluation")
 
     def _symmetry_breaking(self):
         print("Parent class simetry breaking")
+
+    def _add_offers_restrictions(self):
+        print("Parent class offers restrictions")
 
     def _initSolver(self):
         print("Start solver initialization")

@@ -534,8 +534,8 @@ def start_tests(solver, repetion_number=1):
     configurations = [
         # ("simple_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False, False),
         # ("simple_offerNew", False, False, False, False, False, False, False, False, False, False, False, False, False, False),
-        ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False, False),
-        # ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False, False, False, False),
+        #("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False, False),
+        ("price_offerNew", False, True, False, False, False, False, False, False, False, False, False, False, False, False,False),
         # ("vmLoad_offerOld", True, False, True, False, False, False, False, False, False, False, False, False, False, False),
         # ("vmLoad_offerNew", False, False, True, False, False, False, False, False, False, False, False, False, False, False),
         # ("price_redundant_offerOld", True, True, False, False, True, True, True, True, False, False, False, False, False,
@@ -543,7 +543,7 @@ def start_tests(solver, repetion_number=1):
         # ("price_redundant_offerNew", False, True, False, False, True, False, False, False, False, False,
         #  False, False, False, False),
         #
-        ("fixvar_offerOld", True, False, False, True, False, False, False, False, False, False, False, False, False, False),
+        #("fixvar_offerOld", True, False, False, True, False, False, False, False, False, False, False, False, False, False),
         # ("fixvar_offerNew", False, False, False, True, False, False, False, False, False, False, False, False, False, False),
         # ("price_fixvar_redundant_offerOld", True, True, False, True, True, True, True, True, False, False,
         #  False, False, False, False),
@@ -582,8 +582,8 @@ def start_tests(solver, repetion_number=1):
         # #  True)
         # ("lex_col_binary_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False,
         #  True)
-        ("vmLoad_lex_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False,
-         False, True)
+        # ("vmLoad_lex_offerOld", False, False, False, False, False, False, False, False, False, False, False, False, False,
+        #  False, True)
 
 
     ]
@@ -621,8 +621,8 @@ def start_tests(solver, repetion_number=1):
 if __name__ == "__main__":
     # aboutOffers("../testInstances/offersICCP2018/offers_10.json")
 
-    mp1 = prepareManuverProblem("../testInstances/SecureWebContainer.json",#Wordpress3 #Oryx2 #SecureWebContainer
-                                "../testInstances/offersLPAR2018/offers_40.json")
+    mp1 = prepareManuverProblem("../testInstances/Wordpress6.json",#Wordpress3 #Oryx2 #SecureWebContainer
+                                "../testInstances/offersLPAR2018/offers_500.json")
 
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
     # print("-----------------------------")
@@ -634,9 +634,9 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
 
-    #solver = Z3_SolverIntIntSymBreak()
+    solver = Z3_SolverIntIntSymBreak()
     #solver = Z3_SolverRealSymBreak()
-    solver = CPlex_SolverSymBreak()
+    #solver = CPlex_SolverSymBreak()
 
     repetion_number = 2
 
@@ -652,10 +652,10 @@ if __name__ == "__main__":
     # print("-----------Z3_Solver------------------")
     # # # can we have the name Z3_SolverInt to be similar to the below?
     # # solver = Z3_SolverIntIntSymBreak()
-    runOnce(solver, mp1, "flavia", repetion_number=1, sb_vms_order_by_price=False,
-            default_offers_encoding=True, sb_vms_order_by_components_number=True,
+    runOnce(solver, mp1, "flavia", repetion_number=1, sb_vms_order_by_price=True,
+            default_offers_encoding=True, sb_vms_order_by_components_number=False,
             sb_lex_line=False, sb_lex_col_binary=False,
-            sb_vms_order_by_components_number_order_lex=True
+            sb_vms_order_by_components_number_order_lex=False,sb_fix_variables=False
             )
     # this is not always good: sb_vms_order_by_components_number=True)
     # print("-----------Z3_Solver fix------------------")

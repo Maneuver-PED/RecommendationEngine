@@ -473,24 +473,24 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = ["../testInstances/offersLPAR2018/offers_20.json",
-              "../testInstances/offersLPAR2018/offers_40.json",
-              "../testInstances/offersLPAR2018/offers_100.json",
-              "../testInstances/offersLPAR2018/offers_250.json",
-              "../testInstances/offersLPAR2018/offers_500.json"
+              # "../testInstances/offersLPAR2018/offers_40.json",
+              # "../testInstances/offersLPAR2018/offers_100.json",
+              # "../testInstances/offersLPAR2018/offers_250.json",
+              # "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
-        "../testInstances/Oryx2.json",
+        # "../testInstances/Oryx2.json",
         "../testInstances/SecureBillingEmail.json",
-        "../testInstances/SecureWebContainer.json",
-        "../testInstances/Wordpress3.json",
-         "../testInstances/Wordpress4.json",
-        "../testInstances/Wordpress5.json",
-        "../testInstances/Wordpress6.json",
-        "../testInstances/Wordpress7.json",
-        "../testInstances/Wordpress8.json"
-
+        # "../testInstances/SecureWebContainer.json",
+        # "../testInstances/Wordpress3.json",
+        #  "../testInstances/Wordpress4.json",
+        # "../testInstances/Wordpress5.json",
+        # "../testInstances/Wordpress6.json",
+        # "../testInstances/Wordpress7.json",
+        # "../testInstances/Wordpress8.json"
                   ]
+
     configurations = [
         # PRFV
         ("price_fixvar_offerOld", True, True,  False, True,  False, False, False, False, False, False, False, False, False, False, False),
@@ -501,10 +501,10 @@ def start_tests(solver, repetion_number=1):
         # PR
         ("price_offerOld",        True, True,  False, False, False, False, False, False, False, False, False, False, False, False, False),
         # VMLX
-        ("vmLoad_lex_offerOld",   False, False, False, False, False, False, False, False, False, False, False, False, False, False, True)
+        ("vmLoad_lex_offerOld",   False, False, False, False, False, False, False, False, False, False, False, False, False, False, True),
         # TVMLX
         ("vmtype_vmload_lex_offerOld",
-                                   False, False, False, False, False, False, False, False, True,  True, False, False, False, False, False),
+                                   False, False, False, False, False, False, False, False, True,  True, False, False, False, False, False)
     ]
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
 
@@ -544,13 +544,13 @@ if __name__ == "__main__":
     solver = Z3_SolverIntIntSymBreak()
     #solver = CPlex_SolverSymBreak()
 
-    repetion_number = 5
+    repetion_number = 1
 
     # For starting tests
-    #start_tests(solver, repetion_number= repetion_number)
+    start_tests(solver, repetion_number= repetion_number)
 
     #After having the tests, we can agregate them
-    agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_old")
+    # agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_old")
     #agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
     #agregate_tests_grafice("grafic_simple")
     #agregate_tests_tabel("tabel_simple.txt")

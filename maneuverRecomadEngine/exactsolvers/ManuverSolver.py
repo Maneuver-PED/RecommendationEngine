@@ -45,8 +45,6 @@ class ManuverSolver(object):
         self.sb_lex_col_binary = sb_lex_col_binary
         self.sb_vms_order_by_components_number_order_lex = sb_vms_order_by_components_number_order_lex
 
-        print("self.default_offers_encoding", self.default_offers_encoding)
-
         self._initSolver()
 
         from maneuverRecomadEngine.restrictions.RestrictionFixComponents import RestrictionFixComponentOnVM
@@ -54,21 +52,11 @@ class ManuverSolver(object):
 
         for restriction in self.problem.restrictionsList:
             if isinstance(restriction, RestrictionFixComponentOnVM):
-                print("price", restriction)
                 restriction.generateRestrictions(self)
 
         for restriction in self.problem.restrictionsList:
-            if not isinstance(restriction, RestrictionFixComponentOnVM):# and not isinstance(restriction, RestrictionHardware) :
-                print(restriction)
+            if not isinstance(restriction, RestrictionFixComponentOnVM):
                 restriction.generateRestrictions(self)
-
-        # for restriction in self.problem.restrictionsList:
-        #     if  isinstance(restriction,RestrictionHardware):
-        #         print(restriction)
-        #         restriction.generateRestrictions(self)
-        #
-
-
 
         self._symmetry_breaking()
         self._add_offers_restrictions()

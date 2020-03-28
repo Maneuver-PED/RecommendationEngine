@@ -47,7 +47,7 @@
 ],
 "IP" : {"publicIPs": 1, "IPType": "IP4"},
 "comment-restrictions": "RequireProvideDependency to be read as: for 1 instance of component with id 2 there must be at least ",
-"restrictions" : [{"type":"LowerBound",  "compsIdList":[1], "bound": 9},
+"restrictions" : [{"type":"LowerBound",  "compsIdList":[1], "bound": 12},
                   {"type":"LowerBound",  "compsIdList":[2], "bound": 2},
                   {"type":"LowerBound",  "compsIdList":[5], "bound": 2},
                   {"type":"RequireProvideDependency", "alphaCompId":3, "betaCompId":1,

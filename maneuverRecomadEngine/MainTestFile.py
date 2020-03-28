@@ -473,49 +473,52 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = ["../testInstances/offersLPAR2018/offers_20.json",
-              # "../testInstances/offersLPAR2018/offers_40.json",
-              # "../testInstances/offersLPAR2018/offers_100.json",
-              # "../testInstances/offersLPAR2018/offers_250.json",
-              # "../testInstances/offersLPAR2018/offers_500.json"
+              "../testInstances/offersLPAR2018/offers_40.json",
+              "../testInstances/offersLPAR2018/offers_100.json",
+              "../testInstances/offersLPAR2018/offers_250.json",
+              "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
         # "../testInstances/Oryx2.json",
-        "../testInstances/SecureBillingEmail.json",
+        #"../testInstances/SecureBillingEmail.json",
         # "../testInstances/SecureWebContainer.json",
         # "../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
         # "../testInstances/Wordpress5.json",
         # "../testInstances/Wordpress6.json",
         # "../testInstances/Wordpress7.json",
-        # "../testInstances/Wordpress8.json"
+        # "../testInstances/Wordpress8.json",
+        # "../testInstances/Wordpress9.json",
+        "../testInstances/Wordpress10.json",
+        "../testInstances/Wordpress11.json",
+        "../testInstances/Wordpress12.json"
                   ]
 
     configurations = [
         # PRFV
         ("price_fixvar_offerOld", True, True,  False, True,  False, False, False, False, False, False, False, False, False, False, False),
         # FV
-        ("fixvar_offerOld",       True, False, False, True,  False, False, False, False, False, False, False, False, False, False, False),
-        # no sym breaking
-        ("simple_offerOld",       True, False, False, False, False, False, False, False, False, False, False, False, False, False, False),
+        # ("fixvar_offerOld",       True, False, False, True,  False, False, False, False, False, False, False, False, False, False, False),
+        # # no sym breaking
+        # ("simple_offerOld",       True, False, False, False, False, False, False, False, False, False, False, False, False, False, False),
         # PR
         ("price_offerOld",        True, True,  False, False, False, False, False, False, False, False, False, False, False, False, False),
         # VMLX
-        ("vmLoad_lex_offerOld",   False, False, False, False, False, False, False, False, False, False, False, False, False, False, True),
-        # TVMLX
-        ("vmtype_vmload_lex_offerOld",
-                                   False, False, False, False, False, False, False, False, True,  True, False, False, False, False, False)
+        # ("vmLoad_lex_offerOld",   False, False, False, False, False, False, False, False, False, False, False, False, False, False, True),
+        # # TVMLX
+        # ("vmtype_vmload_lex_offerOld",
+        #                            False, False, False, False, False, False, False, False, True,  True, False, False, False, False, False)
     ]
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
 
     for offer in offers:
         for problem in test_files:
             mp = prepareManuverProblem(problem, offer)
-            print("main", mp.nrComp, mp.nrVM)
             for configuration in configurations:
                 # print("-----------Z3_Solver------------------")
                 # solver = Z3_SolverIntIntSymBreak()
-                print(configuration)
+                print("Application name ", mp.applicationName)
                 runOnce(solver, mp, configuration[0], repetion_number=repetion_number,
                         default_offers_encoding=configuration[1],
                         sb_vms_order_by_price=configuration[2],
@@ -544,7 +547,7 @@ if __name__ == "__main__":
     solver = Z3_SolverIntIntSymBreak()
     #solver = CPlex_SolverSymBreak()
 
-    repetion_number = 1
+    repetion_number = 3
 
     # For starting tests
     start_tests(solver, repetion_number= repetion_number)

@@ -580,7 +580,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
-        print("RestrictionPriceOrder",start_vm_id, end_vm_id)
+        print("!!!!????? RestrictionPriceOrder",start_vm_id, end_vm_id)
 
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id - 1):
@@ -603,7 +603,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
                 max_id = vmid
-        self.RestrictionPriceOrder(max_id + 1, self.nr_vms)
+        #self.RestrictionPriceOrder(max_id + 1, self.nr_vms)
 
         #TODO: Don't you have already RestrictionPriceOrder above?
         # VMs are order decreasingly based on price
@@ -626,10 +626,10 @@ class CPlex_SolverSymBreak(ManuverSolver):
                         self.model.add_equivalence(var,  LogicalAndExpr(self.model,l)==1)
                         self.model.add_indicator(var, self.a[i, j] >= self.a[i,  j + 1])
         #TODO: for-ul asta se apeleaza oricum?
-        for j in range(self.nrVM - 1):
+        if self.sb_redundant_price or self.sb_redundant_processor or self.sb_redundant_memory or \
+                self.sb_redundant_storage or self.sb_equal_vms_type_order_by_components_number:
             print("sb_redundant_price")
-            if self.sb_redundant_price or self.sb_redundant_processor or self.sb_redundant_memory or \
-                    self.sb_redundant_storage or self.sb_equal_vms_type_order_by_components_number:
+            for j in range(self.nrVM - 1):
                 var = self.model.binary_var(name="aux_vmType{0}".format(j))
 
                 if self.default_offers_encoding:

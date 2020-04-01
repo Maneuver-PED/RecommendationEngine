@@ -464,15 +464,15 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 def start_tests(solver, repetion_number=1):
     offers = [
          "../testInstances/offersLPAR2018/offers_20.json",
-              "../testInstances/offersLPAR2018/offers_40.json",
-              "../testInstances/offersLPAR2018/offers_100.json",
-             "../testInstances/offersLPAR2018/offers_250.json",
-              "../testInstances/offersLPAR2018/offers_500.json"
+             #  "../testInstances/offersLPAR2018/offers_40.json",
+             #  "../testInstances/offersLPAR2018/offers_100.json",
+             # "../testInstances/offersLPAR2018/offers_250.json",
+             #  "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
         #  "../testInstances/Oryx2.json",
-        # "../testInstances/SecureBillingEmail.json",
+         "../testInstances/SecureBillingEmail.json",
         # "../testInstances/SecureWebContainer.json",
         # "../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
@@ -481,9 +481,9 @@ def start_tests(solver, repetion_number=1):
         #  "../testInstances/Wordpress7.json",
         # "../testInstances/Wordpress8.json",
         # "../testInstances/Wordpress9.json",
-        "../testInstances/Wordpress10.json",
-         "../testInstances/Wordpress11.json",
-         "../testInstances/Wordpress12.json"
+        # "../testInstances/Wordpress10.json",
+        #  "../testInstances/Wordpress11.json",
+        #  "../testInstances/Wordpress12.json"
                   ]
 
     configurations = [
@@ -536,8 +536,8 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
 
     # use one type of solver at a time
-    solver = Z3_SolverIntIntSymBreak()
-    #solver = CPlex_SolverSymBreak()
+    #solver = Z3_SolverIntIntSymBreak()
+    solver = CPlex_SolverSymBreak()
 
     repetion_number = 1
 

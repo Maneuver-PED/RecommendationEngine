@@ -605,6 +605,41 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 max_id = vmid
         #self.RestrictionPriceOrder(max_id + 1, self.nr_vms)
 
+        if self.sb_vms_price_order_by_components_number_order_lex:
+            print("sb_vms_price_order_by_components_number_order_lex", max_id)
+            for j in range(max_id + 1, self.nrVM - 1):
+
+                var = self.model.binary_var(name="aux_priceConsecutive{0}".format(j))
+                self.model.add_equivalence(var, self.PriceProv[j] == self.PriceProv[j + 1])
+                self.model.add_indicator(var, sum([self.a[i, j] for i in range(0, self.nr_comps)])
+                                         >= sum([self.a[i, j+1] for i in range(0, self.nr_comps)]))
+
+                for i in range(0, self.nrComp):
+                    l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
+                    l.extend([self.PriceProv[j] == self.PriceProv[j + 1],
+                             sum([self.a[u, j] for u in range(0, self.nr_comps)])
+                             == sum([self.a[u, j + 1] for u in range(0,  self.nr_comps)])])
+
+                    #print("l", l)
+                    var1 = self.model.binary_var(name="top_sumComp{0}_comp_price{1}".format(j, i))
+                    self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
+
+                    self.model.add_indicator(var1,  self.a[i, j] >= self.a[i, j + 1])
+
+                # VMs with same type have the same price
+                # if self.sb_redundant_price:
+                #     self.model.add_indicator(var,
+                #                              self.PriceProv[j] == self.PriceProv[j + 1], name="sb_redundant_price")
+                # self.solver.add(Implies(self.PriceProv[j] == self.PriceProv[j + 1],
+                #                         sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)])
+                #                         >= sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
+                # for i in range(0, self.nrComp):
+                #     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                #     l.append(And(self.PriceProv[j] == self.PriceProv[j + 1],
+                #                  sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) ==
+                #                  sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
+                #     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+
         #TODO: Don't you have already RestrictionPriceOrder above?
         # VMs are order decreasingly based on price
         if self.sb_vms_order_by_price:

@@ -45,9 +45,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                                         >= sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
                 for i in range(0, self.nrComp):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
-                    l.append(And(self.PriceProv[j] == self.PriceProv[j+1],
-                                 sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) ==
-                                 sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
+                    l.extend([self.PriceProv[j] == self.PriceProv[j+1],
+                                 sum([self.a[h + j] for h in range(0, len(self.a), self.nrVM)]) ==
+                                 sum([self.a[h + j + 1] for h in range(0, len(self.a), self.nrVM)])])
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
             if self.sb_vms_order_by_components_number_order_lex:

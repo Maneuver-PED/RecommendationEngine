@@ -1,5 +1,3 @@
-True,False,False,False,False,False,False,False,True,True,False
+True,True,False,False,False,False,False,False,False,False,False,True
 Price min value,Price for each machine,Time
-26400/1000,"[0, 0, 4400, 4400, 0, 4400, 0, 4400, 4400, 4400, 0]",91.91608166694641
-26400/1000,"[0, 4400, 4400, 4400, 0, 0, 4400, 4400, 0, 4400, 0]",97.0411639213562
-26400/1000,"[0, 4400, 4400, 4400, 0, 4400, 0, 0, 4400, 0, 4400]",139.65982103347778
+26400/1000,"[4400, 4400, 4400, 4400, 4400, 4400, 0, 0, 0, 0, 0]",20.162046909332275

@@ -1,5 +1,3 @@
-True,False,False,False,False,False,False,False,True,True,False
+True,True,False,False,False,False,False,False,False,False,False,True
 Price min value,Price for each machine,Time
-1386/1000,"[252, 126, 252, 126, 126, 252, 126, 126]",68.47590374946594
-1386/1000,"[252, 126, 252, 126, 126, 126, 252, 126]",87.97657871246338
-1386/1000,"[252, 126, 252, 126, 126, 126, 252, 126]",100.6123321056366
+1386/1000,"[252, 252, 252, 126, 126, 126, 126, 126]",13.62727403640747

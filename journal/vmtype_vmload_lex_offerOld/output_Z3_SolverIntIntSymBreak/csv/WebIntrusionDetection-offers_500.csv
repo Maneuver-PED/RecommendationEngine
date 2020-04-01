@@ -1,5 +1,3 @@
-True,False,False,False,False,False,False,False,True,True,False
+True,True,False,False,False,False,False,False,False,False,False,True
 Price min value,Price for each machine,Time
-1582/1000,"[210, 420, 0, 210, 532, 210]",16.951080560684204
-1582/1000,"[210, 0, 420, 210, 532, 210]",22.211360454559326
-1582/1000,"[210, 532, 210, 420, 210, 0]",19.281323671340942
+1582/1000,"[532, 420, 210, 210, 210, 0]",5.143940210342407

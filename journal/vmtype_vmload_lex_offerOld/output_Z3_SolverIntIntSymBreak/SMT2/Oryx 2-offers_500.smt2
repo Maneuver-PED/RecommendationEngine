@@ -99537,6 +99537,7 @@
     (= VM11Type 498)
     (= VM11Type 499)
     (= VM11Type 500)))
+(assert (>= PriceProv2 PriceProv3))
 (assert (= C5_VM1 C9_VM1))
 (assert (= C5_VM2 C9_VM2))
 (assert (= C5_VM3 C9_VM3))
@@ -100700,7 +100701,7 @@
        (* C9_VM11 1000)
        (* C10_VM11 2000))
     StorageProv11))
-(assert (=> (= VM1Type VM2Type)
+(assert (=> (= PriceProv1 PriceProv2)
     (>= (+ 0
            C1_VM1
            C2_VM1
@@ -100723,27 +100724,164 @@
            C8_VM2
            C9_VM2
            C10_VM2))))
-(assert (=> (and (= VM1Type VM2Type)) (>= C1_VM1 C1_VM2)))
-(assert (=> (and (= C1_VM1 C1_VM2) (= VM1Type VM2Type)) (>= C2_VM1 C2_VM2)))
-(assert (=> (and (= C1_VM1 C1_VM2) (= C2_VM1 C2_VM2) (= VM1Type VM2Type))
+(assert (=> (and (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
+    (>= C1_VM1 C1_VM2)))
+(assert (=> (and (= C1_VM1 C1_VM2)
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
+    (>= C2_VM1 C2_VM2)))
+(assert (=> (and (= C1_VM1 C1_VM2)
+         (= C2_VM1 C2_VM2)
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C3_VM1 C3_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
          (= C3_VM1 C3_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C4_VM1 C4_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
          (= C3_VM1 C3_VM2)
          (= C4_VM1 C4_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C5_VM1 C5_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
          (= C3_VM1 C3_VM2)
          (= C4_VM1 C4_VM2)
          (= C5_VM1 C5_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C6_VM1 C6_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
@@ -100751,7 +100889,29 @@
          (= C4_VM1 C4_VM2)
          (= C5_VM1 C5_VM2)
          (= C6_VM1 C6_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C7_VM1 C7_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
@@ -100760,7 +100920,29 @@
          (= C5_VM1 C5_VM2)
          (= C6_VM1 C6_VM2)
          (= C7_VM1 C7_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C8_VM1 C8_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
@@ -100770,7 +100952,29 @@
          (= C6_VM1 C6_VM2)
          (= C7_VM1 C7_VM2)
          (= C8_VM1 C8_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C9_VM1 C9_VM2)))
 (assert (=> (and (= C1_VM1 C1_VM2)
          (= C2_VM1 C2_VM2)
@@ -100781,9 +100985,31 @@
          (= C7_VM1 C7_VM2)
          (= C8_VM1 C8_VM2)
          (= C9_VM1 C9_VM2)
-         (= VM1Type VM2Type))
+         (= PriceProv1 PriceProv2)
+         (= (+ 0
+               C1_VM1
+               C2_VM1
+               C3_VM1
+               C4_VM1
+               C5_VM1
+               C6_VM1
+               C7_VM1
+               C8_VM1
+               C9_VM1
+               C10_VM1)
+            (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)))
     (>= C10_VM1 C10_VM2)))
-(assert (=> (= VM2Type VM3Type)
+(assert (=> (= PriceProv2 PriceProv3)
     (>= (+ 0
            C1_VM2
            C2_VM2
@@ -100806,27 +101032,164 @@
            C8_VM3
            C9_VM3
            C10_VM3))))
-(assert (=> (and (= VM2Type VM3Type)) (>= C1_VM2 C1_VM3)))
-(assert (=> (and (= C1_VM2 C1_VM3) (= VM2Type VM3Type)) (>= C2_VM2 C2_VM3)))
-(assert (=> (and (= C1_VM2 C1_VM3) (= C2_VM2 C2_VM3) (= VM2Type VM3Type))
+(assert (=> (and (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
+    (>= C1_VM2 C1_VM3)))
+(assert (=> (and (= C1_VM2 C1_VM3)
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
+    (>= C2_VM2 C2_VM3)))
+(assert (=> (and (= C1_VM2 C1_VM3)
+         (= C2_VM2 C2_VM3)
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C3_VM2 C3_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
          (= C3_VM2 C3_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C4_VM2 C4_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
          (= C3_VM2 C3_VM3)
          (= C4_VM2 C4_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C5_VM2 C5_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
          (= C3_VM2 C3_VM3)
          (= C4_VM2 C4_VM3)
          (= C5_VM2 C5_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C6_VM2 C6_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
@@ -100834,7 +101197,29 @@
          (= C4_VM2 C4_VM3)
          (= C5_VM2 C5_VM3)
          (= C6_VM2 C6_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C7_VM2 C7_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
@@ -100843,7 +101228,29 @@
          (= C5_VM2 C5_VM3)
          (= C6_VM2 C6_VM3)
          (= C7_VM2 C7_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C8_VM2 C8_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
@@ -100853,7 +101260,29 @@
          (= C6_VM2 C6_VM3)
          (= C7_VM2 C7_VM3)
          (= C8_VM2 C8_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C9_VM2 C9_VM3)))
 (assert (=> (and (= C1_VM2 C1_VM3)
          (= C2_VM2 C2_VM3)
@@ -100864,9 +101293,31 @@
          (= C7_VM2 C7_VM3)
          (= C8_VM2 C8_VM3)
          (= C9_VM2 C9_VM3)
-         (= VM2Type VM3Type))
+         (= PriceProv2 PriceProv3)
+         (= (+ 0
+               C1_VM2
+               C2_VM2
+               C3_VM2
+               C4_VM2
+               C5_VM2
+               C6_VM2
+               C7_VM2
+               C8_VM2
+               C9_VM2
+               C10_VM2)
+            (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)))
     (>= C10_VM2 C10_VM3)))
-(assert (=> (= VM3Type VM4Type)
+(assert (=> (= PriceProv3 PriceProv4)
     (>= (+ 0
            C1_VM3
            C2_VM3
@@ -100889,27 +101340,164 @@
            C8_VM4
            C9_VM4
            C10_VM4))))
-(assert (=> (and (= VM3Type VM4Type)) (>= C1_VM3 C1_VM4)))
-(assert (=> (and (= C1_VM3 C1_VM4) (= VM3Type VM4Type)) (>= C2_VM3 C2_VM4)))
-(assert (=> (and (= C1_VM3 C1_VM4) (= C2_VM3 C2_VM4) (= VM3Type VM4Type))
+(assert (=> (and (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
+    (>= C1_VM3 C1_VM4)))
+(assert (=> (and (= C1_VM3 C1_VM4)
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
+    (>= C2_VM3 C2_VM4)))
+(assert (=> (and (= C1_VM3 C1_VM4)
+         (= C2_VM3 C2_VM4)
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C3_VM3 C3_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
          (= C3_VM3 C3_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C4_VM3 C4_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
          (= C3_VM3 C3_VM4)
          (= C4_VM3 C4_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C5_VM3 C5_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
          (= C3_VM3 C3_VM4)
          (= C4_VM3 C4_VM4)
          (= C5_VM3 C5_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C6_VM3 C6_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
@@ -100917,7 +101505,29 @@
          (= C4_VM3 C4_VM4)
          (= C5_VM3 C5_VM4)
          (= C6_VM3 C6_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C7_VM3 C7_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
@@ -100926,7 +101536,29 @@
          (= C5_VM3 C5_VM4)
          (= C6_VM3 C6_VM4)
          (= C7_VM3 C7_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C8_VM3 C8_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
@@ -100936,7 +101568,29 @@
          (= C6_VM3 C6_VM4)
          (= C7_VM3 C7_VM4)
          (= C8_VM3 C8_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C9_VM3 C9_VM4)))
 (assert (=> (and (= C1_VM3 C1_VM4)
          (= C2_VM3 C2_VM4)
@@ -100947,9 +101601,31 @@
          (= C7_VM3 C7_VM4)
          (= C8_VM3 C8_VM4)
          (= C9_VM3 C9_VM4)
-         (= VM3Type VM4Type))
+         (= PriceProv3 PriceProv4)
+         (= (+ 0
+               C1_VM3
+               C2_VM3
+               C3_VM3
+               C4_VM3
+               C5_VM3
+               C6_VM3
+               C7_VM3
+               C8_VM3
+               C9_VM3
+               C10_VM3)
+            (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)))
     (>= C10_VM3 C10_VM4)))
-(assert (=> (= VM4Type VM5Type)
+(assert (=> (= PriceProv4 PriceProv5)
     (>= (+ 0
            C1_VM4
            C2_VM4
@@ -100972,27 +101648,164 @@
            C8_VM5
            C9_VM5
            C10_VM5))))
-(assert (=> (and (= VM4Type VM5Type)) (>= C1_VM4 C1_VM5)))
-(assert (=> (and (= C1_VM4 C1_VM5) (= VM4Type VM5Type)) (>= C2_VM4 C2_VM5)))
-(assert (=> (and (= C1_VM4 C1_VM5) (= C2_VM4 C2_VM5) (= VM4Type VM5Type))
+(assert (=> (and (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
+    (>= C1_VM4 C1_VM5)))
+(assert (=> (and (= C1_VM4 C1_VM5)
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
+    (>= C2_VM4 C2_VM5)))
+(assert (=> (and (= C1_VM4 C1_VM5)
+         (= C2_VM4 C2_VM5)
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C3_VM4 C3_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
          (= C3_VM4 C3_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C4_VM4 C4_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
          (= C3_VM4 C3_VM5)
          (= C4_VM4 C4_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C5_VM4 C5_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
          (= C3_VM4 C3_VM5)
          (= C4_VM4 C4_VM5)
          (= C5_VM4 C5_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C6_VM4 C6_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
@@ -101000,7 +101813,29 @@
          (= C4_VM4 C4_VM5)
          (= C5_VM4 C5_VM5)
          (= C6_VM4 C6_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C7_VM4 C7_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
@@ -101009,7 +101844,29 @@
          (= C5_VM4 C5_VM5)
          (= C6_VM4 C6_VM5)
          (= C7_VM4 C7_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C8_VM4 C8_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
@@ -101019,7 +101876,29 @@
          (= C6_VM4 C6_VM5)
          (= C7_VM4 C7_VM5)
          (= C8_VM4 C8_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C9_VM4 C9_VM5)))
 (assert (=> (and (= C1_VM4 C1_VM5)
          (= C2_VM4 C2_VM5)
@@ -101030,9 +101909,31 @@
          (= C7_VM4 C7_VM5)
          (= C8_VM4 C8_VM5)
          (= C9_VM4 C9_VM5)
-         (= VM4Type VM5Type))
+         (= PriceProv4 PriceProv5)
+         (= (+ 0
+               C1_VM4
+               C2_VM4
+               C3_VM4
+               C4_VM4
+               C5_VM4
+               C6_VM4
+               C7_VM4
+               C8_VM4
+               C9_VM4
+               C10_VM4)
+            (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)))
     (>= C10_VM4 C10_VM5)))
-(assert (=> (= VM5Type VM6Type)
+(assert (=> (= PriceProv5 PriceProv6)
     (>= (+ 0
            C1_VM5
            C2_VM5
@@ -101055,27 +101956,164 @@
            C8_VM6
            C9_VM6
            C10_VM6))))
-(assert (=> (and (= VM5Type VM6Type)) (>= C1_VM5 C1_VM6)))
-(assert (=> (and (= C1_VM5 C1_VM6) (= VM5Type VM6Type)) (>= C2_VM5 C2_VM6)))
-(assert (=> (and (= C1_VM5 C1_VM6) (= C2_VM5 C2_VM6) (= VM5Type VM6Type))
+(assert (=> (and (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
+    (>= C1_VM5 C1_VM6)))
+(assert (=> (and (= C1_VM5 C1_VM6)
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
+    (>= C2_VM5 C2_VM6)))
+(assert (=> (and (= C1_VM5 C1_VM6)
+         (= C2_VM5 C2_VM6)
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C3_VM5 C3_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
          (= C3_VM5 C3_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C4_VM5 C4_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
          (= C3_VM5 C3_VM6)
          (= C4_VM5 C4_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C5_VM5 C5_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
          (= C3_VM5 C3_VM6)
          (= C4_VM5 C4_VM6)
          (= C5_VM5 C5_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C6_VM5 C6_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
@@ -101083,7 +102121,29 @@
          (= C4_VM5 C4_VM6)
          (= C5_VM5 C5_VM6)
          (= C6_VM5 C6_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C7_VM5 C7_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
@@ -101092,7 +102152,29 @@
          (= C5_VM5 C5_VM6)
          (= C6_VM5 C6_VM6)
          (= C7_VM5 C7_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C8_VM5 C8_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
@@ -101102,7 +102184,29 @@
          (= C6_VM5 C6_VM6)
          (= C7_VM5 C7_VM6)
          (= C8_VM5 C8_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C9_VM5 C9_VM6)))
 (assert (=> (and (= C1_VM5 C1_VM6)
          (= C2_VM5 C2_VM6)
@@ -101113,9 +102217,31 @@
          (= C7_VM5 C7_VM6)
          (= C8_VM5 C8_VM6)
          (= C9_VM5 C9_VM6)
-         (= VM5Type VM6Type))
+         (= PriceProv5 PriceProv6)
+         (= (+ 0
+               C1_VM5
+               C2_VM5
+               C3_VM5
+               C4_VM5
+               C5_VM5
+               C6_VM5
+               C7_VM5
+               C8_VM5
+               C9_VM5
+               C10_VM5)
+            (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)))
     (>= C10_VM5 C10_VM6)))
-(assert (=> (= VM6Type VM7Type)
+(assert (=> (= PriceProv6 PriceProv7)
     (>= (+ 0
            C1_VM6
            C2_VM6
@@ -101138,27 +102264,164 @@
            C8_VM7
            C9_VM7
            C10_VM7))))
-(assert (=> (and (= VM6Type VM7Type)) (>= C1_VM6 C1_VM7)))
-(assert (=> (and (= C1_VM6 C1_VM7) (= VM6Type VM7Type)) (>= C2_VM6 C2_VM7)))
-(assert (=> (and (= C1_VM6 C1_VM7) (= C2_VM6 C2_VM7) (= VM6Type VM7Type))
+(assert (=> (and (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
+    (>= C1_VM6 C1_VM7)))
+(assert (=> (and (= C1_VM6 C1_VM7)
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
+    (>= C2_VM6 C2_VM7)))
+(assert (=> (and (= C1_VM6 C1_VM7)
+         (= C2_VM6 C2_VM7)
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C3_VM6 C3_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
          (= C3_VM6 C3_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C4_VM6 C4_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
          (= C3_VM6 C3_VM7)
          (= C4_VM6 C4_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C5_VM6 C5_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
          (= C3_VM6 C3_VM7)
          (= C4_VM6 C4_VM7)
          (= C5_VM6 C5_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C6_VM6 C6_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
@@ -101166,7 +102429,29 @@
          (= C4_VM6 C4_VM7)
          (= C5_VM6 C5_VM7)
          (= C6_VM6 C6_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C7_VM6 C7_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
@@ -101175,7 +102460,29 @@
          (= C5_VM6 C5_VM7)
          (= C6_VM6 C6_VM7)
          (= C7_VM6 C7_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C8_VM6 C8_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
@@ -101185,7 +102492,29 @@
          (= C6_VM6 C6_VM7)
          (= C7_VM6 C7_VM7)
          (= C8_VM6 C8_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C9_VM6 C9_VM7)))
 (assert (=> (and (= C1_VM6 C1_VM7)
          (= C2_VM6 C2_VM7)
@@ -101196,9 +102525,31 @@
          (= C7_VM6 C7_VM7)
          (= C8_VM6 C8_VM7)
          (= C9_VM6 C9_VM7)
-         (= VM6Type VM7Type))
+         (= PriceProv6 PriceProv7)
+         (= (+ 0
+               C1_VM6
+               C2_VM6
+               C3_VM6
+               C4_VM6
+               C5_VM6
+               C6_VM6
+               C7_VM6
+               C8_VM6
+               C9_VM6
+               C10_VM6)
+            (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)))
     (>= C10_VM6 C10_VM7)))
-(assert (=> (= VM7Type VM8Type)
+(assert (=> (= PriceProv7 PriceProv8)
     (>= (+ 0
            C1_VM7
            C2_VM7
@@ -101221,27 +102572,164 @@
            C8_VM8
            C9_VM8
            C10_VM8))))
-(assert (=> (and (= VM7Type VM8Type)) (>= C1_VM7 C1_VM8)))
-(assert (=> (and (= C1_VM7 C1_VM8) (= VM7Type VM8Type)) (>= C2_VM7 C2_VM8)))
-(assert (=> (and (= C1_VM7 C1_VM8) (= C2_VM7 C2_VM8) (= VM7Type VM8Type))
+(assert (=> (and (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
+    (>= C1_VM7 C1_VM8)))
+(assert (=> (and (= C1_VM7 C1_VM8)
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
+    (>= C2_VM7 C2_VM8)))
+(assert (=> (and (= C1_VM7 C1_VM8)
+         (= C2_VM7 C2_VM8)
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C3_VM7 C3_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
          (= C3_VM7 C3_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C4_VM7 C4_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
          (= C3_VM7 C3_VM8)
          (= C4_VM7 C4_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C5_VM7 C5_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
          (= C3_VM7 C3_VM8)
          (= C4_VM7 C4_VM8)
          (= C5_VM7 C5_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C6_VM7 C6_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
@@ -101249,7 +102737,29 @@
          (= C4_VM7 C4_VM8)
          (= C5_VM7 C5_VM8)
          (= C6_VM7 C6_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C7_VM7 C7_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
@@ -101258,7 +102768,29 @@
          (= C5_VM7 C5_VM8)
          (= C6_VM7 C6_VM8)
          (= C7_VM7 C7_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C8_VM7 C8_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
@@ -101268,7 +102800,29 @@
          (= C6_VM7 C6_VM8)
          (= C7_VM7 C7_VM8)
          (= C8_VM7 C8_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C9_VM7 C9_VM8)))
 (assert (=> (and (= C1_VM7 C1_VM8)
          (= C2_VM7 C2_VM8)
@@ -101279,9 +102833,31 @@
          (= C7_VM7 C7_VM8)
          (= C8_VM7 C8_VM8)
          (= C9_VM7 C9_VM8)
-         (= VM7Type VM8Type))
+         (= PriceProv7 PriceProv8)
+         (= (+ 0
+               C1_VM7
+               C2_VM7
+               C3_VM7
+               C4_VM7
+               C5_VM7
+               C6_VM7
+               C7_VM7
+               C8_VM7
+               C9_VM7
+               C10_VM7)
+            (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)))
     (>= C10_VM7 C10_VM8)))
-(assert (=> (= VM8Type VM9Type)
+(assert (=> (= PriceProv8 PriceProv9)
     (>= (+ 0
            C1_VM8
            C2_VM8
@@ -101304,27 +102880,164 @@
            C8_VM9
            C9_VM9
            C10_VM9))))
-(assert (=> (and (= VM8Type VM9Type)) (>= C1_VM8 C1_VM9)))
-(assert (=> (and (= C1_VM8 C1_VM9) (= VM8Type VM9Type)) (>= C2_VM8 C2_VM9)))
-(assert (=> (and (= C1_VM8 C1_VM9) (= C2_VM8 C2_VM9) (= VM8Type VM9Type))
+(assert (=> (and (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
+    (>= C1_VM8 C1_VM9)))
+(assert (=> (and (= C1_VM8 C1_VM9)
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
+    (>= C2_VM8 C2_VM9)))
+(assert (=> (and (= C1_VM8 C1_VM9)
+         (= C2_VM8 C2_VM9)
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C3_VM8 C3_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
          (= C3_VM8 C3_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C4_VM8 C4_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
          (= C3_VM8 C3_VM9)
          (= C4_VM8 C4_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C5_VM8 C5_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
          (= C3_VM8 C3_VM9)
          (= C4_VM8 C4_VM9)
          (= C5_VM8 C5_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C6_VM8 C6_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
@@ -101332,7 +103045,29 @@
          (= C4_VM8 C4_VM9)
          (= C5_VM8 C5_VM9)
          (= C6_VM8 C6_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C7_VM8 C7_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
@@ -101341,7 +103076,29 @@
          (= C5_VM8 C5_VM9)
          (= C6_VM8 C6_VM9)
          (= C7_VM8 C7_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C8_VM8 C8_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
@@ -101351,7 +103108,29 @@
          (= C6_VM8 C6_VM9)
          (= C7_VM8 C7_VM9)
          (= C8_VM8 C8_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C9_VM8 C9_VM9)))
 (assert (=> (and (= C1_VM8 C1_VM9)
          (= C2_VM8 C2_VM9)
@@ -101362,9 +103141,31 @@
          (= C7_VM8 C7_VM9)
          (= C8_VM8 C8_VM9)
          (= C9_VM8 C9_VM9)
-         (= VM8Type VM9Type))
+         (= PriceProv8 PriceProv9)
+         (= (+ 0
+               C1_VM8
+               C2_VM8
+               C3_VM8
+               C4_VM8
+               C5_VM8
+               C6_VM8
+               C7_VM8
+               C8_VM8
+               C9_VM8
+               C10_VM8)
+            (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)))
     (>= C10_VM8 C10_VM9)))
-(assert (=> (= VM9Type VM10Type)
+(assert (=> (= PriceProv9 PriceProv10)
     (>= (+ 0
            C1_VM9
            C2_VM9
@@ -101387,27 +103188,164 @@
            C8_VM10
            C9_VM10
            C10_VM10))))
-(assert (=> (and (= VM9Type VM10Type)) (>= C1_VM9 C1_VM10)))
-(assert (=> (and (= C1_VM9 C1_VM10) (= VM9Type VM10Type)) (>= C2_VM9 C2_VM10)))
-(assert (=> (and (= C1_VM9 C1_VM10) (= C2_VM9 C2_VM10) (= VM9Type VM10Type))
+(assert (=> (and (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
+    (>= C1_VM9 C1_VM10)))
+(assert (=> (and (= C1_VM9 C1_VM10)
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
+    (>= C2_VM9 C2_VM10)))
+(assert (=> (and (= C1_VM9 C1_VM10)
+         (= C2_VM9 C2_VM10)
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C3_VM9 C3_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
          (= C3_VM9 C3_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C4_VM9 C4_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
          (= C3_VM9 C3_VM10)
          (= C4_VM9 C4_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C5_VM9 C5_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
          (= C3_VM9 C3_VM10)
          (= C4_VM9 C4_VM10)
          (= C5_VM9 C5_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C6_VM9 C6_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
@@ -101415,7 +103353,29 @@
          (= C4_VM9 C4_VM10)
          (= C5_VM9 C5_VM10)
          (= C6_VM9 C6_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C7_VM9 C7_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
@@ -101424,7 +103384,29 @@
          (= C5_VM9 C5_VM10)
          (= C6_VM9 C6_VM10)
          (= C7_VM9 C7_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C8_VM9 C8_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
@@ -101434,7 +103416,29 @@
          (= C6_VM9 C6_VM10)
          (= C7_VM9 C7_VM10)
          (= C8_VM9 C8_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C9_VM9 C9_VM10)))
 (assert (=> (and (= C1_VM9 C1_VM10)
          (= C2_VM9 C2_VM10)
@@ -101445,9 +103449,31 @@
          (= C7_VM9 C7_VM10)
          (= C8_VM9 C8_VM10)
          (= C9_VM9 C9_VM10)
-         (= VM9Type VM10Type))
+         (= PriceProv9 PriceProv10)
+         (= (+ 0
+               C1_VM9
+               C2_VM9
+               C3_VM9
+               C4_VM9
+               C5_VM9
+               C6_VM9
+               C7_VM9
+               C8_VM9
+               C9_VM9
+               C10_VM9)
+            (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)))
     (>= C10_VM9 C10_VM10)))
-(assert (=> (= VM10Type VM11Type)
+(assert (=> (= PriceProv10 PriceProv11)
     (>= (+ 0
            C1_VM10
            C2_VM10
@@ -101470,27 +103496,164 @@
            C8_VM11
            C9_VM11
            C10_VM11))))
-(assert (=> (and (= VM10Type VM11Type)) (>= C1_VM10 C1_VM11)))
-(assert (=> (and (= C1_VM10 C1_VM11) (= VM10Type VM11Type)) (>= C2_VM10 C2_VM11)))
-(assert (=> (and (= C1_VM10 C1_VM11) (= C2_VM10 C2_VM11) (= VM10Type VM11Type))
+(assert (=> (and (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
+    (>= C1_VM10 C1_VM11)))
+(assert (=> (and (= C1_VM10 C1_VM11)
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
+    (>= C2_VM10 C2_VM11)))
+(assert (=> (and (= C1_VM10 C1_VM11)
+         (= C2_VM10 C2_VM11)
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C3_VM10 C3_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
          (= C3_VM10 C3_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C4_VM10 C4_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
          (= C3_VM10 C3_VM11)
          (= C4_VM10 C4_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C5_VM10 C5_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
          (= C3_VM10 C3_VM11)
          (= C4_VM10 C4_VM11)
          (= C5_VM10 C5_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C6_VM10 C6_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
@@ -101498,7 +103661,29 @@
          (= C4_VM10 C4_VM11)
          (= C5_VM10 C5_VM11)
          (= C6_VM10 C6_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C7_VM10 C7_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
@@ -101507,7 +103692,29 @@
          (= C5_VM10 C5_VM11)
          (= C6_VM10 C6_VM11)
          (= C7_VM10 C7_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C8_VM10 C8_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
@@ -101517,7 +103724,29 @@
          (= C6_VM10 C6_VM11)
          (= C7_VM10 C7_VM11)
          (= C8_VM10 C8_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C9_VM10 C9_VM11)))
 (assert (=> (and (= C1_VM10 C1_VM11)
          (= C2_VM10 C2_VM11)
@@ -101528,8 +103757,40 @@
          (= C7_VM10 C7_VM11)
          (= C8_VM10 C8_VM11)
          (= C9_VM10 C9_VM11)
-         (= VM10Type VM11Type))
+         (= PriceProv10 PriceProv11)
+         (= (+ 0
+               C1_VM10
+               C2_VM10
+               C3_VM10
+               C4_VM10
+               C5_VM10
+               C6_VM10
+               C7_VM10
+               C8_VM10
+               C9_VM10
+               C10_VM10)
+            (+ 0
+               C1_VM11
+               C2_VM11
+               C3_VM11
+               C4_VM11
+               C5_VM11
+               C6_VM11
+               C7_VM11
+               C8_VM11
+               C9_VM11
+               C10_VM11)))
     (>= C10_VM10 C10_VM11)))
+(assert (>= PriceProv1 PriceProv2))
+(assert (>= PriceProv2 PriceProv3))
+(assert (>= PriceProv3 PriceProv4))
+(assert (>= PriceProv4 PriceProv5))
+(assert (>= PriceProv5 PriceProv6))
+(assert (>= PriceProv6 PriceProv7))
+(assert (>= PriceProv7 PriceProv8))
+(assert (>= PriceProv8 PriceProv9))
+(assert (>= PriceProv9 PriceProv10))
+(assert (>= PriceProv10 PriceProv11))
 (minimize (+ 0
    PriceProv1
    PriceProv2

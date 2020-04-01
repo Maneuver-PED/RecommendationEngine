@@ -36,15 +36,33 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             if max_id < vmid:
                 max_id = vmid
 
-        print("vmIds_for_fixedComponents: ", self.vmIds_for_fixedComponents, max_id)
-        # VMs are order decreasingly based on price
+        #print("vmIds_for_fixedComponents: ", self.vmIds_for_fixedComponents, max_id)
+        # VMs of same type (price) are ordered by components load, and for same load by lex
+        if self.sb_vms_price_order_by_components_number_order_lex:
+            for j in range(max_id + 1, self.nrVM - 1):
+                self.solver.add(Implies(self.PriceProv[j] == self.PriceProv[j+1],
+                                        sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)])
+                                        >= sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
+                for i in range(0, self.nrComp):
+                    l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                    l.append(And(self.PriceProv[j] == self.PriceProv[j+1],
+                                 sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) ==
+                                 sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])))
+                    self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+
+            if self.sb_vms_order_by_components_number_order_lex:
+                for i in range(0, self.nrComp):
+                    l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                    l.append(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == sum(
+                        [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
+                    self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+        # VMs are ordered decreasingly based on price
         if self.sb_vms_order_by_price:
-            print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
+            #print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
             for j in range(max_id + 1, self.nrVM - 1):
                 #print(self.PriceProv[j] >= self.PriceProv[j + 1])
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
-
-        # ??? where is this used??? might give wrong results, run e.g. SecureWebContainer with this option True
+        #
         if self.sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex:
             for j in range(max_id + 1, self.nrVM - 1):
                 self.solver.add(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= sum(
@@ -55,7 +73,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                     l.append(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == sum(
                     [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
                     self.solver.add(Implies(And(l), self.a[i*self.nrVM + j] >= self.a[i*self.nrVM + j+1]))
-
+        #redundand constraints
         for j in range(self.nrVM - 1):
             # VMs with same type have the same price
             if self.sb_redundant_price:
@@ -96,7 +114,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
 
         #lex order on line
         #component 0
-        print("elf.sb_lex_line",self.sb_lex_line, self.sb_lex_line_price)
+        #print("self.sb_lex_line",self.sb_lex_line, self.sb_lex_line_price)
         if self.sb_lex_line:
             instances_nr = 0
             for vm_id in range(self.nrVM-1):
@@ -105,7 +123,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             if self.sb_lex_line_price:
                 for vm_id in range(instances_nr-1):
                     self.solver.add(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
-                    print(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
+                    #print(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
 
             for comp_id in range(1,self.nrComp):
                 for vm_id in range(instances_nr+1, self.nrVM - 1):
@@ -116,7 +134,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 instances_nr += self.problem.componentsList[comp_id].minimumNumberOfInstances
 
         if self.sb_lex_col_binary:
-            print("constraint flav")
             for vm_id in range(self.nrVM - 1):
                 list_comps = []
                 for comp_id in range(self.nrComp):
@@ -129,7 +146,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                                 sum([self.a[list_comps[i] * self.nrVM+vm_id+1] * (2 ** (n-i)) for i in range(len(list_comps))]))
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
-        print("PriceOrder Z3", start_vm_id, end_vm_id)
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id-1):
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
@@ -159,10 +175,8 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         self.vm_with_offers[vm_id] = comp_id
         self.vmIds_for_fixedComponents.add(vm_id)
 
-        print("!!!!!! set comp " , comp_id , " on vm " , vm_id, self.vmIds_for_fixedComponents)
-
     def _encodeOffers(self, scale_factor):
-        print("scale_factor ",scale_factor)
+        #print("scale_factor ", scale_factor)
         # encode offers
         for j in range(self.nrVM):
             self.solver.add(self.PriceProv[j] >= 0)
@@ -178,11 +192,8 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             for j in range(self.nrVM):
                 self.solver.add(Implies(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == 0, self.PriceProv[j] == 0))
 
-        print("_encodeOffers self.default_offers_encoding", self.default_offers_encoding)
         priceIndex = len(self.offers_list[0]) - 1
         if self.default_offers_encoding:
-            print("price Index ", self.offers_list[0], priceIndex)
-            print("price Index ", self.offers_list[1], priceIndex)
             for vm_id in range(self.nrVM):
                 index = 0
                 availableOffers = []
@@ -236,8 +247,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 lst = [self.vmType[vm_id] == offerID for offerID in availableOffers]
                 self.solver.add(Or(lst))
         else:
-
-            print("!!!!!!!!!!! Add price")
             # new encoding
             for vm_id in range(self.nrVM):
                 index = 0
@@ -269,13 +278,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         :param conflictCompsIdList: id of the second conflict component
         :return: None
         """
-
-        print("restriction conflictCompsIdList ", alphaCompId, conflictCompsIdList)
-
         self.problem.logger.debug(
             "RestrictionConflict: alphaCompId = {} conflictComponentsList = {}".format(alphaCompId,
                                                                                        conflictCompsIdList))
-
         for j in range(self.nrVM):
             for conflictCompId in conflictCompsIdList:
                 # self.problem.logger.debug("...{} <= 1".format([self.a[alphaCompId * self.nrVM + j], self.a[conflictCompId * self.nrVM + j]]))
@@ -567,9 +572,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                            self.StorageProv[k])
             self.solver.add(tmp)
         else:
-
-            print("scale_factor: ", scale_factor)
-
             components_Requirements = componentsRequirements.copy()
             if scale_factor != 1:
                 for i in range(self.nrComp):
@@ -603,10 +605,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             tmp1 = []
             tmp2 = []
             tmp3 = []
-            print(cpu_values)
-            print(memory_values)
-            print(storage_values)
-
             for k in range(self.nrVM):
                 #reversed(sorted(test_dict.keys()))
                 #for key, val in cpu_values.items():
@@ -693,39 +691,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                          range(self.nrComp)]) <=
                     key, Or([self.vmType[k] == index for index in offers_aplicable])
                 ))
-                        #for key, val in memory_values.items():
-                # keys = sorted(memory_values.keys())
-                # offers_aplicable = []
-                # for key in keys:
-                #     values = memory_values[key]
-                #
-                #     offers_aplicable.extend(values)
-                #     print("keys memory: ", str(key), values, offers_aplicable)
-                #     tmp2.append(Implies(
-                #         sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][1] if int(scale_factor) == 1 else
-                #                                              componentsRequirements[i][1] / scale_factor)) for i in range(self.nrComp)]) <=
-                #         key, Or([self.vmType[k] == index for index in offers_aplicable])))
-                #
-                # #for key, val in memory_values.items():
-                # keys = sorted(storage_values.keys())
-                #
-                # offers_aplicable = []
-                # for key in keys:
-                #
-                #     values = storage_values[key]
-                #
-                #     offers_aplicable.extend(values)
-                #     print("keys storage: ", str(key), values, offers_aplicable)
-                #     tmp3.append(Implies(
-                #         sum([self.a[i * self.nrVM + k] * ((componentsRequirements[i][2] if int(scale_factor) == 1 else
-                #                                              componentsRequirements[i][2] / scale_factor)) for i in range(self.nrComp)]) <=
-                #         key, Or([self.vmType[k] == index for index in offers_aplicable])))
             self.solver.add(tmp1)
             self.solver.add(tmp2)
             self.solver.add(tmp3)
-
-
-
 
     def createSMT2LIBFile(self, fileName):
         """
@@ -772,8 +740,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         if self.solverTypeOptimize:
             opt = sum(self.PriceProv)
             min = self.solver.minimize(opt)
-
-
         self.createSMT2LIBFile(self.smt2lib)
 
         startime = time.time()
@@ -805,7 +771,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             vms_price = []
             for k in range(self.nrVM):
                 vms_price.append(model[self.PriceProv[k]])
-            print(vms_price)
+            #print(vms_price)
             #print("Type for each machine")
             vms_type = []
             for k in range(self.nrVM):
@@ -813,12 +779,9 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             #print(vms_type)
         else:
             print("UNSAT")
-
-
-
         if self.solverTypeOptimize:
             if status == sat:
-                print("a_mat", a_mat)
+                #print("a_mat", a_mat)
                 self.createSMT2LIBFileSolution(self.smt2libsol, status, model)
                 # do not return min.value() since the type is not comparable with -1 in the exposeRE
                 return self.convert_price(min.value()), vms_price, stoptime - startime, a_mat, vms_type

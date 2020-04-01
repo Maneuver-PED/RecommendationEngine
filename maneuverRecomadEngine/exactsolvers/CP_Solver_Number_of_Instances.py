@@ -159,10 +159,6 @@ class CP_Solver_Got_Nr_Instances:
         startTime = time.process_time()
         self.solver.Solve(self.decision_builder, [self.limits, self.objective, self.collector])
         stopTime = time.process_time()
-
-
-        #print("**********", stopTime - startTime, self.objective)
-
         return startTime, stopTime
 
     def __runCPProblem(self):

@@ -41,7 +41,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         self.vm = {j: self.model.binary_var(name="vm{0}".format(j+1)) for j in range(self.nr_vms)}
 
         # Assignment matrix a_{alpha,k}: 1 if component alpha is on machine k, 0 otherwise
-        print("CPLEX __define_variables ", self.nr_comps, self.nr_vms)
+        #print("CPLEX __define_variables ", self.nr_comps, self.nr_vms)
         self.a = {(i, j): self.model.binary_var(name="C{0}_VM{1}".format(i+1, j+1))
                   for i in range(self.nr_comps) for j in range(self.nr_vms)}
 
@@ -105,10 +105,10 @@ class CPlex_SolverSymBreak(ManuverSolver):
         stoptime = time.time()
 
         if dc.status.JobSolveStatus.OPTIMAL_SOLUTION == self.model.get_solve_status():
-            print(self.model.solve_details)
+            #print(self.model.solve_details)
             if (self.default_offers_encoding):
                 for index, var in self.vmType.items():
-                    print(var.solution_value, end=" ")
+                    #print(var.solution_value, end=" ")
                     vmType.append(var.solution_value)
             else:
                 vmType = []
@@ -129,14 +129,14 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 vmType.append(l)
                 print(l)
 
-            print("\nvmPrice")
+            #print("\nvmPrice")
             for index, var in self.PriceProv.items():
-                print(var.solution_value, end=" ")
+                #print(var.solution_value, end=" ")
                 vmPrice.append(var.solution_value)
-            print("\nVm Aquired")
-            for index,var in self.vm.items():
-               print(var.solution_value, end=" ")
-            print()
+            #print("\nVm Aquired")
+            # for index,var in self.vm.items():
+            #    print(var.solution_value, end=" ")
+            # print()
 
             l=[]
             col = 0
@@ -148,10 +148,10 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 col += 1
                 l.append(int(var.solution_value))
             a_mat.append(l)
-            print("\n comp allocation matrix", self.nrVM, self.nrComp)
+            #print("\ncomp allocation matrix", self.nrVM, self.nrComp)
             for l in a_mat:
                 print(l)
-            print(xx.get_objective_value())
+            #print(xx.get_objective_value())
         else:
             print("Unsolve CPLEX")
             print(self.model.get_time_limit())
@@ -568,7 +568,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
-        print("RestrictionPriceOrder",start_vm_id, end_vm_id)
+        #print("RestrictionPriceOrder",start_vm_id, end_vm_id)
 
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id - 1):

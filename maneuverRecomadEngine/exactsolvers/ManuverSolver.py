@@ -10,7 +10,8 @@ class ManuverSolver(object):
                      smt2lib=None, smt2libsol=None,
                      use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False,
                      sb_lex_line=False, sb_lex_line_price=False, sb_lex_col_binary=False,
-                     sb_vms_order_by_components_number_order_lex=False):
+                     sb_vms_order_by_components_number_order_lex=False,
+                     sb_vms_price_order_by_components_number_order_lex=False):
 
 
         self.__constMap = {}
@@ -44,6 +45,7 @@ class ManuverSolver(object):
         self.sb_lex_line_price = sb_lex_line_price
         self.sb_lex_col_binary = sb_lex_col_binary
         self.sb_vms_order_by_components_number_order_lex = sb_vms_order_by_components_number_order_lex
+        self.sb_vms_price_order_by_components_number_order_lex=sb_vms_price_order_by_components_number_order_lex
 
         self._initSolver()
 

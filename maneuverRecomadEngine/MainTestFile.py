@@ -36,9 +36,6 @@ def aboutOffers(path):
         memorySet.add(entry["memory"])
         storageSet.add(entry["storage"])
 
-    print("storageSet", storageSet, "memorySet", memorySet)
-
-
 def prepareManuverProblem(problem_file_name, configurations_file_name):
     mp = ManeuverProblem()
     offers_list = read_available_configurations(configurations_file_name)
@@ -47,10 +44,7 @@ def prepareManuverProblem(problem_file_name, configurations_file_name):
     except IOError:
         print("File '%s' doesn't exist", problem_file_name)
         exit(1)
-
     mp.priceOffersFile = configurations_file_name
-
-    print("nrComp=", mp.nrComp, "nrVM=", mp.nrVM)
     return mp
 
 
@@ -69,7 +63,8 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1,
             sb_lex_line=False,
             sb_lex_line_price=False,
             sb_lex_col_binary=False,
-            sb_vms_order_by_components_number_order_lex=False):
+            sb_vms_order_by_components_number_order_lex=False,
+            sb_vms_price_order_by_components_number_order_lex=False):
     solver_name = solver.__class__.__name__
     filename1 = "" + mp.applicationName
     filename2 = mp.priceOffersFile.split("/").pop().split(".")[0]
@@ -105,7 +100,8 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1,
                           sb_redundant_storage,
                           sb_equal_vms_type_order_by_components_number,
                           sb_equal_vms_type_order_lex,
-                          sb_one_to_one_dependency])
+                          sb_one_to_one_dependency,
+                          sb_vms_price_order_by_components_number_order_lex])
         fwriter.writerow(['Price min value', 'Price for each machine', 'Time'])
         for it in range(repetion_number):
             # debug/optimize
@@ -124,7 +120,8 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1,
                                             sb_lex_line=sb_lex_line,
                                             sb_lex_line_price=sb_lex_line_price,
                                             sb_lex_col_binary=sb_lex_col_binary,
-                                            sb_vms_order_by_components_number_order_lex=sb_vms_order_by_components_number_order_lex
+                                            sb_vms_order_by_components_number_order_lex=sb_vms_order_by_components_number_order_lex,
+                                            sb_vms_price_order_by_components_number_order_lex = sb_vms_price_order_by_components_number_order_lex
                                             )
             minPrice, priceVMs, t, a, vms_type = solver.run()
             print("min price = {}, price vm = {}, time = {}".format(minPrice, priceVMs, t))
@@ -322,12 +319,9 @@ def agregate_tests_tabel(outputFileName):
         outfile = csv.writer(csvfile, delimiter=';')
         outfile.writerow(firstLine)
         outfile.writerow(secondLine)
-
         for configuration in configurations:
-
             line_value = []
             for application in applications:
-
                 offer_time = [application[1]]
                 offer_mean = [' ']
                 for offer in offers:
@@ -336,7 +330,7 @@ def agregate_tests_tabel(outputFileName):
                         from os import listdir
                         from os.path import isfile, join
                         # onlyfiles = [f for f in listdir(incsv) if isfile(join(incsv, f))]
-                        print(incsv)#,onlyfiles)
+                        #print(incsv)#,onlyfiles)
                         import os.path
                         from os import path
                         print("File exists:" + str(path.exists(incsv)))
@@ -368,14 +362,10 @@ def agregate_tests_tabel(outputFileName):
                             offer_time.append("-")
                             offer_mean.append(" ")
                             print("file not found")
-
-                print("offer_time", offer_time)
-                print("offer_mean", offer_mean)
+                # print("offer_time", offer_time)
+                # print("offer_mean", offer_mean)
                 outfile.writerow(offer_time)
                 outfile.writerow(offer_mean)
-
-
-
 
 def agregate_tests_tabel_offerencoding(outputFileName):
     offers = ["offers_20", "offers_40", "offers_100", "offers_250", "offers_500"]
@@ -401,11 +391,11 @@ def agregate_tests_tabel_offerencoding(outputFileName):
         ("price_offerOld", True, True, False, False, False, False, False, False, False, False, False, False, False,
          False, False),
         # VMLX
-        ("vmLoad_lex_offerOld", False, False, False, False, False, False, False, False, False, False, False, False,
-         False, False, True)
-        # TVMLX
-        ("vmtype_vmload_lex_offerOld",
-         False, False, False, False, False, False, False, False, True, True, False, False, False, False, False),
+        (
+        "vmLoad_lex_offerOld", True, False, False, False, False, False, False, False, False, False, False, False, False, False, True),
+        # TVMLX; type is actually Price
+        # ("vmtype_vmload_lex_offerOld",
+        #  True, True, False, False, False, False, False, False, False, False, False, False, False, False, True)
     ]
 
     #firstLine = ["Problem", "#offers=20","","#offers=40","","#offers=100","","#offers=250","", "#offers=500",""]
@@ -416,7 +406,7 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 
     with open("../journal/" + outputFileName + ".csv", 'w', newline='') as csvfile:
-        print("../journal/" + outputFileName + ".csv")
+        #print("../journal/" + outputFileName + ".csv")
         outfile = csv.writer(csvfile, delimiter=';')
         outfile.writerow(firstLine)
         outfile.writerow(secondLine)
@@ -432,7 +422,7 @@ def agregate_tests_tabel_offerencoding(outputFileName):
                         from os import listdir
                         from os.path import isfile, join
                         # onlyfiles = [f for f in listdir(incsv) if isfile(join(incsv, f))]
-                        print(incsv)#,onlyfiles)
+                        #print(incsv)#,onlyfiles)
                         import os.path
                         from os import path
                         print("File exists:" + str(path.exists(incsv)))
@@ -465,50 +455,51 @@ def agregate_tests_tabel_offerencoding(outputFileName):
                             offer_mean.append(" ")
                             print("file not found")
 
-            print("offer_time", offer_time)
-            print("offer_mean", offer_mean)
+            # print("offer_time", offer_time)
+            # print("offer_mean", offer_mean)
             outfile.writerow(offer_time)
             outfile.writerow(offer_mean)
 
 
 def start_tests(solver, repetion_number=1):
-    offers = ["../testInstances/offersLPAR2018/offers_20.json",
+    offers = [
+         "../testInstances/offersLPAR2018/offers_20.json",
               "../testInstances/offersLPAR2018/offers_40.json",
               "../testInstances/offersLPAR2018/offers_100.json",
-              "../testInstances/offersLPAR2018/offers_250.json",
+             "../testInstances/offersLPAR2018/offers_250.json",
               "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
-        # "../testInstances/Oryx2.json",
-        #"../testInstances/SecureBillingEmail.json",
+        #  "../testInstances/Oryx2.json",
+        # "../testInstances/SecureBillingEmail.json",
         # "../testInstances/SecureWebContainer.json",
         # "../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
         # "../testInstances/Wordpress5.json",
         # "../testInstances/Wordpress6.json",
-        # "../testInstances/Wordpress7.json",
+        #  "../testInstances/Wordpress7.json",
         # "../testInstances/Wordpress8.json",
         # "../testInstances/Wordpress9.json",
         "../testInstances/Wordpress10.json",
-        "../testInstances/Wordpress11.json",
-        "../testInstances/Wordpress12.json"
+         "../testInstances/Wordpress11.json",
+         "../testInstances/Wordpress12.json"
                   ]
 
     configurations = [
-        # PRFV
-        ("price_fixvar_offerOld", True, True,  False, True,  False, False, False, False, False, False, False, False, False, False, False),
-        # FV
-        # ("fixvar_offerOld",       True, False, False, True,  False, False, False, False, False, False, False, False, False, False, False),
-        # # no sym breaking
-        # ("simple_offerOld",       True, False, False, False, False, False, False, False, False, False, False, False, False, False, False),
-        # PR
-        ("price_offerOld",        True, True,  False, False, False, False, False, False, False, False, False, False, False, False, False),
-        # VMLX
-        # ("vmLoad_lex_offerOld",   False, False, False, False, False, False, False, False, False, False, False, False, False, False, True),
-        # # TVMLX
-        # ("vmtype_vmload_lex_offerOld",
-        #                            False, False, False, False, False, False, False, False, True,  True, False, False, False, False, False)
+        # # PRFV
+        # ("price_fixvar_offerOld", True, True,  False, True,  False, False, False, False, False, False, False, False, False, False, False, False),
+        # # FV
+        # ("fixvar_offerOld",       True, False, False, True,  False, False, False, False, False, False, False, False, False, False, False, False),
+        # # # no sym breaking
+        #("simple_offerOld",       True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False),
+        # # PR
+        # ("price_offerOld",        True, True,  False, False, False, False, False, False, False, False, False, False, False, False, False, False),
+        # # VMLX
+        #("vmLoad_lex_offerOld",     True, False, False, False, False, False, False, False, False, False, False, False, False, False, True, False)
+        # # TVMLX; type is actually Price
+        ("vmtype_vmload_lex_offerOld",
+                                     True, True,  False, False, False, False, False, False, False,  False, False, False, False, False, False, True)
     ]
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
 
@@ -534,7 +525,8 @@ def start_tests(solver, repetion_number=1):
                         sb_lex_line=configuration[12],
                         sb_lex_line_price=configuration[13],
                         sb_lex_col_binary=configuration[14],
-                        sb_vms_order_by_components_number_order_lex=configuration[15]
+                        sb_vms_order_by_components_number_order_lex=configuration[15],
+                        sb_vms_price_order_by_components_number_order_lex = configuration[16]
                         )
 
 
@@ -547,7 +539,7 @@ if __name__ == "__main__":
     solver = Z3_SolverIntIntSymBreak()
     #solver = CPlex_SolverSymBreak()
 
-    repetion_number = 3
+    repetion_number = 1
 
     # For starting tests
     start_tests(solver, repetion_number= repetion_number)

@@ -113,7 +113,7 @@ class CP_Solver_Got:
 
         if self.availableConfig is None:
             return
-        print("start smt", self.nrVM)
+        #print("start smt", self.nrVM)
         # for i in range(self.nrVM):
         #     self.solver.Add((self.vm[i] == 0) == (self.PriceProv[i] == 0))
         #print("add 0 price smt")
@@ -134,21 +134,6 @@ class CP_Solver_Got:
                                         ]) == 6
                          for t in range(len(self.availableConfig))]) >= 1]) == 1
             )
-
-
-
-        print("add offers smt")
-            #for t in range(self.offerSize):
-            #    print( self.availableConfig)#[3], self.availableConfig[t][2], self.availableConfig[t][1])
-                # self.problem.loger.debug(self.solver.Sum([self.vm[i] == 1,
-                #                  self.vmType[i] == t,
-                #                  self.PriceProv[i] == self.availableConfig[t][4],
-                #                  self.ProcProv[i] == self.availableConfig[t][1],
-                #                  self.MemProv[i] == self.availableConfig[t][2],
-                #                  self.StorageProv[i] == self.availableConfig[t][3]
-                #                 ]) == 6)
-
-
 
     def __GC1(self):
         """At least one instance of a component is deployed on acquired VM"""

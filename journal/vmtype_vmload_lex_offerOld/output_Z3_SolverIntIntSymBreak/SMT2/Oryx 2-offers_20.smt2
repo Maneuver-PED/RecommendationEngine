@@ -4497,7 +4497,6 @@
     (= VM11Type 18)
     (= VM11Type 19)
     (= VM11Type 20)))
-(assert (>= PriceProv2 PriceProv3))
 (assert (= C5_VM1 C9_VM1))
 (assert (= C5_VM2 C9_VM2))
 (assert (= C5_VM3 C9_VM3))
@@ -8741,16 +8740,6 @@
                C9_VM11
                C10_VM11)))
     (>= C10_VM10 C10_VM11)))
-(assert (>= PriceProv1 PriceProv2))
-(assert (>= PriceProv2 PriceProv3))
-(assert (>= PriceProv3 PriceProv4))
-(assert (>= PriceProv4 PriceProv5))
-(assert (>= PriceProv5 PriceProv6))
-(assert (>= PriceProv6 PriceProv7))
-(assert (>= PriceProv7 PriceProv8))
-(assert (>= PriceProv8 PriceProv9))
-(assert (>= PriceProv9 PriceProv10))
-(assert (>= PriceProv10 PriceProv11))
 (minimize (+ 0
    PriceProv1
    PriceProv2

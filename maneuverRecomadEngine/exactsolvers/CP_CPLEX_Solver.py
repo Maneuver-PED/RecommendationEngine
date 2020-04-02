@@ -582,9 +582,24 @@ class CPlex_SolverSymBreak(ManuverSolver):
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("!!!!????? RestrictionPriceOrder",start_vm_id, end_vm_id)
 
+        if self.sb_fix_lex:
+            for j in range(start_vm_id, end_vm_id - 1):
+                for i in range(0, self.nrComp):
+                    l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
+                    var1 = self.model.binary_var(name="lex_top_vm{0}_comp{1}".format(j, i))
+                    self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
+                    self.model.add_indicator(var1, self.a[i, j] >= self.a[i, j + 1])
+
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id - 1):
                 self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1], ctname="c_price_lex_order")
+                if self.sb_lex_price:
+                    for j in range(start_vm_id, end_vm_id - 1):
+                        for i in range(0, self.nrComp):
+                            l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
+                            var1 = self.model.binary_var(name="lex_top_vm{0}_comp{1}".format(j, i))
+                            self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
+                            self.model.add_indicator(var1, self.a[i, j] >= self.a[i, j + 1])
 
 
     def RestrictionComponentsNumberOrder(self, start_vm_id, end_vm_id):
@@ -604,6 +619,15 @@ class CPlex_SolverSymBreak(ManuverSolver):
             if max_id < vmid:
                 max_id = vmid
         #self.RestrictionPriceOrder(max_id + 1, self.nr_vms)
+
+        if self.sb_lex:
+            for j in range(max_id + 1, self.nrVM - 1):
+                for i in range(0, self.nrComp):
+                    l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
+                    var1 = self.model.binary_var(name="lex_top_vm{0}_comp{1}".format(j, i))
+                    self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
+                    self.model.add_indicator(var1,  self.a[i, j] >= self.a[i, j + 1])
+
 
         if self.sb_vms_price_order_by_components_number_order_lex:
             print("sb_vms_price_order_by_components_number_order_lex", max_id)

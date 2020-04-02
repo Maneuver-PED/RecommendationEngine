@@ -1,6 +1,6 @@
 .idea/*
 maneuverRecomadEngine/.idea/*
-maneuverRecomadEngine/exactsolvers/__pycache__/*
+maneuverRecomadEngine/exactsolvers/__pycache__/*.pyk
 *.pyc
 alt.lp
 nou.mps

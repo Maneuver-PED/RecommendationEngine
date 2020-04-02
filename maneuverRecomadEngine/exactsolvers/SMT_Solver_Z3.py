@@ -36,6 +36,8 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             if max_id < vmid:
                 max_id = vmid
 
+
+
         #print("vmIds_for_fixedComponents: ", self.vmIds_for_fixedComponents, max_id)
         # VMs of same type (price) are ordered by components load, and for same load by lex
         if self.sb_vms_price_order_by_components_number_order_lex:
@@ -57,11 +59,25 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                         [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
         # VMs are ordered decreasingly based on price
+
+        if self.sb_lex:
+            print("!!!!!sb_lex",self.sb_lex)
+            for j in range(max_id + 1, self.nrVM - 1):
+                for i in range(0, self.nrComp):
+                    l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                    self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+
         if self.sb_vms_order_by_price:
             #print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
             for j in range(max_id + 1, self.nrVM - 1):
                 #print(self.PriceProv[j] >= self.PriceProv[j + 1])
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
+
+            if self.sb_vms_order_by_price_vm_load:
+                self.solver.add(self.PriceProv[j] == self.PriceProv[j + 1],
+                                sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= sum(
+                                    [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])
+                                )
         #
         if self.sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex:
             for j in range(max_id + 1, self.nrVM - 1):
@@ -116,6 +132,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         #component 0
         #print("self.sb_lex_line",self.sb_lex_line, self.sb_lex_line_price)
         if self.sb_lex_line:
+            print("sb_lex_line", self.sb_lex_line)
             instances_nr = 0
             for vm_id in range(self.nrVM-1):
                 self.solver.add(self.a[vm_id] >= self.a[vm_id+1])
@@ -146,10 +163,21 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                                 sum([self.a[list_comps[i] * self.nrVM+vm_id+1] * (2 ** (n-i)) for i in range(len(list_comps))]))
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
+        if self.sb_fix_lex:
+            print("sb_fix_lex", self.sb_fix_lex)
+            for j in range(start_vm_id, end_vm_id - 1):
+                for i in range(0, self.nrComp):
+                    l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                    self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id-1):
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
-
+                if self.sb_lex_price:
+                    for j in range(start_vm_id, end_vm_id - 1):
+                        for i in range(0, self.nrComp):
+                            l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                            self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
         """

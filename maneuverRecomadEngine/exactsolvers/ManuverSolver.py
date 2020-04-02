@@ -11,7 +11,9 @@ class ManuverSolver(object):
                      use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False,
                      sb_lex_line=False, sb_lex_line_price=False, sb_lex_col_binary=False,
                      sb_vms_order_by_components_number_order_lex=False,
-                     sb_vms_price_order_by_components_number_order_lex=False):
+                     sb_vms_price_order_by_components_number_order_lex=False,
+                     sb_vms_order_by_price_vm_load=False, sb_lex=False,sb_lex_price=False,
+                     sb_fix_lex=False):
 
 
         self.__constMap = {}
@@ -25,6 +27,7 @@ class ManuverSolver(object):
         else:
             self.solverTypeOptimize = False
 
+        print("!!!!!!!", sb_vms_order_by_components_number)
         self.offers_list = self.problem.offers_list
         self.sb_vms_order_by_price = sb_vms_order_by_price
         self.sb_vms_order_by_components_number = sb_vms_order_by_components_number
@@ -46,6 +49,10 @@ class ManuverSolver(object):
         self.sb_lex_col_binary = sb_lex_col_binary
         self.sb_vms_order_by_components_number_order_lex = sb_vms_order_by_components_number_order_lex
         self.sb_vms_price_order_by_components_number_order_lex=sb_vms_price_order_by_components_number_order_lex
+        self.sb_vms_order_by_price_vm_load=sb_vms_order_by_price_vm_load
+        self.sb_lex = sb_lex
+        self.sb_lex_price=sb_lex_price
+        self.sb_fix_lex = sb_fix_lex
 
         self._initSolver()
 

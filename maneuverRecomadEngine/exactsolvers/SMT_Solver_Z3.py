@@ -35,7 +35,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         for vmid in self.vmIds_for_fixedComponents:
             if max_id < vmid:
                 max_id = vmid
-
+        self.RestrictionPriceOrder(max_id+1, self.nrVM)
 
 
         #print("vmIds_for_fixedComponents: ", self.vmIds_for_fixedComponents, max_id)
@@ -67,11 +67,12 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
-        if self.sb_vms_order_by_price:
-            #print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
-            for j in range(max_id + 1, self.nrVM - 1):
-                #print(self.PriceProv[j] >= self.PriceProv[j + 1])
-                self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
+
+
+
+            # for j in range(max_id + 1, self.nrVM - 1):
+            #     #print(self.PriceProv[j] >= self.PriceProv[j + 1])
+            #     self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
 
             if self.sb_vms_order_by_price_vm_load:
                 self.solver.add(self.PriceProv[j] == self.PriceProv[j + 1],
@@ -163,20 +164,28 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                                 sum([self.a[list_comps[i] * self.nrVM+vm_id+1] * (2 ** (n-i)) for i in range(len(list_comps))]))
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
-        if self.sb_fix_lex:
+        if self.sb_fix_lex and (not self.sb_vms_order_by_price):
+            print("ffffffffff")
             print("sb_fix_lex", self.sb_fix_lex)
             for j in range(start_vm_id, end_vm_id - 1):
                 for i in range(0, self.nrComp):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
+        if not self.sb_fix_lex:
+            if start_vm_id != 0 or end_vm_id!= self.nrVM:
+                return
+
         if self.sb_vms_order_by_price:
+            print("here", start_vm_id, end_vm_id - 1)
             for j in range(start_vm_id, end_vm_id-1):
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
                 if self.sb_lex_price:
-                    for j in range(start_vm_id, end_vm_id - 1):
+
+                    #for k in range(start_vm_id, end_vm_id - 1):
                         for i in range(0, self.nrComp):
-                            l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
+                            l=[self.PriceProv[j] == self.PriceProv[j + 1]]
+                            l.extend([self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)])
                             self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
@@ -769,6 +778,13 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
             opt = sum(self.PriceProv)
             min = self.solver.minimize(opt)
         self.createSMT2LIBFile(self.smt2lib)
+
+        from datetime import datetime
+
+        now = datetime.now()
+
+        current_time = now.strftime("%H:%M:%S")
+        print("Current Time =", current_time)
 
         startime = time.time()
         status = self.solver.check()

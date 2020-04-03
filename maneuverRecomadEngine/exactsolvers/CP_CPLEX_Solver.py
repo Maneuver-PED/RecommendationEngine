@@ -92,7 +92,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
         objective = self.model.sum(self.PriceProv[j] for j in range(self.nr_vms))
         self.model.minimize(objective)
 #       self.model.prettyprint("out")
-        self.model.export_as_lp("alt")
+        self.model.export_as_lp(self.cplexLPPath)
 #       self.model.export_as_mps("nou")
 
         vmPrice = []
@@ -175,6 +175,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
 
 
         return xx.get_objective_value()/1000, vmPrice , stoptime-starttime, a_mat, vmType
+        # return None, None, stoptime - starttime, None, None
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
         """
@@ -596,7 +597,8 @@ class CPlex_SolverSymBreak(ManuverSolver):
                 if self.sb_lex_price:
                     for j in range(start_vm_id, end_vm_id - 1):
                         for i in range(0, self.nrComp):
-                            l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
+                            l=[self.PriceProv[j] == self.PriceProv[j + 1]]
+                            l .extend([self.a[u, j] == self.a[u, j + 1] for u in range(0, i)])
                             var1 = self.model.binary_var(name="lex_top_vm{0}_comp{1}".format(j, i))
                             self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
                             self.model.add_indicator(var1, self.a[i, j] >= self.a[i, j + 1])
@@ -619,6 +621,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
             if max_id < vmid:
                 max_id = vmid
         #self.RestrictionPriceOrder(max_id + 1, self.nr_vms)
+        self.RestrictionPriceOrder(max_id + 1, self.nrVM)
 
         if self.sb_lex:
             for j in range(max_id + 1, self.nrVM - 1):
@@ -668,8 +671,9 @@ class CPlex_SolverSymBreak(ManuverSolver):
         # VMs are order decreasingly based on price
         if self.sb_vms_order_by_price:
             print("add price?", self.sb_vms_order_by_price, "max_id: ", max_id)
-            for j in range(max_id + 1, self.nrVM - 1):
-                self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1],  ctname="c_price_lex_order")
+            # for j in range(max_id + 1, self.nrVM - 1):
+            #     self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1],  ctname="c_price_lex_order")
+
 
         if self.sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex:
             print("sb_vms_order_by_components_number or self.sb_vms_order_by_components_number_order_lex")

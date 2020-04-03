@@ -164,6 +164,11 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                                 sum([self.a[list_comps[i] * self.nrVM+vm_id+1] * (2 ** (n-i)) for i in range(len(list_comps))]))
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
+
+        if not self.sb_fix_lex:
+            if start_vm_id != 0 or end_vm_id!= self.nrVM:
+                return
+
         if self.sb_fix_lex and (not self.sb_vms_order_by_price):
             print("ffffffffff")
             print("sb_fix_lex", self.sb_fix_lex)
@@ -171,10 +176,6 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 for i in range(0, self.nrComp):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
-
-        if not self.sb_fix_lex:
-            if start_vm_id != 0 or end_vm_id!= self.nrVM:
-                return
 
         if self.sb_vms_order_by_price:
             print("here", start_vm_id, end_vm_id - 1)

@@ -583,7 +583,12 @@ class CPlex_SolverSymBreak(ManuverSolver):
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("!!!!????? RestrictionPriceOrder",start_vm_id, end_vm_id)
 
-        if self.sb_fix_lex:
+        if not self.sb_fix_lex:
+            if start_vm_id != 0 or end_vm_id!= self.nrVM:
+                return
+
+
+        if self.sb_fix_lex and (not self.sb_vms_order_by_price):
             for j in range(start_vm_id, end_vm_id - 1):
                 for i in range(0, self.nrComp):
                     l = [self.a[u, j] == self.a[u, j + 1] for u in range(0, i)]
@@ -591,11 +596,11 @@ class CPlex_SolverSymBreak(ManuverSolver):
                     self.model.add_equivalence(var1, LogicalAndExpr(self.model, l) == 1)
                     self.model.add_indicator(var1, self.a[i, j] >= self.a[i, j + 1])
 
+
         if self.sb_vms_order_by_price:
             for j in range(start_vm_id, end_vm_id - 1):
                 self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1], ctname="c_price_lex_order")
                 if self.sb_lex_price:
-                    for j in range(start_vm_id, end_vm_id - 1):
                         for i in range(0, self.nrComp):
                             l=[self.PriceProv[j] == self.PriceProv[j + 1]]
                             l .extend([self.a[u, j] == self.a[u, j + 1] for u in range(0, i)])

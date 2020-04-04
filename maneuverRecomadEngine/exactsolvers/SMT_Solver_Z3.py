@@ -58,22 +58,14 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                     l.append(sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) == sum(
                         [self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)]))
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
-        # VMs are ordered decreasingly based on price
 
+        # LX: lex ordering of columns
         if self.sb_lex:
-            print("!!!!!sb_lex",self.sb_lex)
+            print("LX",self.sb_lex)
             for j in range(max_id + 1, self.nrVM - 1):
                 for i in range(0, self.nrComp):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
-
-
-
-
-            # for j in range(max_id + 1, self.nrVM - 1):
-            #     #print(self.PriceProv[j] >= self.PriceProv[j + 1])
-            #     self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
-
             if self.sb_vms_order_by_price_vm_load:
                 self.solver.add(self.PriceProv[j] == self.PriceProv[j + 1],
                                 sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)]) >= sum(
@@ -170,24 +162,22 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
                 return
 
         if self.sb_fix_lex and (not self.sb_vms_order_by_price):
-            print("ffffffffff")
-            print("sb_fix_lex", self.sb_fix_lex)
+            print("FVLX", self.sb_fix_lex)
             for j in range(start_vm_id, end_vm_id - 1):
                 for i in range(0, self.nrComp):
                     l = [self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)]
                     self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
         if self.sb_vms_order_by_price:
-            print("here", start_vm_id, end_vm_id - 1)
+            print("PR", start_vm_id, end_vm_id - 1)
             for j in range(start_vm_id, end_vm_id-1):
                 self.solver.add(self.PriceProv[j] >= self.PriceProv[j + 1])
                 if self.sb_lex_price:
-
-                    #for k in range(start_vm_id, end_vm_id - 1):
-                        for i in range(0, self.nrComp):
-                            l=[self.PriceProv[j] == self.PriceProv[j + 1]]
-                            l.extend([self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)])
-                            self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
+                    print("PRLX")
+                    for i in range(0, self.nrComp):
+                        l=[self.PriceProv[j] == self.PriceProv[j + 1]]
+                        l.extend([self.a[u * self.nrVM + j] == self.a[u * self.nrVM + j + 1] for u in range(0, i)])
+                        self.solver.add(Implies(And(l), self.a[i * self.nrVM + j] >= self.a[i * self.nrVM + j + 1]))
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
         """

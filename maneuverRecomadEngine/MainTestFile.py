@@ -139,7 +139,7 @@ def agregate_tests(solverName, outputFileName):
     applications = ["Oryx 2", "SecureBillingEmail", "SecureWebContainer", "Wordpress3", "Wordpress4", "Wordpress5",
                     "Wordpress6", "Wordpress7", "Wordpress8","Wordpress9","Wordpress10","Wordpress11","Wordpress12"]
 
-    configurations = ["PR", "LX", "FV", "PRFV", "PRLX", "FVLX"]
+    configurations = ["noSymBreaking", "PR", "LX", "FV", "PRLX", "PRFV", "FVLX"]
 
     firstLine = ["strategy"]
     secondLine = [""]
@@ -164,13 +164,16 @@ def agregate_tests(solverName, outputFileName):
         outfile.writerow(thirdLine)
         for configuration in configurations:
             fileInfo = [configuration]
+            print("configuration ", configuration)
             for application in applications:
                 for offer in offers:
-                    if ("PR" == configuration):
-                        incsv = "../journal/" + configuration + "/output_" + "Z3_SolverIntIntSymBreak" + "/csv/" + application + "-" + offer + ".csv"
-                    else:
-                        incsv = "../journal/" + configuration + "/output_" + solverName + "/csv/" + application + "-" + offer + ".csv"
-                    print(incsv)
+                    # if ("PR" == configuration):
+                    #     incsv = "../journal/" + configuration + "/output_" + "Z3_SolverIntIntSymBreak" + \
+                    #             "/csv/" + application + "-" + offer + ".csv"
+                    # else:
+                    incsv = "../journal/" + configuration + "/output_" + solverName + "/csv/" + \
+                            application + "-" + offer + ".csv"
+                    print("incsv", incsv)
                     try:
                         with open(incsv, 'r') as csvfile:
                             freader = csv.reader(csvfile, delimiter=',', quotechar='"')
@@ -183,9 +186,7 @@ def agregate_tests(solverName, outputFileName):
                                     continue
                                 values.add(row[0])
                                 vtimes.append(float(row[2]))
-
                             fileInfo.extend([values, numpy.min(vtimes)])
-
                     except:
                         fileInfo.extend(["", ""])
                         print("file not found")
@@ -196,7 +197,6 @@ def agregate_tests_grafice(outputFileName):
     applications = ["Oryx 2", "SecureBillingEmail", "SecureWebContainer", "Wordpress3", "Wordpress4", "Wordpress5",
                     "Wordpress6", "Wordpress7", "Wordpress8"]
     solvers = ["Z3_SolverIntIntSymBreak", "CPlex_SolverSymBreak"]
-
 
     configurations = [#"simple_offerOld",
                       "simple_offerNew",
@@ -586,11 +586,11 @@ def start_tests(solver, repetion_number=1):
         # ("PRFV", True, True, False, True, False, False, False, False, False, False, False, False,
         #       False, False, False, False,False,False,False)
         # PRLX
-        # ("PRLX", True, True, False, False, False, False, False, False, False, False, False, False,
-        #  False, False, False, False, False, True, False)
+        ("PRLX", True, True, False, False, False, False, False, False, False, False, False, False,
+         False, False, False, False, False, True, False)
         # FVLX
-        ("FVLX", True, False, False, True, False, False, False, False, False, False, False, False,
-        False, False, False, False, False, False, True)
+        # ("FVLX", True, False, False, True, False, False, False, False, False, False, False, False,
+        # False, False, False, False, False, False, True)
     ]
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
     #from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
@@ -722,16 +722,16 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_SolverSymBreak
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOrSymBreaking import Z3_SolverIntIntSymBreak
 
-    solver = Z3_SolverIntIntSymBreak()
+    #solver = Z3_SolverIntIntSymBreak()
     #solver = Z3_SolverReal()
-    #solver = CPlex_SolverSymBreak()
+    solver = CPlex_SolverSymBreak()
 
     repetion_number = 1
 
     #cplex_vars_prelucrari()
-    start_tests(solver, repetion_number= repetion_number)
+    #start_tests(solver, repetion_number= repetion_number)
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_new")
-    #agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
+    agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
     #agregate_tests_grafice("grafic_simple")
     #agregate_tests_tabel("tabel_simple.txt")
     #agregate_tests_tabel_offerencoding("tabel_Z3_table_all_new.txt")

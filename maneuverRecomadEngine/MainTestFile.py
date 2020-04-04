@@ -557,8 +557,8 @@ def start_tests(solver, repetion_number=1):
     test_files = [
         #"../testInstances/Oryx2.json",
         # "../testInstances/SecureBillingEmail.json",
-        "../testInstances/SecureWebContainer.json",
-        # "../testInstances/Wordpress3.json",
+        #"../testInstances/SecureWebContainer.json",
+         "../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
         # "../testInstances/Wordpress5.json",
         #  "../testInstances/Wordpress6.json",
@@ -729,9 +729,9 @@ if __name__ == "__main__":
     repetion_number = 1
 
     #cplex_vars_prelucrari()
-    #start_tests(solver, repetion_number= repetion_number)
+    start_tests(solver, repetion_number= repetion_number)
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_new")
-    agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
+    #agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
     #agregate_tests_grafice("grafic_simple")
     #agregate_tests_tabel("tabel_simple.txt")
     #agregate_tests_tabel_offerencoding("tabel_Z3_table_all_new.txt")

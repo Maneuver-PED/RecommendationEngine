@@ -1,4 +1,5 @@
 from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
+from datetime import datetime
 
 class ManuverSolver(object):
 
@@ -200,3 +201,8 @@ class ManuverSolver(object):
 
     def RestrictionPriceOrder(self, start_vm_id, end_vm_id):
         print("Parent RestrictionPriceOrder")
+
+    def get_current_time(self):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print("Current Time =", current_time)

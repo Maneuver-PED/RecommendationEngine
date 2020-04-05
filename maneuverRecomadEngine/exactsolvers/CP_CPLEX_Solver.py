@@ -98,7 +98,8 @@ class CPlex_SolverSymBreak(ManuverSolver):
         vmPrice = []
         vmType = []
         a_mat = []
-        # m[j] for j in range(self.nr_vms))
+
+        self.get_current_time()
 
         starttime = time.time()
         xx = self.model.solve()
@@ -144,7 +145,7 @@ class CPlex_SolverSymBreak(ManuverSolver):
             l=[]
             col = 0
             for index, var in self.a.items():
-                if (col == self.problem.nrVM):
+                if col == self.problem.nrVM:
                     a_mat.append(l)
                     l = []
                     col = 0

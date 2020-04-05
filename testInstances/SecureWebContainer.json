@@ -1,5 +1,5 @@
 {
-"application" : "WebIntrusionDetection",
+"application" : "SecureWebContainer",
 "components" :[
   {"id": 1, "name" : "Balancer",
     "Compute": {"CPU":4, "GPU":"false", "Memory": 2048},

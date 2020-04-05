@@ -39,10 +39,7 @@ class Z3_SolverIntIntSymBreak(Z3_Solver_Parent):
         :param componentsRequirements: list of components requirements as given by the user
         :return: None
         """
-
         super()._constraintsHardware(componentsRequirements, 1)
-
-
 
     def convert_price(self, price):
         return price / 1000.0

@@ -26,6 +26,7 @@ class ManeuverProblem:
         self.nrComp = 0
         self.nrVM = 0
         self.one_to_one_dependencies = []
+        self.max_clique = []
 
     def init(self, nr_vm, nr_comp):# used at initilization for test instances
         self.nrVM = nr_vm
@@ -34,40 +35,6 @@ class ManeuverProblem:
         self.D = numpy.zeros((self.nrComp, self.nrComp), dtype=numpy.int) #corelation hraph
 
 
-    # def solveSMT(self, availableConfigs, smt2lib, smt2libsol, solver_type,
-    #              use_vm, filter_offers,
-    #              use_Price_Simetry_Brecking, use_components_on_vm_Simetry_Breaking, use_fix_variables
-    #              ):
-    #     """
-    #     Solves the optimization problem using the imported SMT solver and available VMs configurations
-    #     :param self: the optimization problem
-    #     :param available_configurations: available VMs configurations
-    #     :param solver_type: the Z3 solver type (optimize/debug)
-    #     :return:
-    #     """
-    #     from maneuverRecomadEngine.exactsolvers import SMT_Solver_Z3_RealSymBreak
-    #     SMTSolver = SMT_Solver_Z3_RealSymBreak.Z3_SolverReal(self.nrVM,
-    #                                                          sfp,
-    #                                                          availableConfigs,
-    #                                                          self,
-    #                                                          solver_type,
-    #                                                          use_vm,
-    #                                                          filter_offers,
-    #                                                          use_Price_Simetry_Brecking,
-    #                                                          use_components_on_vm_Simetry_Breaking,
-    #                                                          use_fix_variables
-    #                                                          )
-    #
-    #     if SMTSolver.availableConfigurations is not None:
-    #         self.restrictionsList.append(
-    #             RestrictionHardware(self._getComponentsHardwareRestrictions(),
-    #                                 SMTSolver.availableConfigurations,
-    #                                 self))
-    #
-    #     for restriction in self.restrictionsList:
-    #         restriction.generateRestrictions(SMTSolver)
-    #
-    #     return SMTSolver.run(smt2lib, smt2libsol)
 
     def solveCP(self, choosing_stategy, solutions_limit, optimize_price, available_configurations, time_limit):
         """
@@ -83,8 +50,8 @@ class ManeuverProblem:
         # cpSolver = CP_Solver_GOT.CP_Solver_Got(self, choosing_stategy, 2, False,
         #                                                                         None, 10000)
 
-        self.restrictionsList.append(RestrictionHardware(self._getComponentsHardwareRestrictions(),
-                                                         cpSolver.availableConfig, self))
+        # self.restrictionsList.append(RestrictionHardware(self._getComponentsHardwareRestrictions(),
+        #                                                  cpSolver.availableConfig, self))
 
         for restriction in self.restrictionsList:
             restriction.generateRestrictions(cpSolver)
@@ -335,31 +302,7 @@ class ManeuverProblem:
 
         #print("clique", max_clique, max_comp_number)
 
-        vm_id = 0
-        for comp_id in max_clique:
-            instances = self.componentsList[comp_id].getMinimumPossibleNumberOfInstances(self.componentsList)
-            startVm = vm_id
-            for instance in range(instances):
-                # print(
-                #     "Fix component {} on VM {} number of instances {} comp name {} conflict comp {}".format(comp_id, vm_id, instances,
-                #                                                                            self.componentsList[
-                #                                                                                comp_id].name,
-                #
-                #                                                                            self.componentsList[
-                #                                                                                comp_id].conflictComponentsList
-                #                                                                            )
-                # )
-                self.restrictionsList.insert(0, RestrictionFixComponentOnVM(comp_id, vm_id, self))
-                vm_id += 1
-            endVm = vm_id
-
-            self.restrictionsList.insert(0, RestrictionPriceOrder(startVm, endVm, self))
-
-            # for vm in range(startVm-1):
-            #     self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm, self, 0))
-            # for vm in range(endVm, self.nrVM):
-            #     self.restrictionsList.append(RestrictionFixComponentOnVM(comp_id, vm, self, 0))
-
+        self.max_clique = max_clique
 
 
     def _addComponent(self, comp_dictionary):

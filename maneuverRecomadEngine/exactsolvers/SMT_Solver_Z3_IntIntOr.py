@@ -28,6 +28,7 @@ class Z3_SolverIntInt(Z3_Solver_Parent):#ManeuverProblem):
 
         self.vmType = [Int('VM%iType' % j) for j in range(1, self.nrVM + 1)]
 
+        #TODO: NU e prea ....
         for i in range(self.nrComp):
             for j in range(self.nrVM):
                 self.solver.add(Implies(self.a[i * self.nrVM + j] == 1, Not(self.vmType[j] == 0)))
@@ -46,4 +47,4 @@ class Z3_SolverIntInt(Z3_Solver_Parent):#ManeuverProblem):
 
 
     def convert_price(self, price):
-        return price / 1000.0
+        return price.as_long() / 1000.

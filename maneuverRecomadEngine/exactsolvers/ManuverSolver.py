@@ -3,18 +3,23 @@ from datetime import datetime
 
 class ManuverSolver(object):
 
-    def init_problem(self, problem, solver_type, default_offers_encoding=True, sb_vms_order_by_price=False,
-                     sb_vms_order_by_components_number=False,
-                     sb_fix_variables=False, sb_redundant_price=False, sb_redundant_processor=False, sb_redundant_memory=False,
-                     sb_redundant_storage=False, sb_equal_vms_type_order_by_components_number=False,
-                     sb_equal_vms_type_order_lex = False,
+    def init_problem(self, problem, solver_type,
+                     default_offers_encoding=True,
+                     sb_price=False,
+                     sb_price_lex=False,
+                     sb_vm_load=False,
+                     sb_vm_load_lex=False,
+                     sb_lex=False,
+                     sb_fix_var=False,
+                     sb_fix_var_price=False,
+                     sb_fix_var_vm_load=False,
+                     sb_fix_var_lex=False,
+                     sb_fix_var_price_lex=False,
+                     sb_fix_var_vm_load_lex=False,
+                     sb_load_price = False,
+                     sb_lex_col_binary=False,
                      smt2lib=None, smt2libsol=None, cplexLPPath=None,
-                     use_vm_vector_in_encoding=False, offers_list_filtered=False, sb_one_to_one_dependency=False,
-                     sb_lex_line=False, sb_lex_line_price=False, sb_lex_col_binary=False,
-                     sb_vms_order_by_components_number_order_lex=False,
-                     sb_vms_price_order_by_components_number_order_lex=False,
-                     sb_vms_order_by_price_vm_load=False, sb_lex=False,sb_lex_price=False,
-                     sb_fix_lex=False):
+                     use_vm_vector_in_encoding=False, offers_list_filtered=False):
 
 
         self.__constMap = {}
@@ -28,51 +33,34 @@ class ManuverSolver(object):
         else:
             self.solverTypeOptimize = False
 
-        print("!!!!!!!", sb_vms_order_by_components_number)
         self.offers_list = self.problem.offers_list
-        self.sb_vms_order_by_price = sb_vms_order_by_price
-        self.sb_vms_order_by_components_number = sb_vms_order_by_components_number
-        self.sb_fix_variables = sb_fix_variables
-        self.sb_redundant_price = sb_redundant_price
-        self.sb_redundant_processor = sb_redundant_processor
-        self.sb_redundant_memory = sb_redundant_memory
-        self.sb_redundant_storage = sb_redundant_storage
-        self.sb_equal_vms_type_order_by_components_number = sb_equal_vms_type_order_by_components_number
-        self.sb_equal_vms_type_order_lex =sb_equal_vms_type_order_lex
+        self.sb_price = sb_price
+        self.sb_price_lex = sb_price_lex
+        self.sb_vm_load = sb_vm_load
+        self.sb_vm_load_lex = sb_vm_load_lex
+        self.sb_lex = sb_lex
+        self.sb_fix_var = sb_fix_var
+        self.sb_fix_var_price = sb_fix_var_price
+        self.sb_fix_var_vm_load = sb_fix_var_vm_load
+        self.sb_fix_var_lex = sb_fix_var_lex
+        self.sb_fix_var_price_lex = sb_fix_var_price_lex
+        self.sb_fix_var_vm_load_lex = sb_fix_var_vm_load_lex
+        self.sb_load_price = sb_load_price
+        self.sb_lex_col_binary = sb_lex_col_binary
         self.smt2lib = smt2lib
         self.smt2libsol = smt2libsol
         self.cplexLPPath=cplexLPPath
         self.use_vm_vector_in_encoding = use_vm_vector_in_encoding
         self.offers_list_filtered = offers_list_filtered
-        self.sb_one_to_one_dependency = sb_one_to_one_dependency
         self.default_offers_encoding = default_offers_encoding
-        self.sb_lex_line=sb_lex_line
-        self.sb_lex_line_price = sb_lex_line_price
-        self.sb_lex_col_binary = sb_lex_col_binary
-        self.sb_vms_order_by_components_number_order_lex = sb_vms_order_by_components_number_order_lex
-        self.sb_vms_price_order_by_components_number_order_lex=sb_vms_price_order_by_components_number_order_lex
-        self.sb_vms_order_by_price_vm_load=sb_vms_order_by_price_vm_load
-        self.sb_lex = sb_lex
-        self.sb_lex_price=sb_lex_price
-        self.sb_fix_lex = sb_fix_lex
-
         self._initSolver()
 
-        from maneuverRecomadEngine.restrictions.RestrictionFixComponents import RestrictionFixComponentOnVM
-        from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
-
-        for restriction in self.problem.restrictionsList:
-            if isinstance(restriction, RestrictionFixComponentOnVM):
-                restriction.generateRestrictions(self)
-
-        for restriction in self.problem.restrictionsList:
-            if not isinstance(restriction, RestrictionFixComponentOnVM):
-                restriction.generateRestrictions(self)
-
         self._symmetry_breaking()
-        self._add_offers_restrictions()
 
+        for restriction in self.problem.restrictionsList:
+            restriction.generateRestrictions(self)
 
+        self._hardware_and_offers_restrictionns(1)
 
     def run(self):
         print("Start evaluation")
@@ -80,7 +68,7 @@ class ManuverSolver(object):
     def _symmetry_breaking(self):
         print("Parent class simetry breaking")
 
-    def _add_offers_restrictions(self):
+    def _hardware_and_offers_restrictionns(self, scale_factor=1):
         print("Parent class offers restrictions")
 
     def _initSolver(self):

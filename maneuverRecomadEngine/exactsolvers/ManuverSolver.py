@@ -5,19 +5,7 @@ class ManuverSolver(object):
 
     def init_problem(self, problem, solver_type,
                      default_offers_encoding=True,
-                     sb_price=False,
-                     sb_price_lex=False,
-                     sb_vm_load=False,
-                     sb_vm_load_lex=False,
-                     sb_lex=False,
-                     sb_fix_var=False,
-                     sb_fix_var_price=False,
-                     sb_fix_var_vm_load=False,
-                     sb_fix_var_lex=False,
-                     sb_fix_var_price_lex=False,
-                     sb_fix_var_vm_load_lex=False,
-                     sb_load_price = False,
-                     sb_lex_col_binary=False,
+                     sb_option=None,
                      smt2lib=None, smt2libsol=None, cplexLPPath=None,
                      use_vm_vector_in_encoding=False, offers_list_filtered=False):
 
@@ -34,22 +22,10 @@ class ManuverSolver(object):
             self.solverTypeOptimize = False
 
         self.offers_list = self.problem.offers_list
-        self.sb_price = sb_price
-        self.sb_price_lex = sb_price_lex
-        self.sb_vm_load = sb_vm_load
-        self.sb_vm_load_lex = sb_vm_load_lex
-        self.sb_lex = sb_lex
-        self.sb_fix_var = sb_fix_var
-        self.sb_fix_var_price = sb_fix_var_price
-        self.sb_fix_var_vm_load = sb_fix_var_vm_load
-        self.sb_fix_var_lex = sb_fix_var_lex
-        self.sb_fix_var_price_lex = sb_fix_var_price_lex
-        self.sb_fix_var_vm_load_lex = sb_fix_var_vm_load_lex
-        self.sb_load_price = sb_load_price
-        self.sb_lex_col_binary = sb_lex_col_binary
+        self.sb_option = sb_option
         self.smt2lib = smt2lib
         self.smt2libsol = smt2libsol
-        self.cplexLPPath=cplexLPPath
+        self.cplexLPPath = cplexLPPath
         self.use_vm_vector_in_encoding = use_vm_vector_in_encoding
         self.offers_list_filtered = offers_list_filtered
         self.default_offers_encoding = default_offers_encoding
@@ -160,14 +136,6 @@ class ManuverSolver(object):
         """
         print("Parent class RestrictionAlphaOrBeta")
 
-    def constraintsHardware(self, componentsRequirements):
-        """
-        Describes the hardware requirements for each component
-        :param componentsRequirements: list of components requirements as given by the user
-        :return: None
-        """
-
-        print("Parent class constraintsHardware")
 
     def run(self):
         """

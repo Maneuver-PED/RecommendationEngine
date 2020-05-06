@@ -5,8 +5,7 @@ import time
 from docplex.mp.functional import LogicalOrExpr, LogicalAndExpr
 from maneuverRecomadEngine.exactsolvers.ManuverSolver import ManuverSolver
 
-
-class CPlex_SolverBase(ManuverSolver):
+class CPlex_Solver_Parent(ManuverSolver):
     def _initSolver(self):
 
         self.orCntIndex = 0
@@ -21,7 +20,7 @@ class CPlex_SolverBase(ManuverSolver):
         self.model.parameters.timelimit.set(2400.0)
         #self.model.parameters.mip.tolerances.mipgap.set(0)
         # self.model.parameters.benders.tolerances.optimalitycut.set(1e-9)
-        #self.model.parameters.preprocessing.reduce.set(1)
+        self.model.parameters.preprocessing.reduce.set(1)
         #self.model.parameters.preprocessing
         print(self.model.parameters.lpmethod)
         self.model.parameters.lpmethod =3
@@ -128,24 +127,6 @@ class CPlex_SolverBase(ManuverSolver):
 
 
 
-    # def RestrictionLex(self, vm_id, additional_constraints=[]):
-    #     """
-    #     Lexicografic order between two consecutive columns
-    #     :param vm_id: the vm id
-    #     :param additonal_constraints: other constraints
-    #     :return:
-    #     """
-    #     l = additional_constraints.copy()
-    #
-    #     #print("self.nrComp ", self.nrComp)
-    #     for i in range(0, self.nrComp):
-    #         if i>0:
-    #             u = i-1
-    #             l.append(self.a[u, vm_id] == self.a[u, vm_id + 1])
-    #         #print(l)
-    #         var = self.model.binary_var(name="lex_VM{0}_comp{1}".format(vm_id, i))
-    #         self.model.add_equivalence(var, LogicalAndExpr(self.model, l) == 1)
-    #         self.model.add_indicator(var, self.a[i, vm_id] >= self.a[i, vm_id + 1])
 
     def RestrictionLex(self, vm_id, additional_constraints=[]):
         """
@@ -180,38 +161,26 @@ class CPlex_SolverBase(ManuverSolver):
 
 
 
-    def RestrictionLexOrder(self, start_vm_id, end_vm_id, dummy=None):
+    def RestrictionPrice(self, vm_id, additional_constraints=[]):
         """
-        Order VMs lexicographical
-        :param start_vm_id:
-        :param end_vm_id:
+        Lexicografic order between two consecutive columns
+        :param vm_id: the vm id
+        :param additonal_constraints: other constraints
         :return:
         """
-        for j in range(start_vm_id, end_vm_id - 1):
-            self.RestrictionLex(j)
+        print("Price vm ", vm_id, "combined=", additional_constraints)
+        if len(additional_constraints) == 0:
+            self.model.add_constraint(ct=self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1], ctname="price_order")
+        else:
+            var = self.model.binary_var(name="order_VM{0}_combined".format(vm_id))
+            if len(additional_constraints) == 1:
+                self.model.add_equivalence(var, additional_constraints[0])
+            else:
+                self.model.add_equivalence(var, LogicalAndExpr(additional_constraints))
+            self.model.add_indicator(var, self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
 
-    def RestrictionLexOrder(self, start_vm_id, end_vm_id, dummy=None):
-        """
-        Order VMs lexicographical
-        :param start_vm_id:
-        :param end_vm_id:
-        :return:
-        """
-        for j in range(start_vm_id, end_vm_id - 1):
-            self.RestrictionLex(j)
+        return self.PriceProv[vm_id] == self.PriceProv[vm_id + 1]
 
-    def RestrictionPriceOrder(self, start_vm_id, end_vm_id, lex=False):
-        """
-        Order VMs by price
-        :param start_vm_id:
-        :param end_vm_id:
-        :param lex: add lexicographic on VMs with same price
-        :return:
-        """
-        for j in range(start_vm_id, end_vm_id - 1):
-            self.model.add_constraint(ct=self.PriceProv[j] >= self.PriceProv[j + 1], ctname="price_order")
-            if lex:
-                self.RestrictionLex(j, [self.PriceProv[j] == self.PriceProv[j + 1]])
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value=1):
         """
@@ -224,21 +193,29 @@ class CPlex_SolverBase(ManuverSolver):
         print("RestrictionFixComponentOnVM: vm=", vm_id, " comp=", comp_id, " val=", value)
         self.model.add_constraint(ct=self.a[comp_id, vm_id] == value, ctname="a_c_fix_component")
 
-    def RestrictionLoadOrder(self, start_vm_id, end_vm_id, lex=False):
+    def RestrictionLoad(self, vm_id, additional_constraints=[]):
         """
-        Order VMs by the number of components deployed on it
-        :param start_vm_id:
-        :param end_vm_id:
-        :param lex: add lexicographic on VMs with same load
+        Lexicografic order between two consecutive columns
+        :param vm_id: the vm id
+        :param additonal_constraints: other constraints
         :return:
         """
-        for j in range(start_vm_id, end_vm_id - 1):
+        print("Load vm ", vm_id, "combined=", additional_constraints)
+        if len(additional_constraints) == 0:
+            self.model.add_constraint(ct=sum([self.a[i, vm_id] for i in range(0, self.nr_comps)]) >= sum(
+                [self.a[i, vm_id + 1] for i in range(0, self.nr_comps)]), ctname="c_vm_load_lex_order")
+        else:
+            var = self.model.binary_var(name="vmload_VM{0}_combined".format(vm_id))
+            if len(additional_constraints) == 1:
+                self.model.add_equivalence(var, additional_constraints[0])
+            else:
+                self.model.add_equivalence(var, LogicalAndExpr(additional_constraints))
+            self.model.add_indicator(var, sum([self.a[i, vm_id] for i in range(0, self.nr_comps)]) >= sum(
+                [self.a[i, vm_id + 1] for i in range(0, self.nr_comps)]))
 
-            self.model.add_constraint(ct=sum([self.a[i, j] for i in range(0, self.nr_comps)]) >= sum(
-                [self.a[i, j + 1] for i in range(0, self.nr_comps)]), ctname="c_vm_load_lex_order")
-            if lex:
-                self.RestrictionLex(j, [sum([self.a[i, j] for i in range(0, self.nr_comps)])
-                                        == sum([self.a[i, j + 1] for i in range(0, self.nr_comps)])])
+        return sum([self.a[i, vm_id] for i in range(self.nr_comps)]) == \
+               sum([self.a[i, vm_id + 1] for i in range(self.nr_comps)])
+
 
     def RestrictionConflict(self, alphaCompId, conflictCompsIdList):
         """

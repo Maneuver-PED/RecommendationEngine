@@ -5,8 +5,6 @@ from maneuverRecomadEngine.restrictions.RestrictionDependences import Restrictio
     RestrictionOneToManyDependency, RestrictionManyToManyDependency, RestrictionManyToManyDependencyNew
 from maneuverRecomadEngine.restrictions.RestrictionNumberOfInstances import RestrictionUpperLowerEqualBound, \
     RestrictionRangeBound, RestrictionFullDeployment, RestrictionRequireProvideDependency
-from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
-from maneuverRecomadEngine.restrictions.RestrictionFixComponents import RestrictionFixComponentOnVM, RestrictionPriceOrder
 from maneuverRecomadEngine.problem.Component import Component
 import logging
 import networkx as nx
@@ -189,13 +187,10 @@ class ManeuverProblem:
         self.__addInformationForEA()
 
         # add restriction that fixes some components on VMs
-        # TODO: this is needed for symmetry breaking not here
-        self.__addRestrictionFixedElements(orComponents)
+
+        self.__find_conflict_elements_clique(orComponents)
 
         self.offers_list = offers_list
-        if offers_list is not None:
-            self.restrictionsList.append(RestrictionHardware(self._getComponentsHardwareRestrictions(),
-                                                                      offers_list, self))
 
     def __addInformationForEA(self):
         for i in range(self.nrComp):
@@ -270,7 +265,7 @@ class ManeuverProblem:
                         self.restrictionsList.append(RestrictionConflict(k + 1, [u + 1 for u in dict2[j]], self))
 
 
-    def __addRestrictionFixedElements(self, or_components):
+    def __find_conflict_elements_clique(self, or_components):
 
         components = []
         G = nx.Graph()

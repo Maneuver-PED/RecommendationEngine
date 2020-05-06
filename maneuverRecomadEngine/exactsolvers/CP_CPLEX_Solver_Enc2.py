@@ -1,6 +1,8 @@
-from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_SB import CPlex_SolverBaseSB
+from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_Solver_Parent
 
-class CPlex_SolverSymBreakEnc2(CPlex_SolverBaseSB):
+from maneuverRecomadEngine.exactsolvers.ManuverSolver_SB import ManuverSolver_SB
+
+class CPlex_Solver_SB_Enc2(CPlex_Solver_Parent, ManuverSolver_SB):
 
     def _define_variables(self):
         """

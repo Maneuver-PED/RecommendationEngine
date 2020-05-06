@@ -2,7 +2,7 @@ from z3 import *
 from maneuverRecomadEngine.exactsolvers.ManuverSolver import ManuverSolver
 import time
 
-class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
+class Z3_Solver_Int_Parent(ManuverSolver):#ManeuverProblem):
 
     def _initSolver(self):
         """
@@ -59,7 +59,7 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         l = additional_constraints.copy()
         #print("self.nrComp ", self.nrComp)
         for i in range(0, self.nrComp):
-            if i>0:
+            if i > 0:
                 u = i-1
                 l.append(self.a[u * self.nrVM + vm_id] == self.a[u * self.nrVM + vm_id + 1])
             #print(l)
@@ -82,25 +82,18 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
         :param additonal_constraints: other constraints
         :return:
         """
-        print("Price vm ", vm_id, "combined=", additional_constraints)
+        #print("Price vm ", vm_id, "combined=", additional_constraints)
         if len(additional_constraints) == 0:
             self.solver.add(self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1])
         else:
-            #todo: paote fi lista?
-            self.solver.add(Implies(additional_constraints[0], self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1]))
+            if len(additional_constraints) == 1:
+                self.solver.add(
+                    Implies(additional_constraints[0], self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1]))
+            else:
+                self.solver.add\
+                    (Implies(And(additional_constraints), self.PriceProv[vm_id] >= self.PriceProv[vm_id + 1]))
 
-    def RestrictionPriceOrder(self, start_vm_id, end_vm_id, combined=None):
-        """
-        Order VMs by price
-        :param start_vm_id:
-        :param end_vm_id:
-        :param lex: add lexicographic on VMs with same price
-        :return:
-        """
-        for j in range(start_vm_id, end_vm_id-1):
-            self.RestrictionPrice(j)
-            if combined is not None:
-                getattr(self, combined)(j, additional_constraints=[self.PriceProv[j] == self.PriceProv[j + 1]])
+        return self.PriceProv[vm_id] == self.PriceProv[vm_id + 1]
 
     def RestrictionFixComponentOnVM(self, comp_id, vm_id, value):
         """
@@ -125,23 +118,18 @@ class Z3_Solver_Parent(ManuverSolver):#ManeuverProblem):
            self.solver.add(sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)])
                                  >= sum([self.a[i + vm_id + 1] for i in range(0, len(self.a), self.nrVM)]))
         else:
-            #todo: poate fi lista
-            self.solver.add(Implies(additional_constraints[0], sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)])
-                                 >= sum([self.a[i + vm_id + 1] for i in range(0, len(self.a), self.nrVM)])))
+            if len(additional_constraints) == 1:
+                self.solver.add(Implies(additional_constraints[0],
+                                        sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)])
+                                        >= sum([self.a[i + vm_id + 1] for i in range(0, len(self.a), self.nrVM)])))
+            else:
+                self.solver.add(Implies(And(additional_constraints),
+                                        sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)])
+                                        >= sum([self.a[i + vm_id + 1] for i in range(0, len(self.a), self.nrVM)])))
 
-    def RestrictionLoadOrder(self,  start_vm_id, end_vm_id, combined=None):
-        """
-        Order VMs by the number of components deployed on it
-        :param start_vm_id:
-        :param end_vm_id:
-        :param lex: add lexicographic on VMs with same load
-        :return:
-        """
-        for j in range(start_vm_id, end_vm_id - 1):
-            self.RestrictionLoad(j)
-            if combined is not None:
-                getattr(self, combined)(j, additional_constraints=[sum([self.a[i + j] for i in range(0, len(self.a), self.nrVM)])
-                                 == sum([self.a[i + j + 1] for i in range(0, len(self.a), self.nrVM)])])
+
+        return sum([self.a[i + vm_id] for i in range(0, len(self.a), self.nrVM)]) == \
+               sum([self.a[i + vm_id + 1] for i in range(0, len(self.a), self.nrVM)])
 
     def RestrictionConflict(self, alphaCompId, conflictCompsIdList):
         """

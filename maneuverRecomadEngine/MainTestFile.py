@@ -54,19 +54,7 @@ def prepareManuverProblem(problem_file_name, configurations_file_name):
     return mp
 
 
-def runOnce(solver, mp, outFolderDetails, repetion_number=1, default_offers_encoding=True, sb_price=False,
-                     sb_price_lex=False,
-                     sb_vm_load=False,
-                     sb_vm_load_lex=False,
-                     sb_lex=False,
-                     sb_fix_var=False,
-                     sb_fix_var_price=False,
-                     sb_fix_var_vm_load=False,
-                     sb_fix_var_lex=False,
-                     sb_fix_var_price_lex=False,
-                     sb_fix_var_vm_load_lex=False,
-                     sb_load_price=False,
-                     sb_lex_col_binary=False):
+def runOnce(solver, mp, outFolderDetails, repetion_number=1, sb_option=None):
     solver_name = solver.__class__.__name__
     filename1 = "" + mp.applicationName
     filename2 = mp.priceOffersFile.split("/").pop().split(".")[0]
@@ -97,40 +85,13 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1, default_offers_enco
 
     with open(outcsv, 'a', newline='') as csvfile:
         fwriter = csv.writer(csvfile, delimiter=',', )
-        fwriter.writerow([default_offers_encoding,
-                          sb_price,
-                          sb_price_lex,
-                          sb_vm_load,
-                          sb_vm_load_lex,
-                          sb_lex,
-                          sb_fix_var,
-                          sb_fix_var_price,
-                          sb_fix_var_vm_load,
-                          sb_fix_var_lex,
-                          sb_fix_var_price_lex,
-                          sb_fix_var_vm_load_lex,
-                          sb_load_price,
-                          sb_lex_col_binary])
+        fwriter.writerow(["Symmetry Breaking option", sb_option])
 
         fwriter.writerow(['Price min value', 'Price for each machine', 'Time'])
         for it in range(repetion_number):
             # debug/optimize
-            getattr(solver, "init_problem")(mp, "optimize", smt2lib=smt2lib, smt2libsol=smt2libsol, cplexLPPath= cplexLPPath,
-                                            default_offers_encoding=default_offers_encoding,
-                                            sb_price=sb_price,
-                                            sb_price_lex=sb_price_lex,
-                                            sb_vm_load=sb_vm_load,
-                                            sb_vm_load_lex=sb_vm_load_lex,
-                                            sb_lex=sb_lex,
-                                            sb_fix_var=sb_fix_var,
-                                            sb_fix_var_price=sb_fix_var_price,
-                                            sb_fix_var_vm_load=sb_fix_var_vm_load,
-                                            sb_fix_var_lex=sb_fix_var_lex,
-                                            sb_fix_var_price_lex=sb_fix_var_price_lex,
-                                            sb_fix_var_vm_load_lex=sb_fix_var_vm_load_lex,
-                                            sb_load_price=sb_load_price,
-                                            sb_lex_col_binary=sb_lex_col_binary
-                                            )
+            getattr(solver, "init_problem")(mp, "optimize", smt2lib=smt2lib, smt2libsol=smt2libsol,
+                                            cplexLPPath=cplexLPPath, sb_option=sb_option)
             min_price, price_vms, t, a, vms_type = solver.run()
             print("min_price = {}, price_vector = {}, time = {} sec., vms_type = {}".format(min_price, price_vms, t, vms_type))
             fwriter.writerow([min_price, price_vms, t])
@@ -574,10 +535,10 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = [
-        "../testInstances/offersLPAR2018/offers_20.json",
+        #"../testInstances/offersLPAR2018/offers_20.json",
         # "../testInstances/offersLPAR2018/offers_40.json",
         # "../testInstances/offersLPAR2018/offers_100.json",
-        #   "../testInstances/offersLPAR2018/offers_250.json",
+           "../testInstances/offersLPAR2018/offers_250.json",
         #  "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
@@ -585,49 +546,50 @@ def start_tests(solver, repetion_number=1):
         # "../testInstances/Oryx2.json",
         # "../testInstances/SecureBillingEmail.json",
         # "../testInstances/SecureWebContainer.json",
-        "../testInstances/Wordpress3.json",
+        #"../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
         #  "../testInstances/Wordpress5.json",
         #  "../testInstances/Wordpress6.json",
-        # "../testInstances/Wordpress7.json",
+         "../testInstances/Wordpress7.json",
         #"../testInstances/Wordpress8.json",
-        # "../testInstances/Wordpress9.json",
+         #"../testInstances/Wordpress9.json",
         # "../testInstances/Wordpress10.json",
         # "../testInstances/Wordpress11.json",
         # "../testInstances/Wordpress12.json",
                   ]
-    configurations = [
-        # ("withoutSymmetry", True, False, False, False, False, False, False, False, False, False, False, False, False,
-        #  False),
-        # ("PR", True, True, False, False, False, False, False, False, False, False, False, False, False,
-        #  False),
-        # ("PRLX", True, False, True, False, False, False, False, False, False, False, False, False, False,
-        #  False),
-        # ("L", True, False, False, True, False, False, False, False, False, False, False, False, False,
-        #   False),
-        # ("LLX", True, False, False, False, True, False, False, False, False, False, False, False, False,
-        #    False),
-        # ("LX", True, False, False, False, False, True, False, False, False, False, False, False, False,
-        #  False),
-        # ("FV", True, False, False, False, False, False, True, False, False, False, False, False, False,
-        #  False),
-        # ("FVPR", True, False, False, False, False, False, False, True, False, False, False, False, False,
-        #  False),
-        # ("FVL", True, False, False, False, False, False, False, False, True, False, False, False, False,
-        # False),
-        # ("FVLX", True, False, False, False, False, False, False, False, False, True, False, False, False,
-        #  False),
-        # ("FVPRLX", True, False, False, False, False, False, False, False, False, False, True, False, False,
-        #  False),
-        # ("FVLLX", True, False, False, False, False, False, False, False, False, False, False, True, False,
-        #  False),
-        ("LPR", True, False, False, False, False, False, False, False, False, False, False, False, True,
-         False),
 
+
+
+    # self.sb_fix_var_vm_load = True if "sb_fix_var_vm_load" == sb_option else False
+    # self.sb_fix_var_lex = True if "sb_fix_var_lex" == sb_option else False
+    # self.sb_fix_var_price_lex = True if "sb_fix_var_price_lex" == sb_option else False
+    # self.sb_fix_var_vm_load_lex = True if "sb_fix_var_vm_load_lex" == sb_option else False
+    # self.sb_load_price = True if "sb_load_price" == sb_option else False
+    # self.sb_lex_col_binary = True if "sb_lex_col_binary" == sb_option else False
+
+    configurations = [
+        #("withoutSymmetry", None),
+        ("PR", "sb_price"),
+        #("PRLX","sb_price_lex"),
+        #("L", "sb_vm_load"),
+        #("LLX", "sb_vm_load_lex"),
+        #("LX", "sb_lex"),
+        #("FV", "sb_fix_var"),
+        #("FVPR", "sb_fix_var_price"),
+        #("FVL", "sb_fix_var_vm_load"),
+        #("FVLX", "sb_fix_var_lex"),#ups
+        #("FVPRLX", "sb_fix_var_price_lex"),
+        #("FVLLX", "sb_fix_var_vm_load_lex"),
+        #("LPR", "sb_load_price"),
+        #("PRL", "sb_price_load"),
+        #("FVPRL", "sb_fix_var_price_load"),
+        #("FVLPR","sb_fix_var_vm_load_price"),
+        #("PRLLX", "sb_price_load_lex"),
+       # ("LPRLX", "sb_load_price_lex" ),
+        #("FVPRLLEX", "sb_fix_var_price_vm_load_lex"),
+        #("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
 
     ]
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc1_SB import Z3_SolverIntIntSymBreak
-    #from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_RealSymBreak import Z3_SolverRealSymBreak
 
     for offer in offers:
         for problem in test_files:
@@ -635,23 +597,7 @@ def start_tests(solver, repetion_number=1):
             print("main", mp.nrComp, mp.nrVM)
             for configuration in configurations:
                 print(configuration)
-                runOnce(solver, mp, configuration[0], repetion_number=repetion_number,
-
-                        default_offers_encoding=configuration[1],
-                        sb_price=configuration[2],
-                        sb_price_lex=configuration[3],
-                        sb_vm_load=configuration[4],
-                        sb_vm_load_lex=configuration[5],
-                        sb_lex=configuration[6],
-                        sb_fix_var=configuration[7],
-                        sb_fix_var_price=configuration[8],
-                        sb_fix_var_vm_load=configuration[9],
-                        sb_fix_var_lex=configuration[10],
-                        sb_fix_var_price_lex=configuration[11],
-                        sb_fix_var_vm_load_lex=configuration[12],
-                        sb_load_price=configuration[13],
-                        sb_lex_col_binary=configuration[14],
-                        )
+                runOnce(solver, mp, configuration[0], repetion_number=repetion_number, sb_option=configuration[1])
 
 def offers_prelucrari():
     offers = [
@@ -737,8 +683,6 @@ if __name__ == "__main__":
 
     #offers_prelucrari()
 
-    mp1 = prepareManuverProblem("../testInstances/Wordpress8.json",#Wordpress3 #Oryx2 #SecureWebContainer
-                                "../testInstances/offersLPAR2018/offers_40.json")
 
     # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
     # print("-----------------------------")
@@ -746,17 +690,17 @@ if __name__ == "__main__":
     # runOnce(solver, mp)
 
 
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc1 import CPlex_SolverSymBreakEnc1
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc1_SB import Z3_SolverIntIntSymBreak
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc2 import CPlex_SolverSymBreakEnc2
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Real import Z3_SolverReal
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc2_SB import Z3_SolverIntIntSymBreak_Enc2
+    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc1 import CPlex_Solver_SB_Enc1
+    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc2 import CPlex_Solver_SB_Enc2
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc1_SB import Z3_SolverInt_SB_Enc1
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc2_SB import Z3_SolverInt_SB_Enc2
 
-    solver = Z3_SolverIntIntSymBreak()
-    #solver = Z3_SolverReal()
-    #solver = CPlex_SolverSymBreakEnc1()
-    #solver = Z3_SolverIntIntSymBreak_Enc2()
-    #solver = CPlex_SolverSymBreakEnc2()
+    #solver = CPlex_SolverSymBreak_Enc1()
+
+    #solver = Z3_SolverInt_SB_Enc1()
+    #solver = Z3_SolverInt_SB_Enc2()
+    solver = CPlex_Solver_SB_Enc1()
+    #solver = CPlex_Solver_SB_Enc2()
 
     repetion_number = 1
 
@@ -769,16 +713,14 @@ if __name__ == "__main__":
     #agregate_tests_tabel_offerencoding("tabel_cplex_table_load_new.txt")
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_price_stategii")
 
-    # repetion_mumber = 1
-    #
-    # print("-----------Z3_Solver------------------")
-    # # # can we have the name Z3_SolverInt to be similar to the below?
-    # # solver = Z3_SolverIntIntSymBreak()
-    # runOnce(solver, mp1, "flavia", repetion_number=1, sb_vms_order_by_price=True,
-    #         default_offers_encoding=False, sb_vms_order_by_components_number=False,
-    #         sb_lex_line=False, sb_lex_col_binary=False,
-    #         sb_vms_order_by_components_number_order_lex=False,sb_fix_variables=False
-    #         )
-    # this is not always good: sb_vms_order_by_components_number=True)
-    # print("-----------Z3_Solver fix------------------")
-    # runOnce(solver, mp, "flavia", repetion_mumber=repetion_mumber, sb_vms_order_by_price=True, sb_fix_variables=False,
+
+# wp6-250 PR -Z3
+# Enc1 1.89, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 34.34
+# ENC2 1.89, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 8.435850858688354 sec., vms_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+# wp7-250 PR-Z3
+#ENC1: 2.142, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 62.49066424369812 sec., vms_type = [182, 182, 182, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225]
+#ENC2: 2.142, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 16.054754972457886 sec., vms_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+#ENC2-Cplex: UNSOLVED time = 2616
+#ENC2-Cplex: 2.142, price_vector = [210.0, 210.0, 210.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0], time = 30.513893127441406 sec., vms_type = [182, 182, 182, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225]

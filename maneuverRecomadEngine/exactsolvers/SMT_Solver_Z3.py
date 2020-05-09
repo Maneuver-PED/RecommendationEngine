@@ -65,15 +65,6 @@ class Z3_Solver_Int_Parent(ManuverSolver):#ManeuverProblem):
             #print(l)
             self.solver.add(Implies(And(l), self.a[i * self.nrVM + vm_id] >= self.a[i * self.nrVM + vm_id + 1]))
 
-    def RestrictionLexOrder(self, start_vm_id, end_vm_id, dummy=None):
-        """
-        Order VMs lexicographical
-        :param start_vm_id:
-        :param end_vm_id:
-        :return:
-        """
-        for j in range(start_vm_id, end_vm_id - 1):
-            self.RestrictionLex(j)
 
     def RestrictionPrice(self, vm_id, additional_constraints=[]):
         """

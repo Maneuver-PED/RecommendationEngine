@@ -89,18 +89,18 @@ class ManuverSolver_SB(ManuverSolver):
             self.sb(stop_id, self.nrVM, criteriaList)
 
 
-    def sb(self, start_vm_index, end_vm_index, citeriaList=[]):
-        citeriaList_size = len(citeriaList)
+    def sb(self, start_vm_index, end_vm_index, criteriaList=[]):
+        criteriaList_size = len(criteriaList)
         for vm_id in range(start_vm_index, end_vm_index - 1):
-            cr1_precondition = getattr(self, citeriaList[0])(vm_id)
-            if citeriaList_size == 2:
-                getattr(self, citeriaList[1])(vm_id, additional_constraints=[cr1_precondition])
-            elif citeriaList_size == 3:
-                cr2_precondition = getattr(self, citeriaList[1])(vm_id, additional_constraints=[cr1_precondition])
-                getattr(self, citeriaList[2])(vm_id, additional_constraints=[cr1_precondition, cr2_precondition])
+            cr1_precondition = getattr(self, criteriaList[0])(vm_id)
+            if criteriaList_size == 2:
+                getattr(self, criteriaList[1])(vm_id, additional_constraints=[cr1_precondition])
+            elif criteriaList_size == 3:
+                cr2_precondition = getattr(self, criteriaList[1])(vm_id, additional_constraints=[cr1_precondition])
+                getattr(self, criteriaList[2])(vm_id, additional_constraints=[cr1_precondition, cr2_precondition])
 
     def sbLex(self):
-        self.sb(0, self.nrVM, citeriaList=["RestrictionLex"])
+        self.sb(0, self.nrVM, criteriaList=["RestrictionLex"])
 
     def sbPrice(self, criteria1=None, criteria2=None):
         """
@@ -112,7 +112,7 @@ class ManuverSolver_SB(ManuverSolver):
             citeriaList.append(criteria1)
             if criteria2 is not None:
                 citeriaList.append(criteria2)
-        self.sb(0, self.nrVM, citeriaList=citeriaList)
+        self.sb(0, self.nrVM, criteriaList=citeriaList)
 
     def sbVMLoad(self, criteria1=None, criteria2=None):
         """
@@ -124,4 +124,4 @@ class ManuverSolver_SB(ManuverSolver):
             citeriaList.append(criteria1)
             if criteria2 is not None:
                 citeriaList.append(criteria2)
-        self.sb(0, self.nrVM, citeriaList=citeriaList)
+        self.sb(0, self.nrVM, criteriaList=citeriaList)

@@ -1,7 +1,7 @@
 from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_Solver_Parent
 from maneuverRecomadEngine.exactsolvers.ManuverSolver_SB import ManuverSolver_SB
 
-class CPlex_Solver_SB_Enc1(CPlex_Solver_Parent, ManuverSolver_SB):
+class CPlex_Solver_SB_Enc_AllCombinationsOffers(CPlex_Solver_Parent, ManuverSolver_SB):
 
     def _define_variables(self):
         """

@@ -536,9 +536,9 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 def start_tests(solver, repetion_number=1):
     offers = [
         #"../testInstances/offersLPAR2018/offers_20.json",
-        # "../testInstances/offersLPAR2018/offers_40.json",
+         "../testInstances/offersLPAR2018/offers_40.json",
         # "../testInstances/offersLPAR2018/offers_100.json",
-           "../testInstances/offersLPAR2018/offers_250.json",
+        #   "../testInstances/offersLPAR2018/offers_250.json",
         #  "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
@@ -546,11 +546,11 @@ def start_tests(solver, repetion_number=1):
         # "../testInstances/Oryx2.json",
         # "../testInstances/SecureBillingEmail.json",
         # "../testInstances/SecureWebContainer.json",
-        #"../testInstances/Wordpress3.json",
+        "../testInstances/Wordpress3.json",
         #  "../testInstances/Wordpress4.json",
         #  "../testInstances/Wordpress5.json",
         #  "../testInstances/Wordpress6.json",
-         "../testInstances/Wordpress7.json",
+        # "../testInstances/Wordpress7.json",
         #"../testInstances/Wordpress8.json",
          #"../testInstances/Wordpress9.json",
         # "../testInstances/Wordpress10.json",
@@ -569,8 +569,8 @@ def start_tests(solver, repetion_number=1):
 
     configurations = [
         #("withoutSymmetry", None),
-        ("PR", "sb_price"),
-        #("PRLX","sb_price_lex"),
+        #("PR", "sb_price"),
+        ("PRLX","sb_price_lex"),
         #("L", "sb_vm_load"),
         #("LLX", "sb_vm_load_lex"),
         #("LX", "sb_lex"),
@@ -587,7 +587,7 @@ def start_tests(solver, repetion_number=1):
         #("PRLLX", "sb_price_load_lex"),
        # ("LPRLX", "sb_load_price_lex" ),
         #("FVPRLLEX", "sb_fix_var_price_vm_load_lex"),
-        #("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
+        ("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
 
     ]
 
@@ -683,29 +683,20 @@ if __name__ == "__main__":
 
     #offers_prelucrari()
 
+    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_AllCombinationsOffers import CPlex_Solver_SB_Enc_AllCombinationsOffers
+    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_FilteredOffers import CPlex_Solver_SB_Enc_FilteredOffers
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers import Z3_SolverInt_SB_Enc_AllCombinationsOffers
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_Enc_FilteredOffers import Z3_SolverInt_SB_Enc_FilteredOffers
 
-    # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_SolverSimple
-    # print("-----------------------------")
-    # solver = Z3_SolverSimple()
-    # runOnce(solver, mp)
-
-
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc1 import CPlex_Solver_SB_Enc1
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc2 import CPlex_Solver_SB_Enc2
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc1_SB import Z3_SolverInt_SB_Enc1
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_Enc2_SB import Z3_SolverInt_SB_Enc2
-
-    #solver = CPlex_SolverSymBreak_Enc1()
-
-    #solver = Z3_SolverInt_SB_Enc1()
-    #solver = Z3_SolverInt_SB_Enc2()
-    solver = CPlex_Solver_SB_Enc1()
-    #solver = CPlex_Solver_SB_Enc2()
+    #solver = CPlex_Solver_SB_Enc_AllCombinationsOffers()
+    solver = CPlex_Solver_SB_Enc_FilteredOffers()
+    #solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers()
+    #solver = Z3_SolverInt_SB_Enc_FilteredOffers()
 
     repetion_number = 1
 
     #cplex_vars_prelucrari()
-    start_tests(solver, repetion_number= repetion_number)
+    start_tests(solver, repetion_number=repetion_number)
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_new")
     #agregate_tests("Z3_SolverIntIntSymBreak", "agregate_Z3intint")
     #agregate_tests_grafice("grafic_simple")
@@ -714,13 +705,3 @@ if __name__ == "__main__":
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_price_stategii")
 
 
-# wp6-250 PR -Z3
-# Enc1 1.89, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 34.34
-# ENC2 1.89, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 8.435850858688354 sec., vms_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-# wp7-250 PR-Z3
-#ENC1: 2.142, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 62.49066424369812 sec., vms_type = [182, 182, 182, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225]
-#ENC2: 2.142, price_vector = [0.21, 0.21, 0.21, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126, 0.126], time = 16.054754972457886 sec., vms_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-#ENC2-Cplex: UNSOLVED time = 2616
-#ENC2-Cplex: 2.142, price_vector = [210.0, 210.0, 210.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0, 126.0], time = 30.513893127441406 sec., vms_type = [182, 182, 182, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225, 225]

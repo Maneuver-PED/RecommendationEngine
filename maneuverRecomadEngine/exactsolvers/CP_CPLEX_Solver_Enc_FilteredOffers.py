@@ -2,7 +2,7 @@ from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver import CPlex_Solver_Pare
 
 from maneuverRecomadEngine.exactsolvers.ManuverSolver_SB import ManuverSolver_SB
 
-class CPlex_Solver_SB_Enc2(CPlex_Solver_Parent, ManuverSolver_SB):
+class CPlex_Solver_SB_Enc_FilteredOffers(CPlex_Solver_Parent, ManuverSolver_SB):
 
     def _define_variables(self):
         """

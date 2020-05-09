@@ -3,7 +3,7 @@ from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_Solver_
 from maneuverRecomadEngine.exactsolvers.ManuverSolver_SB import ManuverSolver_SB
 
 
-class Z3_SolverInt_SB_Enc2(Z3_Solver_Int_Parent, ManuverSolver_SB):
+class Z3_SolverInt_SB_Enc_FilteredOffers(Z3_Solver_Int_Parent, ManuverSolver_SB):
 
     def _defineVariablesAndConstraints(self):
         """
@@ -96,7 +96,7 @@ class Z3_SolverInt_SB_Enc2(Z3_Solver_Int_Parent, ManuverSolver_SB):
             # to many components on VM (execed max offer)
             key = keys[0]
             offers_applicable = characteristic_values[key].copy()
-            print("offers_applicable", offers_applicable)
+            #print("offers_applicable", offers_applicable)
             self.solver.add(Implies(cpus_sum >= key + 1, sum([self.vmType[(offer-1) * self.nrVM + k]
                                                         for offer in offers_applicable]) == 0))
 

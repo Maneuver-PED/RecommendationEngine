@@ -2,7 +2,7 @@ from z3 import *
 from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_IntIntOr import Z3_Solver_Int_Parent
 from maneuverRecomadEngine.exactsolvers.ManuverSolver_SB import ManuverSolver_SB
 
-class Z3_SolverInt_SB_Enc1(Z3_Solver_Int_Parent, ManuverSolver_SB):
+class Z3_SolverInt_SB_Enc_AllCombinationsOffers(Z3_Solver_Int_Parent, ManuverSolver_SB):
 
     def _defineVariablesAndConstraints(self):
         """

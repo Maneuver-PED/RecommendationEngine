@@ -25,7 +25,6 @@ class ManuverSolver_SB(ManuverSolver):
             self.sbVMLoad(criteria1="RestrictionLex")
         elif "sb_load_price" == self.sb_option: # LPR
             self.sbVMLoad(criteria1="RestrictionPrice")
-
         elif "sb_fix_var_price" == self.sb_option:  # FVPR
             self.sbFixVariables(criteriaList=["RestrictionPrice"])
         elif "sb_fix_var_vm_load" == self.sb_option:  # FVL

@@ -532,27 +532,27 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = [
-        "../testInstances/offersLPAR2018/offers_20.json",
-        "../testInstances/offersLPAR2018/offers_40.json",
-        # "../testInstances/offersLPAR2018/offers_100.json",
-        "../testInstances/offersLPAR2018/offers_250.json",
-        "../testInstances/offersLPAR2018/offers_500.json"
+        #"../testInstances/offersLPAR2018/offers_20.json",
+        #"../testInstances/offersLPAR2018/offers_40.json",
+       #  # # "../testInstances/offersLPAR2018/offers_100.json",
+      #"../testInstances/offersLPAR2018/offers_250.json",
+       "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
-        #"../testInstances/Oryx2.json",
-         "../testInstances/SecureBillingEmail.json",
-        # "../testInstances/SecureWebContainer.json",
-        # "../testInstances/Wordpress3.json",
-        #  "../testInstances/Wordpress4.json",
+        "../testInstances/Oryx2.json",
+        "../testInstances/SecureBillingEmail.json",
+        "../testInstances/SecureWebContainer.json",
+       # "../testInstances/Wordpress3.json",
+       # "../testInstances/Wordpress4.json",
         #  "../testInstances/Wordpress5.json",
         # "../testInstances/Wordpress6.json",
-        # "../testInstances/Wordpress7.json",
-        #  "../testInstances/Wordpress8.json",
-        #  "../testInstances/Wordpress9.json",
-        # "../testInstances/Wordpress10.json",
-        # "../testInstances/Wordpress11.json",
-        # "../testInstances/Wordpress12.json"
+       #  "../testInstances/Wordpress7.json",
+       #   "../testInstances/Wordpress8.json",
+       #   "../testInstances/Wordpress9.json",
+       #  "../testInstances/Wordpress10.json",
+       #  "../testInstances/Wordpress11.json",
+       #  "../testInstances/Wordpress12.json"
     ]
 
     # self.sb_fix_var_vm_load = True if "sb_fix_var_vm_load" == sb_option else False
@@ -563,26 +563,26 @@ def start_tests(solver, repetion_number=1):
     # self.sb_lex_col_binary = True if "sb_lex_col_binary" == sb_option else False
 
     configurations = [
-        # ("noSymBreaking", None),
-        # ("FV", "sb_fix_var"),
-        # ("L", "sb_vm_load"),
-        # ("LX", "sb_lex"),
-        # ("PR", "sb_price"),
-        ("FVL", "sb_fix_var_vm_load"),
-        # ("FVLX", "sb_fix_var_lex"),
-        #("FVPR", "sb_fix_var_price")
-        # ("LLX", "sb_vm_load_lex")
-        # ("LPR", "sb_load_price"),
-        # ("PRL", "sb_price_load"),
-        # ("PRLX","sb_price_lex"),
+        #("noSymBreaking", None),
+        #("FV", "sb_fix_var"),
+        #("L", "sb_vm_load"),
+        #("LX", "sb_lex"),
+        #("PR", "sb_price"),
+        #("FVL", "sb_fix_var_vm_load"),
+        #("FVLX", "sb_fix_var_lex"),
+        #("FVPR", "sb_fix_var_price"),
+        #("LLX", "sb_vm_load_lex"),
+        #("LPR", "sb_load_price"),
+        #("PRL", "sb_price_load"),
+        #("PRLX","sb_price_lex"),
         # ("FVLLX", "sb_fix_var_vm_load_lex"),
-        # ("FVLPR","sb_fix_var_vm_load_price"),
-        # ("LPRLX", "sb_load_price_lex"),
-        # ("PRLLX", "sb_price_load_lex"),
-        # ("FVPRL", "sb_fix_var_price_load"),
-        # ("FVPRLX", "sb_fix_var_price_lex"),
-        # ("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
-        # ("FVPRLLX", "sb_fix_var_price_vm_load_lex")
+        #("FVLPR","sb_fix_var_vm_load_price"),
+        #("LPRLX", "sb_load_price_lex"),
+        #("PRLLX", "sb_price_load_lex"),
+        #("FVPRL", "sb_fix_var_price_load"),
+        #("FVPRLX", "sb_fix_var_price_lex"),
+        ("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
+         #("FVPRLLX", "sb_fix_var_price_vm_load_lex")
     ]
 
     for offer in offers:
@@ -595,11 +595,11 @@ def start_tests(solver, repetion_number=1):
 
 def offers_prelucrari():
     offers = [
-        "../testInstances/offersLPAR2018/offers_20.json"
-        , "../testInstances/offersLPAR2018/offers_40.json",
+        #"../testInstances/offersLPAR2018/offers_20.json",
+        #"../testInstances/offersLPAR2018/offers_40.json",
         # ,  "../testInstances/offersLPAR2018/offers_100.json",
-        "../testInstances/offersLPAR2018/offers_250.json",
-        "../testInstances/offersLPAR2018/offers_500.json"
+        #"../testInstances/offersLPAR2018/offers_250.json",
+        #"../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     #total number of offers # precentaje uniques offers price
@@ -687,7 +687,7 @@ if __name__ == "__main__":
     #solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers()
     #solver = Z3_SolverInt_SB_Enc_FilteredOffers()
 
-    repetion_number = 3
+    repetion_number = 1
 
     #cplex_vars_prelucrari()
     start_tests(solver, repetion_number=repetion_number)

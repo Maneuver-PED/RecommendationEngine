@@ -100,11 +100,13 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1, sb_option=None):
 
 
 def agregate_tests(sourcePath, outputFileName):
-    solverZ3    = "Z3_SolverIntIntSymBreak"
-    solverCPLEX = "CPlex_SolverSymBreak"
+    solverZ3    = "Z3_SolverIntIntSymBreak_AllCombinationsOffers"
+    #solverCPLEX = "CPlex_SolverSymBreak"
     offers = ["offers_20", "offers_40", "offers_250", "offers_500"]
-    applications = ["Oryx 2", "SecureBillingEmail", "WebIntrusionDetection", "Wordpress3", "Wordpress4", "Wordpress5",
-                    "Wordpress6", "Wordpress7", "Wordpress8","Wordpress9","Wordpress10","Wordpress11","Wordpress12"]
+    applications = ["Oryx 2", "SecureBillingEmail", "WebIntrusionDetection",
+                    "Wordpress3", "Wordpress4", "Wordpress5",
+                    "Wordpress6", "Wordpress7", "Wordpress8","Wordpress9",
+                    "Wordpress10","Wordpress11","Wordpress12"]
     configurations = [
         "noSymBreaking",
         "FV", "L", "LX", "PR",
@@ -682,20 +684,22 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers import Z3_SolverInt_SB_Enc_AllCombinationsOffers
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_Enc_FilteredOffers import Z3_SolverInt_SB_Enc_FilteredOffers
 
-    solver = CPlex_Solver_SB_Enc_AllCombinationsOffers()
+    #solver = CPlex_Solver_SB_Enc_AllCombinationsOffers()
     #solver = CPlex_Solver_SB_Enc_FilteredOffers()
     #solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers()
     #solver = Z3_SolverInt_SB_Enc_FilteredOffers()
 
-    repetion_number = 1
+    #repetion_number = 1
 
     #cplex_vars_prelucrari()
-    start_tests(solver, repetion_number=repetion_number)
+
+    #start_tests(solver, repetion_number=repetion_number)
+
     #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_new")
     # params: (1) source path, destination filename
     # it does not work OK for me
-    # agregate_tests("Encoding_AllCombinationsOffers",
-    #                "agregate_Z3_SolverInt_SB_Enc_AllCombinationsOffers")
+    agregate_tests("Encoding_AllCombinationsOffers",
+                   "agregate_Z3_SolverInt_SB_Enc_AllCombinationsOffers")
     #agregate_tests_grafice("grafic_simple")
     #agregate_tests_tabel("tabel_simple.txt")
     #agregate_tests_tabel_offerencoding("tabel_cplex_table_load_new.txt")

@@ -1,0 +1,5 @@
+True,False,False,True,False,False,False,False,False,False,False,False,False,False
+Price min value,Price for each machine,Time
+0.882,"[0.21, 0.21, 0.21, 0.126, 0.126]",3.2428290843963623
+0.882,"[0.21, 0.21, 0.126, 0.21, 0.126]",3.3175857067108154
+0.882,"[0.126, 0.126, 0.21, 0.21, 0.21]",4.254456043243408

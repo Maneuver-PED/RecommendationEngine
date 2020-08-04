@@ -14,30 +14,28 @@ class CPlex_Solver_Parent(ManuverSolver):
         self.nr_comps = self.problem.nrComp
         self.offers_list = self.problem.offers_list
 
-
-        #TODO: testat diferite variante
-
         ### Option: default-s-b
         self.model = cpx.Model(name="Manuver Model")
         self.model.parameters.timelimit.set(2400.0)
         ### Option: reduce-set-lpmethod-default-s-b:
-        # self.model.parameters.preprocessing.reduce.set(1)
+        # http://www-eio.upc.es/lceio/manuals/cplex-11/html/refparameterscplex/refparameterscplex103.html#271905
+        #self.model.parameters.preprocessing.reduce.set(1)
         # print(self.model.parameters.lpmethod)
         # self.model.parameters.lpmethod =3
         # print(self.model.parameters.lpmethod)
         ### sym breaking options
         ### Option: 0 no-s-b
-        self.model.parameters.preprocessing.symmetry = 0
+        #self.model.parameters.preprocessing.symmetry = 0
         ### Option: 1 Exert a moderate level of symmetry breaking
         #self.model.parameters.preprocessing.symmetry = 1
         # ### Option: 2 Exert an aggressive level of symmetry breaking
-        # self.model.parameters.preprocessing.symmetry = 2
+        #self.model.parameters.preprocessing.symmetry = 2
         # ### Option: 3 Exert a very aggressive level of symmetry breaking
-        # self.model.parameters.preprocessing.symmetry = 3
+        #self.model.parameters.preprocessing.symmetry = 3
         # ### Option: 4 Exert a highly aggressive level of symmetry breaking
         #self.model.parameters.preprocessing.symmetry = 4
         # ### Option: 5 Exert an extremely aggressive level of symmetry breaking
-        # self.model.parameters.preprocessing.symmetry = 5
+        self.model.parameters.preprocessing.symmetry = 5
 
         #0-default CPX_ALG_AUTOMATIC
         #2-CPX_ALG_DUAL

@@ -2,7 +2,6 @@
 from maneuverRecomadEngine.problem.ProblemDefinition import ManeuverProblem
 import maneuverRecomadEngine.exactsolvers
 
-
 import os
 import csv
 import time
@@ -10,6 +9,7 @@ import logging
 import logging.config
 import json
 import numpy
+from os import path
 
 
 def read_available_configurations(fileConfigurations):
@@ -98,12 +98,30 @@ def runOnce(solver, mp, outFolderDetails, repetion_number=1, sb_option=None):
 
         csvfile.close()
 
+def parse_result_file(incsv, outfile, fileInfo):
+    print("File exists:" + str(path.exists(incsv)))
+    try:
+        with open(incsv, 'r') as csvfile:
+            freader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            firstRow = 1
+            values = set()
+            vtimes = []
+            for row in freader:
+                if firstRow < 3:
+                    firstRow += 1
+                    continue
+                values.add(row[0])
+                vtimes.append(float(row[2]))
+            fileInfo.extend([values, numpy.min(vtimes)])
+    except:
+        fileInfo.extend(["", ""])
+        print("file not found")
+    return outfile
 
-def agregate_tests(sourcePath, outputFileName):
-    solverZ3    = "Z3_SolverIntIntSymBreak_AllCombinationsOffers"
-    #solverCPLEX = "CPlex_SolverSymBreak"
+
+def agregate_tests(solverName, sourcePath, outputFileName):
     offers = ["offers_20", "offers_40", "offers_250", "offers_500"]
-    applications = ["Oryx 2", "SecureBillingEmail", "WebIntrusionDetection",
+    applications = ["Oryx 2", "SecureBillingEmail", "SecureWebContainer",
                     "Wordpress3", "Wordpress4", "Wordpress5",
                     "Wordpress6", "Wordpress7", "Wordpress8","Wordpress9",
                     "Wordpress10","Wordpress11","Wordpress12"]
@@ -112,7 +130,15 @@ def agregate_tests(sourcePath, outputFileName):
         "FV", "L", "LX", "PR",
         "FVL", "FVLX", "FVPR", "LLX", "LPR", "PRL", "PRLX",
         "FVLLX", "FVLPR", "LPRLX", "PRLLX", "FVPRL", "FVPRLX",
-        "FVLPRLX", "FVPRLLX"]
+        "FVLPRLX", "FVPRLLX"
+    ]
+
+    if "Z3" in solver:
+        suffix = [""]
+    else:
+        # this is needed because we tested CPLEX with different strategies of sb
+        suffix = ["-default-s-b", "-no-s-b", "-reduce-set-lpmethod-default-s-b",
+                  "-s-b-opt-1", "-s-b-opt-2", "-s-b-opt-3", "-s-b-opt-4", "-s-b-opt-5"]
 
     firstLine = ["strategy"]
     secondLine = [""]
@@ -127,7 +153,7 @@ def agregate_tests(sourcePath, outputFileName):
             else:
                 firstLine.extend(["", ""])
             secondLine.extend([offer, ""])
-            thirdLine.extend(["Value", "Min"])
+            thirdLine.extend(["Min Value", "Time (secs)"])
 
     with open("../journal/" + outputFileName + ".csv", 'w', newline='') as csvfile:
         print("../journal/" + outputFileName + ".csv")
@@ -135,38 +161,31 @@ def agregate_tests(sourcePath, outputFileName):
         outfile.writerow(firstLine)
         outfile.writerow(secondLine)
         outfile.writerow(thirdLine)
-        for configuration in configurations:
-            fileInfo = [configuration]
-            for application in applications:
-                for offer in offers:
-                    # if ("price_offerOld" == configuration):
-                    #     incsv = "../journal/" + configuration + "/output_" + "Z3_SolverIntIntSymBreak" + "/csv/" + application + "-" + offer + ".csv"
-                    # else:
-                    incsv = "../journal/" + sourcePath + "/" + configuration + "/output_" + solverZ3 + "/csv/"\
-                            + application + "-" + offer + ".csv"
-                    print(incsv)
-                    try:
-                        with open(incsv, 'r') as csvfile:
-                            freader = csv.reader(csvfile, delimiter=',', quotechar='"')
-                            firstRow = 1
-                            values = set()
-                            vtimes = []
-                            for row in freader:
-                                if firstRow < 3:
-                                    firstRow += 1
-                                    continue
-                                values.add(row[0])
-                                vtimes.append(float(row[2]))
 
-                            fileInfo.extend([values, numpy.min(vtimes)])
-                    except:
-                        fileInfo.extend(["", ""])
-                        print("file not found")
-            outfile.writerow(fileInfo)
+        for configuration in configurations:
+            if "noSymBreaking" in configuration:
+                for s in suffix:
+                    fileInfo = [configuration+s]
+                    for application in applications:
+                        for offer in offers:
+                            incsv = "../journal/" + sourcePath + "/" + configuration + \
+                                    "/output_" + solver + s + "/csv/" + application + "-" + offer + ".csv"
+                            print("incsv ", incsv)
+                            parse_result_file(incsv, outfile, fileInfo)
+                    outfile.writerow(fileInfo)
+            else:
+                fileInfo = [configuration]
+                for application in applications:
+                    for offer in offers:
+                        incsv = "../journal/" + sourcePath + "/" + configuration + "/output_" + solver + \
+                                "/csv/" + application + "-" + offer + ".csv"
+                        print("incsv ", incsv)
+                        parse_result_file(incsv, outfile, fileInfo)
+                outfile.writerow(fileInfo)
 
 def agregate_tests_grafice(outputFileName):
     offers = ["offers_20", "offers_40", "offers_100", "offers_250", "offers_500"]
-    applications = ["Oryx 2", "SecureBillingEmail", "WebIntrusionDetection", "Wordpress3", "Wordpress4", "Wordpress5",
+    applications = ["Oryx 2", "SecureBillingEmail", "SecureWebContainer", "Wordpress3", "Wordpress4", "Wordpress5",
                     "Wordpress6", "Wordpress7", "Wordpress8"]
     solvers = ["Z3_SolverIntIntSymBreak", "CPlex_SolverSymBreak"]
 
@@ -269,7 +288,7 @@ def agregate_tests_tabel(outputFileName):
               #"offers_100",
               "offers_250", "offers_500"]
     applications = [("Oryx 2", "Oryx2"), ("SecureBillingEmail", "Sec. Billing Email"),
-                    ("WebIntrusionDetection", "Sec. Web Container"),
+                    ("SecureWebContainer", "Sec. Web Container"),
                     ("Wordpress3", "Wordpress min#inst=3"), ("Wordpress4", "Wordpress min#inst=4"),
                     ("Wordpress5", "Wordpress min#inst=5"),
                     ("Wordpress6", "Wordpress min#inst=6"), ("Wordpress7", "Wordpress min#inst=7"),
@@ -380,7 +399,7 @@ def agregate_tests_tabel_offerencoding(outputFileName):
               "offers_250",
               "offers_500"
               ]
-    applications = [("Oryx 2", "Oryx2"), ("SecureBillingEmail","Sec. Billing Email"), ("WebIntrusionDetection", "Sec. Web Container"),
+    applications = [("Oryx 2", "Oryx2"), ("SecureBillingEmail","Sec. Billing Email"), ("SecureWebContainer", "Sec. Web Container"),
                     ("Wordpress3", "Wordpress min#inst=3"), ("Wordpress4", "Wordpress min#inst=4"), ("Wordpress5", "Wordpress min#inst=5"),
                     ("Wordpress6", "Wordpress min#inst=6"), ("Wordpress7", "Wordpress min#inst=7"), ("Wordpress8", "Wordpress min#inst=8"),
                     ("Wordpress9", "Wordpress min#inst=9"),("Wordpress10", "Wordpress min#inst=10"),("Wordpress11", "Wordpress min#inst=11"),
@@ -534,26 +553,26 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = [
-        #"../testInstances/offersLPAR2018/offers_20.json",
-        #"../testInstances/offersLPAR2018/offers_40.json",
-       #  # # "../testInstances/offersLPAR2018/offers_100.json",
-      #"../testInstances/offersLPAR2018/offers_250.json",
-       "../testInstances/offersLPAR2018/offers_500.json"
+     #"../testInstances/offersLPAR2018/offers_20.json",
+     # "../testInstances/offersLPAR2018/offers_40.json",
+     ##   "../testInstances/offersLPAR2018/offers_100.json",
+    #"../testInstances/offersLPAR2018/offers_250.json",
+    "../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
-        "../testInstances/Oryx2.json",
-        "../testInstances/SecureBillingEmail.json",
-        "../testInstances/SecureWebContainer.json",
+       #  "../testInstances/Oryx2.json",
+       #  "../testInstances/SecureBillingEmail.json",
+       #  "../testInstances/SecureWebContainer.json",
        # "../testInstances/Wordpress3.json",
-       # "../testInstances/Wordpress4.json",
-        #  "../testInstances/Wordpress5.json",
-        # "../testInstances/Wordpress6.json",
-       #  "../testInstances/Wordpress7.json",
-       #   "../testInstances/Wordpress8.json",
+       #  "../testInstances/Wordpress4.json",
+         "../testInstances/Wordpress5.json",
+       #   "../testInstances/Wordpress6.json",
+       #    "../testInstances/Wordpress7.json",
+       #    "../testInstances/Wordpress8.json",
        #   "../testInstances/Wordpress9.json",
-       #  "../testInstances/Wordpress10.json",
-       #  "../testInstances/Wordpress11.json",
+       #   "../testInstances/Wordpress10.json",
+       # "../testInstances/Wordpress11.json",
        #  "../testInstances/Wordpress12.json"
     ]
 
@@ -565,7 +584,7 @@ def start_tests(solver, repetion_number=1):
     # self.sb_lex_col_binary = True if "sb_lex_col_binary" == sb_option else False
 
     configurations = [
-        #("noSymBreaking", None),
+        ("noSymBreaking", None),
         #("FV", "sb_fix_var"),
         #("L", "sb_vm_load"),
         #("LX", "sb_lex"),
@@ -577,14 +596,14 @@ def start_tests(solver, repetion_number=1):
         #("LPR", "sb_load_price"),
         #("PRL", "sb_price_load"),
         #("PRLX","sb_price_lex"),
-        # ("FVLLX", "sb_fix_var_vm_load_lex"),
+        #  ("FVLLX", "sb_fix_var_vm_load_lex"),
         #("FVLPR","sb_fix_var_vm_load_price"),
-        #("LPRLX", "sb_load_price_lex"),
-        #("PRLLX", "sb_price_load_lex"),
-        #("FVPRL", "sb_fix_var_price_load"),
-        #("FVPRLX", "sb_fix_var_price_lex"),
-        ("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
-         #("FVPRLLX", "sb_fix_var_price_vm_load_lex")
+        # ("LPRLX", "sb_load_price_lex"),
+        # ("PRLLX", "sb_price_load_lex"),
+        # ("FVPRL", "sb_fix_var_price_load"),
+        # ("FVPRLX", "sb_fix_var_price_lex"),
+        # ("FVLPRLX", "sb_fix_var_vm_load_price_lex"),
+        #("FVPRLLX", "sb_fix_var_price_vm_load_lex")
     ]
 
     for offer in offers:
@@ -621,7 +640,7 @@ def cplex_vars_prelucrari():
               "offers_500"
               ]
     applications = [("Oryx 2", "Oryx2"), ("SecureBillingEmail", "Sec. Billing Email"),
-                    ("WebIntrusionDetection", "Sec. Web Container"),
+                    ("SecureWebContainer", "Sec. Web Container"),
                     ("Wordpress3", "Wordpress min#inst=3"), ("Wordpress4", "Wordpress min#inst=4"),
                     ("Wordpress5", "Wordpress min#inst=5"),
                     ("Wordpress6", "Wordpress min#inst=6"), ("Wordpress7", "Wordpress min#inst=7"),
@@ -685,21 +704,41 @@ if __name__ == "__main__":
     from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_Enc_FilteredOffers import Z3_SolverInt_SB_Enc_FilteredOffers
 
     #solver = CPlex_Solver_SB_Enc_AllCombinationsOffers()
-    #solver = CPlex_Solver_SB_Enc_FilteredOffers()
+    solver = CPlex_Solver_SB_Enc_FilteredOffers()
     #solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers()
     #solver = Z3_SolverInt_SB_Enc_FilteredOffers()
 
-    #repetion_number = 1
+    repetion_number = 1
 
     #cplex_vars_prelucrari()
 
     #start_tests(solver, repetion_number=repetion_number)
 
-    #agregate_tests("CPlex_SolverSymBreak", "agregate_Cplex_new")
-    # params: (1) source path, destination filename
-    # it does not work OK for me
-    agregate_tests("Encoding_AllCombinationsOffers",
-                   "agregate_Z3_SolverInt_SB_Enc_AllCombinationsOffers")
+    # Agregate results
+    # Agregate results: Z3-all_comb_offers_enc
+    # solver    = "Z3_SolverInt_SB_Enc_AllCombinationsOffers"
+    # sourcePath = "Encoding_AllCombinationsOffers"
+    # destinationFilename = "agregate_Z3_SolverInt_SB_Enc_AllCombinationsOffers"
+    # agregate_tests(solver, sourcePath, destinationFilename)
+
+    #Agregate results: Z3-filtered_offers_enc
+    solver    = "Z3_SolverInt_SB_Enc_FilteredOffers"
+    sourcePath = "Encoding_FilteredOffers"
+    destinationFilename = "agregate_Z3_SolverInt_SB_Enc_FilteredOffers"
+    agregate_tests(solver, sourcePath, destinationFilename)
+
+    #Agregate results: CPLEX-all_comb_offers_enc
+    # solver    = "CPlex_Solver_SB_Enc_AllCombinationsOffers"
+    # sourcePath = "Encoding_AllCombinationsOffers"
+    # destinationFilename = "agregate_CPlex_Solver_SB_Enc_AllCombinationsOffers"
+    # agregate_tests(solver, sourcePath, destinationFilename)
+
+    # Agregate results: CPLEX-filtered_offers_enc
+    # solver    = "CPlex_Solver_SB_Enc_FilteredOffers"
+    # sourcePath = "Encoding_FilteredOffers"
+    # destinationFilename = "agregate_CPlex_Solver_SB_Enc_Encoding_FilteredOffers"
+    # agregate_tests(solver, sourcePath, destinationFilename)
+
     #agregate_tests_grafice("grafic_simple")
     #agregate_tests_tabel("tabel_simple.txt")
     #agregate_tests_tabel_offerencoding("tabel_cplex_table_load_new.txt")

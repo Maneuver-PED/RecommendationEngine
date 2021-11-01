@@ -23,12 +23,12 @@ class Z3_Solver_Int_Parent_ILP(ManuverSolver):#ManeuverProblem):
         self._defineVariablesAndConstraints()
 
     def _defineVariablesAndConstraints(self):
-        # VM usage vector vm in {0, 1}, k = 1..M; vm_k = 1 if at least one component is assigned to vm_k.
-        #self.vm = {}
-        # Assignment matrix a_{alpha,k}: 1 if component alpha is on machine k, 0 otherwise
+        # VM usage vector v in {0, 1}, v_{jk}: j-VM, k-VMType
+        self.v = {}
+        # Assignment matrix a_{ijk}: i-component, j-VM, k-VMType
         self.a = {}
         # VMType  - type of a leased VM
-        self.VMType = {}
+        #self.VMType = {}
 
     def RestrictionLexBinaryNumber(self):
         """
@@ -47,7 +47,6 @@ class Z3_Solver_Int_Parent_ILP(ManuverSolver):#ManeuverProblem):
             self.solver.add(
                 sum([self.a[list_comps[i] * self.nrVM + vm_id] * (2 ** (n - i)) for i in range(len(list_comps))]) >=
                 sum([self.a[list_comps[i] * self.nrVM + vm_id + 1] * (2 ** (n - i)) for i in range(len(list_comps))]))
-
 
     def RestrictionLex(self, vm_id, additional_constraints=[]):
         """
@@ -436,7 +435,12 @@ class Z3_Solver_Int_Parent_ILP(ManuverSolver):#ManeuverProblem):
         print("solverTypeOptimize:", self.solverTypeOptimize)
 
         if self.solverTypeOptimize:
-            opt = sum(self.PriceProv)
+            #opt = sum(self.PriceProv)
+            #for m in range(self.nrOffers):
+            opt = Product(([self.PriceProv[o]*sum([self.v[m + o*self.nrVM] for m in range(self.nrVM)]) for o in range(self.nrOffers) ]))
+            #opt = sum([self.v[i] for i in range(self.nrVM)])
+            print("opt", opt)
+
             min = self.solver.minimize(opt)
         self.createSMT2LIBFile(self.smt2lib)
 
@@ -467,16 +471,16 @@ class Z3_Solver_Int_Parent_ILP(ManuverSolver):#ManeuverProblem):
                     l.append(model[self.a[i * self.nrVM + k]])
                 a_mat.append(l)
                 print(l)
-            #print("Price for each machine")
-            vms_price = []
-            for k in range(self.nrVM):
-                vms_price.append(self.convert_price(model[self.PriceProv[k]]))
-            #print(vms_price)
-            #print("Type for each machine")
-            vms_type = []
-            for k in range(self.nrVM):
-                vms_type.append(model[self.vmType[k]])
-            #print(vms_type)
+            print("Price for each machine: TODO")
+            # vms_price = []
+            # for k in range(self.nrVM):
+            #     vms_price.append(self.convert_price(model[self.PriceProv[k]]))
+            # print(vms_price)
+            # print("Type for each machine")
+            # vms_type = []
+            # for k in range(self.nrVM):
+            #     vms_type.append(model[self.vmType[k]])
+            # print(vms_type)
         else:
             print("UNSAT")
         if self.solverTypeOptimize:
@@ -484,7 +488,9 @@ class Z3_Solver_Int_Parent_ILP(ManuverSolver):#ManeuverProblem):
                 #print("a_mat", a_mat)
                 self.createSMT2LIBFileSolution(self.smt2libsol, status, model)
                 # do not return min.value() since the type is not comparable with -1 in the exposeRE
-                return self.convert_price(min.value()), vms_price, stoptime - startime, a_mat, vms_type
+                # return self.convert_price(min.value()), vms_price, stoptime - startime, a_mat, vms_type
+                return self.convert_price(min.value()), [], stoptime - startime, a_mat, -1
+
             else:
                 # unsat
                 return -1, None, None, None, None

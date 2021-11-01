@@ -1,8 +1,8 @@
 from z3 import *
-from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3 import Z3_Solver_Int_Parent
+from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_ILP import Z3_Solver_Int_Parent_ILP
 
 
-class Z3_SolverIntIntInt(Z3_Solver_Int_Parent):#ManeuverProblem):
+class Z3_SolverIntIntInt(Z3_Solver_Int_Parent_ILP):#ManeuverProblem):
 
 
     def _defineVariablesAndConstraints(self):

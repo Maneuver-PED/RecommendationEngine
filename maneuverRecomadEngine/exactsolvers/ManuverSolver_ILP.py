@@ -1,7 +1,7 @@
 from maneuverRecomadEngine.restrictions.RestrictionHardware import RestrictionHardware
 from datetime import datetime
 
-class ManuverSolver(object):
+class ManuverSolver_ILP(object):
 
     def init_problem(self, problem, solver_type,
                      default_offers_encoding=True,

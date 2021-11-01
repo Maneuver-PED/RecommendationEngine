@@ -1,6 +1,6 @@
 # from maneuverRecomadEngine.exactsolvers.CP_Pulp import CP_Solver_Pulp
 from maneuverRecomadEngine.problem.ProblemDefinition import ManeuverProblem
-import maneuverRecomadEngine.exactsolvers
+import maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers_ILP
 
 import os
 import csv
@@ -553,20 +553,21 @@ def agregate_tests_tabel_offerencoding(outputFileName):
 
 def start_tests(solver, repetion_number=1):
     offers = [
+        "../testInstances/offersICCP2018/offers_4.json"
      #"../testInstances/offersLPAR2018/offers_20.json",
      # "../testInstances/offersLPAR2018/offers_40.json",
      ##   "../testInstances/offersLPAR2018/offers_100.json",
     #"../testInstances/offersLPAR2018/offers_250.json",
-    "../testInstances/offersLPAR2018/offers_500.json"
+    #"../testInstances/offersLPAR2018/offers_500.json"
     ]
 
     test_files = [
        #  "../testInstances/Oryx2.json",
-       #  "../testInstances/SecureBillingEmail.json",
+         "../testInstances/SecureBillingEmail.json",
        #  "../testInstances/SecureWebContainer.json",
        # "../testInstances/Wordpress3.json",
        #  "../testInstances/Wordpress4.json",
-         "../testInstances/Wordpress5.json",
+       #  "../testInstances/Wordpress5.json",
        #   "../testInstances/Wordpress6.json",
        #    "../testInstances/Wordpress7.json",
        #    "../testInstances/Wordpress8.json",
@@ -698,21 +699,22 @@ if __name__ == "__main__":
 
     #offers_prelucrari()
 
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_AllCombinationsOffers import CPlex_Solver_SB_Enc_AllCombinationsOffers
-    from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_FilteredOffers import CPlex_Solver_SB_Enc_FilteredOffers
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers import Z3_SolverInt_SB_Enc_AllCombinationsOffers
-    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_Enc_FilteredOffers import Z3_SolverInt_SB_Enc_FilteredOffers
-
+    # from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_AllCombinationsOffers import CPlex_Solver_SB_Enc_AllCombinationsOffers
+    # from maneuverRecomadEngine.exactsolvers.CP_CPLEX_Solver_Enc_FilteredOffers import CPlex_Solver_SB_Enc_FilteredOffers
+    # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers import Z3_SolverInt_SB_Enc_AllCombinationsOffers
+    # from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_Enc_FilteredOffers import Z3_SolverInt_SB_Enc_FilteredOffers
+    from maneuverRecomadEngine.exactsolvers.SMT_Solver_Z3_Int_SB_AllCombinationsOffers_ILP import Z3_SolverInt_SB_Enc_AllCombinationsOffers_ILP
     #solver = CPlex_Solver_SB_Enc_AllCombinationsOffers()
-    solver = CPlex_Solver_SB_Enc_FilteredOffers()
+    #solver = CPlex_Solver_SB_Enc_FilteredOffers()
     #solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers()
     #solver = Z3_SolverInt_SB_Enc_FilteredOffers()
+    solver = Z3_SolverInt_SB_Enc_AllCombinationsOffers_ILP()
 
     repetion_number = 1
 
     #cplex_vars_prelucrari()
 
-    #start_tests(solver, repetion_number=repetion_number)
+    start_tests(solver, repetion_number=repetion_number)
 
     # Agregate results
     # Agregate results: Z3-all_comb_offers_enc
@@ -722,10 +724,10 @@ if __name__ == "__main__":
     # agregate_tests(solver, sourcePath, destinationFilename)
 
     #Agregate results: Z3-filtered_offers_enc
-    solver    = "Z3_SolverInt_SB_Enc_FilteredOffers"
-    sourcePath = "Encoding_FilteredOffers"
-    destinationFilename = "agregate_Z3_SolverInt_SB_Enc_FilteredOffers"
-    agregate_tests(solver, sourcePath, destinationFilename)
+    # solver    = "Z3_SolverInt_SB_Enc_FilteredOffers"
+    # sourcePath = "Encoding_FilteredOffers"
+    # destinationFilename = "agregate_Z3_SolverInt_SB_Enc_FilteredOffers"
+    # agregate_tests(solver, sourcePath, destinationFilename)
 
     #Agregate results: CPLEX-all_comb_offers_enc
     # solver    = "CPlex_Solver_SB_Enc_AllCombinationsOffers"
